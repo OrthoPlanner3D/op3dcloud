@@ -48,8 +48,8 @@ export function LoginForm({
 							<span className="sr-only">OP3DCloud.</span>
 						</a>
 						<h1 className="text-xl font-bold">Bienvenido a OP3D&trade;.</h1>
-						<div className="text-center text-sm">
-							No tenés una cuenta?{" "}
+						<div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
+							No tenés una cuenta? Todo empieza con una buena planificación.{" "}
 							<Link to="/registro" className="underline underline-offset-4">
 								Registrate
 							</Link>

@@ -160,8 +160,13 @@ export default function Register() {
 	return (
 		<div className="relative min-h-screen flex items-center justify-center">
 			<div className="max-w-xl w-full mx-auto grid grid-rows-12 min-h-[850px] px-4">
-				<div className="row-span-2 flex items-center justify-center">
+				<div className="row-span-2 flex flex-col items-center justify-center gap-4">
 					<BrandLogo className="size-20" />
+					<div className="text-center">
+						<p className="text-sm font-light text-muted-foreground tracking-wide">
+							Diseñado para simplificar. Pensado para resolver
+						</p>
+					</div>
 				</div>
 
 				<Stepper
@@ -257,11 +262,11 @@ function Step1({
 }) {
 	return (
 		<>
-			<p className="text-center text-xs text-muted-foreground">
+			<p className="text-center text-xs text-muted-foreground italic">
 				Queremos conocerte.
 			</p>
-			<div className="grid grid-cols-12 gap-4">
-				<div className="col-span-6">
+			<div className="grid grid-cols-12 gap-y-8 sm:gap-y-0 sm:gap-x-4">
+				<div className="col-span-12 sm:col-span-6">
 					<FormField
 						control={form.control}
 						name="name"
@@ -278,7 +283,7 @@ function Step1({
 					/>
 				</div>
 
-				<div className="col-span-6">
+				<div className="col-span-12 sm:col-span-6">
 					<FormField
 						control={form.control}
 						name="last_name"
@@ -296,8 +301,8 @@ function Step1({
 				</div>
 			</div>
 
-			<div className="grid grid-cols-12 gap-4">
-				<div className="col-span-6">
+			<div className="grid grid-cols-12 gap-y-8 sm:gap-y-0 sm:gap-x-4">
+				<div className="col-span-12 sm:col-span-6">
 					<FormField
 						control={form.control}
 						name="email"
@@ -323,7 +328,7 @@ function Step1({
 						)}
 					/>
 				</div>
-				<div className="col-span-6">
+				<div className="col-span-12 sm:col-span-6">
 					<FormField
 						control={form.control}
 						name="confirmEmail"
@@ -391,8 +396,8 @@ function Step1({
 				)}
 			/>
 
-			<div className="grid grid-cols-12 gap-4">
-				<div className="col-span-6">
+			<div className="grid grid-cols-12 gap-y-8 sm:gap-y-0 sm:gap-x-4">
+				<div className="col-span-12 sm:col-span-6">
 					<FormField
 						control={form.control}
 						name="phone"
@@ -409,7 +414,7 @@ function Step1({
 					/>
 				</div>
 
-				<div className="col-span-6">
+				<div className="col-span-12 sm:col-span-6">
 					<FormField
 						control={form.control}
 						name="country"
@@ -482,7 +487,7 @@ function Step1({
 function Step2({ form }: { form: FieldValues }) {
 	return (
 		<>
-			<p className="text-center text-xs text-muted-foreground">
+			<p className="text-center text-xs text-muted-foreground italic">
 				Tu marca, presente en cada informe.
 			</p>
 			<FormField
@@ -506,7 +511,7 @@ function Step2({ form }: { form: FieldValues }) {
 function Step3({ form }: { form: FieldValues }) {
 	return (
 		<>
-			<p className="text-center text-xs text-muted-foreground">
+			<p className="text-center text-xs text-muted-foreground italic">
 				Personalizamos cada planificación.
 			</p>
 			<FormField
@@ -580,7 +585,7 @@ function Step4({
 }) {
 	return (
 		<>
-			<p className="text-center text-xs text-muted-foreground">
+			<p className="text-center text-xs text-muted-foreground italic">
 				Adaptamos el flujo a tu forma de trabajar.
 			</p>
 			<FormField
