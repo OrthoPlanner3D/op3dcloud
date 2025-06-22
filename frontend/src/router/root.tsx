@@ -1,13 +1,23 @@
 import { Navigate, createBrowserRouter } from "react-router";
 import PrivateGuard from "./guards/PrivateGuard";
 import PublicGuard from "./guards/PublicGuard";
+import Register from "@/pages/register";
+import SignIn from "@/pages/sign-in";
 
 const router = createBrowserRouter([
 	{
-		path: "/login",
+		path: "/registro",
 		element: (
 			<PublicGuard>
-				<h1>Login</h1>
+				<Register />
+			</PublicGuard>
+		),
+	},
+	{
+		path: "/inicia-sesion",
+		element: (
+			<PublicGuard>
+				<SignIn />
 			</PublicGuard>
 		),
 	},
@@ -31,7 +41,7 @@ const router = createBrowserRouter([
 	},
 	{
 		path: "*",
-		element: <Navigate to="/login" />,
+		element: <Navigate to="/registro" />,
 	},
 ]);
 

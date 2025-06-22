@@ -12,6 +12,6 @@ export default function PrivateGuard({ children }: Props): React.ReactNode {
 	return user != null ? (
 		<PrivateLayout>{children}</PrivateLayout>
 	) : (
-		<Navigate to="/login" replace />
+		<Navigate to="/registro" replace />
 	);
 }
