@@ -3,6 +3,7 @@ import PrivateGuard from "./guards/PrivateGuard";
 import PublicGuard from "./guards/PublicGuard";
 import Register from "@/pages/register";
 import SignIn from "@/pages/sign-in";
+import Home from "@/pages/home";
 
 const router = createBrowserRouter([
 	{
@@ -25,7 +26,7 @@ const router = createBrowserRouter([
 		path: "/",
 		element: (
 			<PrivateGuard>
-				<h1>Home</h1>
+				<Home />
 			</PrivateGuard>
 		),
 	},

@@ -6,6 +6,7 @@ import { Link } from "react-router";
 import BrandLogo from "./ui/brandLogo";
 import { useForm } from "react-hook-form";
 import { supabase } from "@/config/supabase.config";
+import { useUserStore } from "@/state/stores/useUserStore";
 
 interface ILoginForm {
 	email: string;
@@ -17,6 +18,7 @@ export function LoginForm({
 	...props
 }: React.ComponentProps<"div">) {
 	const { register, handleSubmit } = useForm<ILoginForm>();
+	const setUser = useUserStore((state) => state.setUser);
 
 	async function onSubmit(data: ILoginForm) {
 		const { data: userData, error } = await supabase.auth.signInWithPassword({
@@ -28,7 +30,11 @@ export function LoginForm({
 			console.error("Error al iniciar sesión", error.message);
 		}
 
-		console.log(userData);
+		setUser({
+			id: userData?.user?.id ?? "",
+			email: userData?.user?.email ?? "",
+			username: `${userData?.user?.user_metadata.name ?? ""} ${userData?.user?.user_metadata.last_name ?? ""}`,
+		});
 	}
 
 	return (

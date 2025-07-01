@@ -28,6 +28,7 @@ import { useForm, type FieldValues } from "react-hook-form";
 import BrandLogo from "@/components/ui/brandLogo";
 import { supabase } from "@/config/supabase.config";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { useNavigate } from "react-router";
 
 const steps = [1, 2, 3, 4];
 
@@ -57,6 +58,7 @@ export default function Register() {
 		useState(false);
 	const [showHowDidYouMeetUsOther, setShowHowDidYouMeetUsOther] =
 		useState(false);
+	const navigate = useNavigate();
 	const form = useForm({
 		defaultValues: {
 			name: "",
@@ -147,11 +149,17 @@ export default function Register() {
 		console.log(data);
 	}
 
-	function onSubmit(values: IUser) {
+	async function onSubmit(values: IUser) {
 		try {
 			console.log("Enviando...");
 			console.log(values);
-			createUser(values);
+			await createUser(values);
+
+			navigate("/inicia-sesion", {
+				state: {
+					message: "Registro exitoso, inicia sesión para continuar",
+				}
+			});
 		} catch (error) {
 			console.error("Form submission error", error);
 		}
