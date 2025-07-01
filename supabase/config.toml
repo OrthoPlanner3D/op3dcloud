@@ -50,6 +50,7 @@ max_client_conn = 100
 # Supports glob patterns relative to supabase directory: "./schemas/*.sql"
 schema_paths = [
     "./schemas/schema_op3dcloud.sql",
+    "./schemas/table_patients.sql",
 ]
 
 [db.seed]
