@@ -13,4 +13,10 @@ create table op3dcloud.patients (
   sworn_declaration boolean not null default false,
   created_at timestamp with time zone not null default now(),
   constraint patients_pkey primary key (id)
-) TABLESPACE pg_default;
+);
+
+create policy "CRUD"
+on op3dcloud.patients for all
+to authenticated
+using(true)
+with check (true);

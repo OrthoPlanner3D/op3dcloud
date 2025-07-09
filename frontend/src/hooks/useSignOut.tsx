@@ -1,8 +1,8 @@
+import { useNavigate } from "react-router";
 import { DataBaseError } from "@/errors/dataBaseError";
 import { UnknowError } from "@/errors/unknownError";
 import { signOutUser } from "@/services/supabase/auth.service";
 import { useUserStore } from "@/state/stores/useUserStore";
-import { useNavigate } from "react-router";
 
 export const useSignOut = () => {
 	const removeUser = useUserStore((state) => state.removeUser);

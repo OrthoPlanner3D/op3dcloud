@@ -1,11 +1,14 @@
-import { Navigate, createBrowserRouter } from "react-router";
-import PrivateGuard from "./guards/PrivateGuard";
-import PublicGuard from "./guards/PublicGuard";
+import { createBrowserRouter, Navigate, Outlet } from "react-router";
+import Home from "@/pages/home";
+import Patients from "@/pages/patient";
+import CreatePatient from "@/pages/patient/create";
 import Register from "@/pages/register";
 import SignIn from "@/pages/sign-in";
-import Home from "@/pages/home";
+import PrivateGuard from "./guards/PrivateGuard";
+import PublicGuard from "./guards/PublicGuard";
 
 const router = createBrowserRouter([
+	// Public routes
 	{
 		path: "/registro",
 		element: (
@@ -22,13 +25,33 @@ const router = createBrowserRouter([
 			</PublicGuard>
 		),
 	},
+	// Private routes for clients
 	{
 		path: "/",
 		element: (
 			<PrivateGuard>
-				<Home />
+				<Outlet />
 			</PrivateGuard>
 		),
+		children: [
+			{
+				index: true,
+				element: <Home />,
+			},
+			{
+				path: "pacientes",
+				children: [
+					{
+						index: true,
+						element: <Patients />,
+					},
+					{
+						path: "crear",
+						element: <CreatePatient />,
+					},
+				],
+			},
+		],
 	},
 	{
 		path: "/auth/callback",
@@ -42,7 +65,7 @@ const router = createBrowserRouter([
 	},
 	{
 		path: "*",
-		element: <Navigate to="/registro" />,
+		element: <Navigate to="/inicia-sesion" />,
 	},
 ]);
 

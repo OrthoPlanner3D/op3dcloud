@@ -1,12 +1,9 @@
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
+import { type FieldValues, useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
+import BrandLogo from "@/components/ui/brandLogo";
 import { Button } from "@/components/ui/button";
-import {
-	Stepper,
-	StepperIndicator,
-	StepperItem,
-	StepperSeparator,
-	StepperTrigger,
-} from "@/components/ui/stepper";
 import {
 	Form,
 	FormControl,
@@ -24,11 +21,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { useForm, type FieldValues } from "react-hook-form";
-import BrandLogo from "@/components/ui/brandLogo";
+import {
+	Stepper,
+	StepperIndicator,
+	StepperItem,
+	StepperSeparator,
+	StepperTrigger,
+} from "@/components/ui/stepper";
 import { supabase } from "@/config/supabase.config";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { useNavigate } from "react-router";
 
 const steps = [1, 2, 3, 4];
 
@@ -49,6 +49,8 @@ interface IUser {
 	work_modality: string;
 	reports_language: string;
 	how_did_you_meet_us: string;
+	credits: number;
+	status: string;
 }
 
 export default function Register() {
@@ -77,6 +79,8 @@ export default function Register() {
 			work_modality: "",
 			reports_language: "",
 			how_did_you_meet_us: "",
+			credits: 0,
+			status: "Active",
 		},
 	});
 
@@ -132,8 +136,10 @@ export default function Register() {
 					entity: user.entity,
 					user_type: user.user_type,
 					logo: user.logo,
-					experience_in_digital_planning: user.experience_in_digital_planning,
-					digital_model_zocalo_height: user.digital_model_zocalo_height,
+					experience_in_digital_planning:
+						user.experience_in_digital_planning,
+					digital_model_zocalo_height:
+						user.digital_model_zocalo_height,
 					treatment_approach: user.treatment_approach,
 					work_modality: user.work_modality,
 					reports_language: user.reports_language,
@@ -158,7 +164,7 @@ export default function Register() {
 			navigate("/inicia-sesion", {
 				state: {
 					message: "Registro exitoso, inicia sesión para continuar",
-				}
+				},
 			});
 		} catch (error) {
 			console.error("Form submission error", error);
@@ -183,7 +189,11 @@ export default function Register() {
 					className="row-span-1"
 				>
 					{steps.map((step) => (
-						<StepperItem key={step} step={step} className="not-last:flex-1">
+						<StepperItem
+							key={step}
+							step={step}
+							className="not-last:flex-1"
+						>
 							<StepperTrigger asChild>
 								<StepperIndicator />
 							</StepperTrigger>
@@ -210,10 +220,18 @@ export default function Register() {
 							{currentStep === 4 && (
 								<Step4
 									form={form}
-									showReportsLanguageOther={showReportsLanguageOther}
-									setShowReportsLanguageOther={setShowReportsLanguageOther}
-									showHowDidYouMeetUsOther={showHowDidYouMeetUsOther}
-									setShowHowDidYouMeetUsOther={setShowHowDidYouMeetUsOther}
+									showReportsLanguageOther={
+										showReportsLanguageOther
+									}
+									setShowReportsLanguageOther={
+										setShowReportsLanguageOther
+									}
+									showHowDidYouMeetUsOther={
+										showHowDidYouMeetUsOther
+									}
+									setShowHowDidYouMeetUsOther={
+										setShowHowDidYouMeetUsOther
+									}
 								/>
 							)}
 						</form>
@@ -230,7 +248,11 @@ export default function Register() {
 						Anterior
 					</Button>
 					{currentStep === 1 && (
-						<Button variant="outline" className="w-32" onClick={validateStep1}>
+						<Button
+							variant="outline"
+							className="w-32"
+							onClick={validateStep1}
+						>
 							Siguiente
 						</Button>
 					)}
@@ -244,12 +266,20 @@ export default function Register() {
 						</Button>
 					)}
 					{currentStep === 3 && (
-						<Button variant="outline" className="w-32" onClick={validateStep3}>
+						<Button
+							variant="outline"
+							className="w-32"
+							onClick={validateStep3}
+						>
 							Siguiente
 						</Button>
 					)}
 					{currentStep === 4 && (
-						<Button variant="default" className="w-32" onClick={validateStep4}>
+						<Button
+							variant="default"
+							className="w-32"
+							onClick={validateStep4}
+						>
 							Registrarse
 						</Button>
 					)}
@@ -283,7 +313,11 @@ function Step1({
 							<FormItem className="animate-in fade-in duration-1000">
 								<FormLabel>Nombre</FormLabel>
 								<FormControl>
-									<Input placeholder="" type="text" {...field} />
+									<Input
+										placeholder=""
+										type="text"
+										{...field}
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -345,7 +379,8 @@ function Step1({
 							validate: (value) => {
 								const email = form.getValues("email");
 								return (
-									value === email || "Los correos electrónicos no coinciden"
+									value === email ||
+									"Los correos electrónicos no coinciden"
 								);
 							},
 						}}
@@ -388,7 +423,9 @@ function Step1({
 								/>
 								<button
 									type="button"
-									onClick={() => setShowPassword(!showPassword)}
+									onClick={() =>
+										setShowPassword(!showPassword)
+									}
 									className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
 								>
 									{showPassword ? (
@@ -440,7 +477,9 @@ function Step1({
 										</SelectTrigger>
 									</FormControl>
 									<SelectContent>
-										<SelectItem value="Argentina">Argentina</SelectItem>
+										<SelectItem value="Argentina">
+											Argentina
+										</SelectItem>
 									</SelectContent>
 								</Select>
 								<FormMessage />
@@ -472,16 +511,23 @@ function Step1({
 				render={({ field }) => (
 					<FormItem className="animate-in fade-in duration-1000">
 						<FormLabel>Tipo de usuario</FormLabel>
-						<Select onValueChange={field.onChange} defaultValue={field.value}>
+						<Select
+							onValueChange={field.onChange}
+							defaultValue={field.value}
+						>
 							<FormControl className="w-full">
 								<SelectTrigger>
 									<SelectValue placeholder="" />
 								</SelectTrigger>
 							</FormControl>
 							<SelectContent>
-								<SelectItem value="Laboratorio">Laboratorio</SelectItem>
+								<SelectItem value="Laboratorio">
+									Laboratorio
+								</SelectItem>
 								<SelectItem value="Clínica">Clínica</SelectItem>
-								<SelectItem value="Odontólogo">Odontólogo</SelectItem>
+								<SelectItem value="Odontólogo">
+									Odontólogo
+								</SelectItem>
 							</SelectContent>
 						</Select>
 						<FormMessage />
@@ -507,7 +553,9 @@ function Step2({ form }: { form: FieldValues }) {
 						<FormControl>
 							<Input type="file" {...field} />
 						</FormControl>
-						<FormDescription>Este es el logo de la identidad.</FormDescription>
+						<FormDescription>
+							Este es el logo de la identidad.
+						</FormDescription>
 						<FormMessage />
 					</FormItem>
 				)}
@@ -528,8 +576,13 @@ function Step3({ form }: { form: FieldValues }) {
 				rules={{ required: true }}
 				render={({ field }) => (
 					<FormItem className="animate-in fade-in duration-1000">
-						<FormLabel>Experiencia en planificación digital</FormLabel>
-						<Select onValueChange={field.onChange} defaultValue={field.value}>
+						<FormLabel>
+							Experiencia en planificación digital
+						</FormLabel>
+						<Select
+							onValueChange={field.onChange}
+							defaultValue={field.value}
+						>
 							<FormControl className="w-full">
 								<SelectTrigger className="w-full">
 									<SelectValue placeholder="" />
@@ -537,8 +590,12 @@ function Step3({ form }: { form: FieldValues }) {
 							</FormControl>
 							<SelectContent>
 								<SelectItem value="Básico">Básico</SelectItem>
-								<SelectItem value="Intermedio">Intermedio</SelectItem>
-								<SelectItem value="Avanzado">Avanzado</SelectItem>
+								<SelectItem value="Intermedio">
+									Intermedio
+								</SelectItem>
+								<SelectItem value="Avanzado">
+									Avanzado
+								</SelectItem>
 							</SelectContent>
 						</Select>
 
@@ -553,8 +610,13 @@ function Step3({ form }: { form: FieldValues }) {
 				rules={{ required: true }}
 				render={({ field }) => (
 					<FormItem className="animate-in fade-in duration-1000">
-						<FormLabel>Altura del zócalo del modelo digital</FormLabel>
-						<Select onValueChange={field.onChange} defaultValue={field.value}>
+						<FormLabel>
+							Altura del zócalo del modelo digital
+						</FormLabel>
+						<Select
+							onValueChange={field.onChange}
+							defaultValue={field.value}
+						>
 							<FormControl>
 								<SelectTrigger className="w-full">
 									<SelectValue placeholder="" />
@@ -603,14 +665,19 @@ function Step4({
 				render={({ field }) => (
 					<FormItem className="animate-in fade-in duration-1000">
 						<FormLabel>Enfoque del tratamiento</FormLabel>
-						<Select onValueChange={field.onChange} defaultValue={field.value}>
+						<Select
+							onValueChange={field.onChange}
+							defaultValue={field.value}
+						>
 							<FormControl className="w-full">
 								<SelectTrigger>
 									<SelectValue placeholder="" />
 								</SelectTrigger>
 							</FormControl>
 							<SelectContent>
-								<SelectItem value="Estético">Estético</SelectItem>
+								<SelectItem value="Estético">
+									Estético
+								</SelectItem>
 								<SelectItem value="Estético + Funcional">
 									Estético + Funcional
 								</SelectItem>
@@ -632,15 +699,22 @@ function Step4({
 				render={({ field }) => (
 					<FormItem className="animate-in fade-in duration-1000">
 						<FormLabel>Modalidad de trabajo</FormLabel>
-						<Select onValueChange={field.onChange} defaultValue={field.value}>
+						<Select
+							onValueChange={field.onChange}
+							defaultValue={field.value}
+						>
 							<FormControl>
 								<SelectTrigger className="w-full">
 									<SelectValue placeholder="" />
 								</SelectTrigger>
 							</FormControl>
 							<SelectContent>
-								<SelectItem value="Paquetes">Paquetes</SelectItem>
-								<SelectItem value="Caso individual">Caso individual</SelectItem>
+								<SelectItem value="Paquetes">
+									Paquetes
+								</SelectItem>
+								<SelectItem value="Caso individual">
+									Caso individual
+								</SelectItem>
 							</SelectContent>
 						</Select>
 
@@ -675,9 +749,15 @@ function Step4({
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
-									<SelectItem value="Español">Español</SelectItem>
-									<SelectItem value="Inglés">Inglés</SelectItem>
-									<SelectItem value="Portugués">Portugués</SelectItem>
+									<SelectItem value="Español">
+										Español
+									</SelectItem>
+									<SelectItem value="Inglés">
+										Inglés
+									</SelectItem>
+									<SelectItem value="Portugués">
+										Portugués
+									</SelectItem>
 									<SelectItem value="Otro">Otro</SelectItem>
 								</SelectContent>
 							</Select>
@@ -734,10 +814,16 @@ function Step4({
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
-									<SelectItem value="Recomendación">Recomendación</SelectItem>
+									<SelectItem value="Recomendación">
+										Recomendación
+									</SelectItem>
 									<SelectItem value="Redes">Redes</SelectItem>
-									<SelectItem value="Evento">Evento</SelectItem>
-									<SelectItem value="Google">Google</SelectItem>
+									<SelectItem value="Evento">
+										Evento
+									</SelectItem>
+									<SelectItem value="Google">
+										Google
+									</SelectItem>
 									<SelectItem value="Otro">Otro</SelectItem>
 								</SelectContent>
 							</Select>

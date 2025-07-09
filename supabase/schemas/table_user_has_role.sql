@@ -7,4 +7,10 @@ create table kickhub.user_has_role (
   constraint team_user_roles_pkey primary key (id),
   constraint team_user_roles_id_role_fkey foreign KEY (id_role) references kickhub.roles (id),
   constraint team_user_roles_id_user_fkey foreign KEY (id_user) references auth.users (id)
-) TABLESPACE pg_default;
+);
+
+create policy "CRUD"
+on op3dcloud.user_has_role for all
+to authenticated
+using(true)
+with check (true);

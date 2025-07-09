@@ -18,7 +18,11 @@ export default function Component() {
 		<div className="mx-auto max-w-xl space-y-8 text-center">
 			<Stepper value={currentStep} onValueChange={setCurrentStep}>
 				{steps.map((step) => (
-					<StepperItem key={step} step={step} className="not-last:flex-1">
+					<StepperItem
+						key={step}
+						step={step}
+						className="not-last:flex-1"
+					>
 						<StepperTrigger asChild>
 							<StepperIndicator />
 						</StepperTrigger>
@@ -44,7 +48,10 @@ export default function Component() {
 					Next step
 				</Button>
 			</div>
-			<p className="text-muted-foreground mt-2 text-xs" aria-live="polite">
+			<p
+				className="text-muted-foreground mt-2 text-xs"
+				aria-live="polite"
+			>
 				Controlled stepper with checkmarks
 			</p>
 		</div>

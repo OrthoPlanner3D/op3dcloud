@@ -1,6 +1,6 @@
-import { getSystemTheme } from "@/lib/utils";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { getSystemTheme } from "@/lib/utils";
 
 type Theme = "dark" | "light" | "system";
 

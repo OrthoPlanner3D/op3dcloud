@@ -1,6 +1,6 @@
+import { useLocation } from "react-router";
 import { LoginForm } from "@/components/login-form";
 import notificationSuccess from "@/services/notificacion.service";
-import { useLocation } from "react-router";
 
 export default function SignIn() {
 	const { state } = useLocation();

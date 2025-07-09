@@ -4,4 +4,10 @@ create table op3dcloud.roles (
   created_at timestamp with time zone not null default now(),
   updated_at timestamp with time zone null,
   constraint roles_pkey primary key (id)
-) TABLESPACE pg_default;
+);
+
+create policy "CRUD"
+on op3dcloud.roles for all
+to authenticated
+using(true)
+with check (true);

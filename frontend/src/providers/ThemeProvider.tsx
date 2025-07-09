@@ -1,6 +1,6 @@
+import { useEffect } from "react";
 import { getSystemTheme } from "@/lib/utils";
 import { useThemeStore } from "@/state/stores/useThemeStore";
-import { useEffect } from "react";
 
 interface ThemeProviderProps {
 	children: React.ReactNode;

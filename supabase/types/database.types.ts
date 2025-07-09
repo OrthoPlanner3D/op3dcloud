@@ -9,16 +9,133 @@ export type Json =
 export type Database = {
   op3dcloud: {
     Tables: {
-      [_ in never]: never
+      patients: {
+        Row: {
+          created_at: string
+          declared_limitations: string | null
+          dental_restrictions: string | null
+          files: string | null
+          id: number
+          last_name: string | null
+          name: string
+          observations_or_instructions: string | null
+          suggested_adminations_and_actions: string | null
+          sworn_declaration: boolean
+          treatment_approach: string | null
+          treatment_objective: string | null
+          type_of_plan: string
+        }
+        Insert: {
+          created_at?: string
+          declared_limitations?: string | null
+          dental_restrictions?: string | null
+          files?: string | null
+          id?: number
+          last_name?: string | null
+          name: string
+          observations_or_instructions?: string | null
+          suggested_adminations_and_actions?: string | null
+          sworn_declaration?: boolean
+          treatment_approach?: string | null
+          treatment_objective?: string | null
+          type_of_plan: string
+        }
+        Update: {
+          created_at?: string
+          declared_limitations?: string | null
+          dental_restrictions?: string | null
+          files?: string | null
+          id?: number
+          last_name?: string | null
+          name?: string
+          observations_or_instructions?: string | null
+          suggested_adminations_and_actions?: string | null
+          sworn_declaration?: boolean
+          treatment_approach?: string | null
+          treatment_objective?: string | null
+          type_of_plan?: string
+        }
+        Relationships: []
+      }
+      roles: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: never
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_has_role: {
+        Row: {
+          created_at: string
+          id: number
+          id_role: number
+          id_user: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: never
+          id_role: number
+          id_user: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          id_role?: number
+          id_user?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_user_roles_id_role_fkey"
+            columns: ["id_role"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_user_roles_id_user_fkey"
+            columns: ["id_user"]
+            isOneToOne: false
+            referencedRelation: "view_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
-      [_ in never]: never
+      view_users: {
+        Row: {
+          credits: number | null
+          email: string | null
+          id: string | null
+          role: string | null
+          status: Database["op3dcloud"]["Enums"]["status"] | null
+          username: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      status: "Active" | "Inactive"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,7 +250,9 @@ export type CompositeTypes<
 
 export const Constants = {
   op3dcloud: {
-    Enums: {},
+    Enums: {
+      status: ["Active", "Inactive"],
+    },
   },
 } as const
 

@@ -1,5 +1,5 @@
-import { useUserStore } from "@/state/stores/useUserStore";
 import { Navigate, useLocation } from "react-router";
+import { useUserStore } from "@/state/stores/useUserStore";
 
 interface Props {
 	children: React.ReactNode;

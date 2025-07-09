@@ -1,6 +1,6 @@
-import { useUserStore } from "@/state/stores/useUserStore";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
+import { useUserStore } from "@/state/stores/useUserStore";
 
 interface Props {
 	children: React.ReactNode;

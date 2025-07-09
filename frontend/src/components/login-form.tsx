@@ -1,12 +1,12 @@
-import { cn } from "@/lib/utils";
+import { useForm } from "react-hook-form";
+import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link } from "react-router";
-import BrandLogo from "./ui/brandLogo";
-import { useForm } from "react-hook-form";
 import { supabase } from "@/config/supabase.config";
+import { cn } from "@/lib/utils";
 import { useUserStore } from "@/state/stores/useUserStore";
+import BrandLogo from "./ui/brandLogo";
 
 interface ILoginForm {
 	email: string;
@@ -21,10 +21,11 @@ export function LoginForm({
 	const setUser = useUserStore((state) => state.setUser);
 
 	async function onSubmit(data: ILoginForm) {
-		const { data: userData, error } = await supabase.auth.signInWithPassword({
-			email: data.email,
-			password: data.password,
-		});
+		const { data: userData, error } =
+			await supabase.auth.signInWithPassword({
+				email: data.email,
+				password: data.password,
+			});
 
 		if (error) {
 			console.error("Error al iniciar sesión", error.message);
@@ -53,10 +54,16 @@ export function LoginForm({
 							</div>
 							<span className="sr-only">OP3DCloud.</span>
 						</a>
-						<h1 className="text-xl font-bold">Bienvenido a OP3D&trade;.</h1>
+						<h1 className="text-xl font-bold">
+							Bienvenido a OP3D&trade;.
+						</h1>
 						<div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-							No tenés una cuenta? Todo empieza con una buena planificación.{" "}
-							<Link to="/registro" className="underline underline-offset-4">
+							No tenés una cuenta? Todo empieza con una buena
+							planificación.{" "}
+							<Link
+								to="/registro"
+								className="underline underline-offset-4"
+							>
 								Registrate
 							</Link>
 						</div>
