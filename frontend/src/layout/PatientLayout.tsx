@@ -1,4 +1,4 @@
-import { Home, Inbox } from "lucide-react";
+import { Inbox, LayoutDashboard } from "lucide-react";
 import { Link } from "react-router";
 import logo from "@/assets/images/logos/logo-black.png";
 import { NavUser } from "@/components/nav.user";
@@ -23,9 +23,9 @@ interface Props {
 
 const items = [
 	{
-		title: "Home",
+		title: "Dashboard",
 		url: "/",
-		icon: Home,
+		icon: LayoutDashboard,
 	},
 	{
 		title: "Pacientes",
