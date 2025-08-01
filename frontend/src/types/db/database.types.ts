@@ -9,92 +9,6 @@ export type Json =
 export type Database = {
 	op3dcloud: {
 		Tables: {
-			clients: {
-				Row: {
-					case_status: string;
-					country: string;
-					created_at: string;
-					credits: number;
-					digital_model_zocalo_height: string;
-					entity: string;
-					experience_in_digital_planning: string;
-					expiration: string;
-					how_did_you_meet_us: string;
-					id: number;
-					last_name: string;
-					logo: string;
-					name: string;
-					notes: string;
-					password: string;
-					phone: string;
-					planner: string;
-					reports_language: string;
-					status: string;
-					status_files: string;
-					treatment_approach: string;
-					user_type: string;
-					work_modality: string;
-				};
-				Insert: {
-					case_status: string;
-					country: string;
-					created_at?: string;
-					credits: number;
-					digital_model_zocalo_height: string;
-					entity: string;
-					experience_in_digital_planning: string;
-					expiration: string;
-					how_did_you_meet_us: string;
-					id?: never;
-					last_name: string;
-					logo: string;
-					name: string;
-					notes: string;
-					password: string;
-					phone: string;
-					planner: string;
-					reports_language: string;
-					status: string;
-					status_files: string;
-					treatment_approach: string;
-					user_type: string;
-					work_modality: string;
-				};
-				Update: {
-					case_status?: string;
-					country?: string;
-					created_at?: string;
-					credits?: number;
-					digital_model_zocalo_height?: string;
-					entity?: string;
-					experience_in_digital_planning?: string;
-					expiration?: string;
-					how_did_you_meet_us?: string;
-					id?: never;
-					last_name?: string;
-					logo?: string;
-					name?: string;
-					notes?: string;
-					password?: string;
-					phone?: string;
-					planner?: string;
-					reports_language?: string;
-					status?: string;
-					status_files?: string;
-					treatment_approach?: string;
-					user_type?: string;
-					work_modality?: string;
-				};
-				Relationships: [
-					{
-						foreignKeyName: "clients_planner_fkey";
-						columns: ["planner"];
-						isOneToOne: false;
-						referencedRelation: "view_users";
-						referencedColumns: ["id"];
-					},
-				];
-			};
 			patients: {
 				Row: {
 					created_at: string;
@@ -102,6 +16,7 @@ export type Database = {
 					dental_restrictions: string;
 					files: string;
 					id: number;
+					id_client: string;
 					last_name: string;
 					name: string;
 					observations_or_instructions: string;
@@ -117,6 +32,7 @@ export type Database = {
 					dental_restrictions: string;
 					files: string;
 					id?: never;
+					id_client: string;
 					last_name: string;
 					name: string;
 					observations_or_instructions: string;
@@ -132,6 +48,7 @@ export type Database = {
 					dental_restrictions?: string;
 					files?: string;
 					id?: never;
+					id_client?: string;
 					last_name?: string;
 					name?: string;
 					observations_or_instructions?: string;
@@ -141,7 +58,15 @@ export type Database = {
 					treatment_objective?: string;
 					type_of_plan?: string;
 				};
-				Relationships: [];
+				Relationships: [
+					{
+						foreignKeyName: "patients_id_client_fkey";
+						columns: ["id_client"];
+						isOneToOne: false;
+						referencedRelation: "view_clients";
+						referencedColumns: ["id"];
+					},
+				];
 			};
 			roles: {
 				Row: {
@@ -195,24 +120,49 @@ export type Database = {
 						referencedColumns: ["id"];
 					},
 					{
+						foreignKeyName: "team_user_roles_id_role_fkey";
+						columns: ["id_role"];
+						isOneToOne: false;
+						referencedRelation: "view_clients";
+						referencedColumns: ["id_role"];
+					},
+					{
 						foreignKeyName: "team_user_roles_id_user_fkey";
 						columns: ["id_user"];
 						isOneToOne: false;
-						referencedRelation: "view_users";
+						referencedRelation: "view_clients";
 						referencedColumns: ["id"];
 					},
 				];
 			};
 		};
 		Views: {
-			view_users: {
+			view_clients: {
 				Row: {
+					case_status: string | null;
+					country: string | null;
+					created_at: string | null;
 					credits: number | null;
+					digital_model_zocalo_height: string | null;
 					email: string | null;
+					entity: string | null;
+					experience_in_digital_planning: string | null;
+					expiration: string | null;
+					how_did_you_meet_us: string | null;
 					id: string | null;
+					id_role: number | null;
+					logo: string | null;
+					notes: string | null;
+					phone: string | null;
+					planner: string | null;
+					reports_language: string | null;
 					role: string | null;
 					status: Database["op3dcloud"]["Enums"]["status"] | null;
+					status_files: string | null;
+					treatment_approach: string | null;
+					user_type: string | null;
 					username: string | null;
+					work_modality: string | null;
 				};
 				Relationships: [];
 			};

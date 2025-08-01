@@ -1,9 +1,9 @@
 import { use } from "react";
-import { getPatients } from "@/services/supabase/patients.service";
+import { getClients } from "@/services/supabase/clients.service";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 
-const patientsPromise = getPatients();
+const patientsPromise = getClients();
 
 export default function Clients() {
 	const data = use(patientsPromise);

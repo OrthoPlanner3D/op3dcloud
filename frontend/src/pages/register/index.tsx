@@ -42,7 +42,7 @@ interface IUser {
 	country: string;
 	entity: string;
 	user_type: string;
-	logo: string | null;
+	logo: string;
 	experience_in_digital_planning: string;
 	digital_model_zocalo_height: string;
 	treatment_approach: string;
@@ -51,6 +51,11 @@ interface IUser {
 	how_did_you_meet_us: string;
 	credits: number;
 	status: string;
+	planner: string;
+	status_files: string;
+	case_status: string;
+	notes: string;
+	created_at?: Date;
 }
 
 export default function Register() {
@@ -72,7 +77,7 @@ export default function Register() {
 			country: "",
 			entity: "",
 			user_type: "",
-			logo: null,
+			logo: "",
 			experience_in_digital_planning: "",
 			digital_model_zocalo_height: "",
 			treatment_approach: "",
@@ -81,6 +86,10 @@ export default function Register() {
 			how_did_you_meet_us: "",
 			credits: 0,
 			status: "Active",
+			planner: "",
+			status_files: "",
+			case_status: "",
+			notes: "",
 		},
 	});
 
@@ -144,6 +153,12 @@ export default function Register() {
 					work_modality: user.work_modality,
 					reports_language: user.reports_language,
 					how_did_you_meet_us: user.how_did_you_meet_us,
+					credits: user.credits,
+					status: user.status,
+					planner: user.planner,
+					status_files: user.status_files,
+					case_status: user.case_status,
+					notes: user.notes,
 				},
 			},
 		});
