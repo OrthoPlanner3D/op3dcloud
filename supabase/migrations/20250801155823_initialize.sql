@@ -2,37 +2,9 @@ create schema if not exists "op3dcloud";
 
 create type "op3dcloud"."status" as enum ('Active', 'Inactive');
 
-create table "op3dcloud"."clients" (
-    "id" bigint generated always as identity not null,
-    "password" text not null,
-    "name" text not null,
-    "last_name" text not null,
-    "phone" text not null,
-    "country" text not null,
-    "entity" text not null,
-    "user_type" text not null,
-    "logo" text not null,
-    "experience_in_digital_planning" text not null,
-    "digital_model_zocalo_height" text not null,
-    "treatment_approach" text not null,
-    "work_modality" text not null,
-    "reports_language" text not null,
-    "how_did_you_meet_us" text not null,
-    "credits" integer not null,
-    "status" text not null,
-    "expiration" date not null,
-    "planner" uuid not null,
-    "status_files" text not null,
-    "case_status" text not null,
-    "notes" text not null,
-    "created_at" timestamp with time zone not null default now()
-);
-
-
-alter table "op3dcloud"."clients" enable row level security;
-
 create table "op3dcloud"."patients" (
     "id" bigint generated always as identity not null,
+    "id_client" uuid not null,
     "name" text not null,
     "last_name" text not null,
     "type_of_plan" text not null,
@@ -71,15 +43,11 @@ create table "op3dcloud"."user_has_role" (
 
 alter table "op3dcloud"."user_has_role" enable row level security;
 
-CREATE UNIQUE INDEX clients_pkey ON op3dcloud.clients USING btree (id);
-
 CREATE UNIQUE INDEX patients_pkey ON op3dcloud.patients USING btree (id);
 
 CREATE UNIQUE INDEX roles_pkey ON op3dcloud.roles USING btree (id);
 
 CREATE UNIQUE INDEX team_user_roles_pkey ON op3dcloud.user_has_role USING btree (id);
-
-alter table "op3dcloud"."clients" add constraint "clients_pkey" PRIMARY KEY using index "clients_pkey";
 
 alter table "op3dcloud"."patients" add constraint "patients_pkey" PRIMARY KEY using index "patients_pkey";
 
@@ -87,9 +55,9 @@ alter table "op3dcloud"."roles" add constraint "roles_pkey" PRIMARY KEY using in
 
 alter table "op3dcloud"."user_has_role" add constraint "team_user_roles_pkey" PRIMARY KEY using index "team_user_roles_pkey";
 
-alter table "op3dcloud"."clients" add constraint "clients_planner_fkey" FOREIGN KEY (planner) REFERENCES auth.users(id) not valid;
+alter table "op3dcloud"."patients" add constraint "patients_id_client_fkey" FOREIGN KEY (id_client) REFERENCES auth.users(id) not valid;
 
-alter table "op3dcloud"."clients" validate constraint "clients_planner_fkey";
+alter table "op3dcloud"."patients" validate constraint "patients_id_client_fkey";
 
 alter table "op3dcloud"."user_has_role" add constraint "team_user_roles_id_role_fkey" FOREIGN KEY (id_role) REFERENCES op3dcloud.roles(id) not valid;
 
@@ -209,24 +177,34 @@ END;
 $function$
 ;
 
-create or replace view "op3dcloud"."view_users" as  SELECT u.id,
+create or replace view "op3dcloud"."view_clients" as  SELECT u.id,
+    r.id AS id_role,
     r.name AS role,
     u.email,
     concat_ws(' '::text, (u.raw_user_meta_data ->> 'name'::text), (u.raw_user_meta_data ->> 'last_name'::text)) AS username,
     (NULLIF((u.raw_user_meta_data ->> 'credits'::text), ''::text))::integer AS credits,
-    ((u.raw_user_meta_data ->> 'status'::text))::op3dcloud.status AS status
+    ((u.raw_user_meta_data ->> 'status'::text))::op3dcloud.status AS status,
+    (u.raw_user_meta_data ->> 'phone'::text) AS phone,
+    (u.raw_user_meta_data ->> 'country'::text) AS country,
+    (u.raw_user_meta_data ->> 'entity'::text) AS entity,
+    (u.raw_user_meta_data ->> 'user_type'::text) AS user_type,
+    (u.raw_user_meta_data ->> 'logo'::text) AS logo,
+    (u.raw_user_meta_data ->> 'experience_in_digital_planning'::text) AS experience_in_digital_planning,
+    (u.raw_user_meta_data ->> 'digital_model_zocalo_height'::text) AS digital_model_zocalo_height,
+    (u.raw_user_meta_data ->> 'treatment_approach'::text) AS treatment_approach,
+    (u.raw_user_meta_data ->> 'work_modality'::text) AS work_modality,
+    (u.raw_user_meta_data ->> 'reports_language'::text) AS reports_language,
+    (u.raw_user_meta_data ->> 'how_did_you_meet_us'::text) AS how_did_you_meet_us,
+    u.created_at,
+    ((u.created_at + '7 days'::interval))::date AS expiration,
+    (NULLIF((u.raw_user_meta_data ->> 'planner'::text), ''::text))::uuid AS planner,
+    (u.raw_user_meta_data ->> 'status_files'::text) AS status_files,
+    (u.raw_user_meta_data ->> 'case_status'::text) AS case_status,
+    (u.raw_user_meta_data ->> 'notes'::text) AS notes
    FROM ((auth.users u
      JOIN op3dcloud.user_has_role u_h_r ON ((u.id = u_h_r.id_user)))
-     JOIN op3dcloud.roles r ON ((u_h_r.id_role = r.id)));
-
-
-create policy "CRUD"
-on "op3dcloud"."clients"
-as permissive
-for all
-to authenticated
-using (true)
-with check (true);
+     JOIN op3dcloud.roles r ON ((u_h_r.id_role = r.id)))
+  WHERE (r.name = 'client'::text);
 
 
 create policy "CRUD"

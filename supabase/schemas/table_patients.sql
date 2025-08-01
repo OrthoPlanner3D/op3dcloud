@@ -1,5 +1,6 @@
 create table op3dcloud.patients (
   id bigint generated always as identity not null,
+  id_client uuid not null,
   name text not null,
   last_name text not null,
   type_of_plan text not null,
@@ -12,7 +13,8 @@ create table op3dcloud.patients (
   files text not null,
   sworn_declaration boolean not null default false,
   created_at timestamp with time zone not null default now(),
-  constraint patients_pkey primary key (id)
+  constraint patients_pkey primary key (id),
+  constraint patients_id_client_fkey foreign key (id_client) references auth.users (id)
 );
 
 alter table op3dcloud.patients enable row level security;
