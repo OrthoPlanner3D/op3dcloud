@@ -49,8 +49,11 @@ max_client_conn = 100
 # Specifies an ordered list of schema files that describe your database.
 # Supports glob patterns relative to supabase directory: "./schemas/*.sql"
 schema_paths = [
-    "./schemas/schema_op3dcloud.sql",
-    "./schemas/table_patients.sql",
+    "./schemas/schema_*.sql",
+    "./schemas/enum_*.sql",
+    "./schemas/table_*.sql",
+    "./schemas/view_*.sql",
+    "./schemas/function_*.sql",
 ]
 
 [db.seed]

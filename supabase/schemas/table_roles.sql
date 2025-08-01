@@ -6,6 +6,8 @@ create table op3dcloud.roles (
   constraint roles_pkey primary key (id)
 );
 
+alter table op3dcloud.roles enable row level security;
+
 create policy "CRUD"
 on op3dcloud.roles for all
 to authenticated

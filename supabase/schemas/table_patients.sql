@@ -15,6 +15,8 @@ create table op3dcloud.patients (
   constraint patients_pkey primary key (id)
 );
 
+alter table op3dcloud.patients enable row level security;
+
 create policy "CRUD"
 on op3dcloud.patients for all
 to authenticated

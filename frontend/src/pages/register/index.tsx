@@ -152,7 +152,24 @@ export default function Register() {
 			console.error("Error al crear el usuario", error.message);
 		}
 
-		console.log(data);
+		if (!data.user?.id) {
+			console.error("No se pudo obtener el ID del usuario");
+			return;
+		}
+
+		const { data: assignClientRole, error: assignClientRoleError } =
+			await supabase.rpc("assign_client_role", {
+				p_id_client: data.user.id,
+			});
+
+		if (assignClientRoleError) {
+			console.error(
+				"Error al asignar el rol de cliente",
+				assignClientRoleError.message,
+			);
+		}
+
+		console.log(assignClientRole);
 	}
 
 	async function onSubmit(values: IUser) {

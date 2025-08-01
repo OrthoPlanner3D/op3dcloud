@@ -9,50 +9,136 @@ export type Json =
 export type Database = {
 	op3dcloud: {
 		Tables: {
+			clients: {
+				Row: {
+					case_status: string;
+					country: string;
+					created_at: string;
+					credits: number;
+					digital_model_zocalo_height: string;
+					entity: string;
+					experience_in_digital_planning: string;
+					expiration: string;
+					how_did_you_meet_us: string;
+					id: number;
+					last_name: string;
+					logo: string;
+					name: string;
+					notes: string;
+					password: string;
+					phone: string;
+					planner: string;
+					reports_language: string;
+					status: string;
+					status_files: string;
+					treatment_approach: string;
+					user_type: string;
+					work_modality: string;
+				};
+				Insert: {
+					case_status: string;
+					country: string;
+					created_at?: string;
+					credits: number;
+					digital_model_zocalo_height: string;
+					entity: string;
+					experience_in_digital_planning: string;
+					expiration: string;
+					how_did_you_meet_us: string;
+					id?: never;
+					last_name: string;
+					logo: string;
+					name: string;
+					notes: string;
+					password: string;
+					phone: string;
+					planner: string;
+					reports_language: string;
+					status: string;
+					status_files: string;
+					treatment_approach: string;
+					user_type: string;
+					work_modality: string;
+				};
+				Update: {
+					case_status?: string;
+					country?: string;
+					created_at?: string;
+					credits?: number;
+					digital_model_zocalo_height?: string;
+					entity?: string;
+					experience_in_digital_planning?: string;
+					expiration?: string;
+					how_did_you_meet_us?: string;
+					id?: never;
+					last_name?: string;
+					logo?: string;
+					name?: string;
+					notes?: string;
+					password?: string;
+					phone?: string;
+					planner?: string;
+					reports_language?: string;
+					status?: string;
+					status_files?: string;
+					treatment_approach?: string;
+					user_type?: string;
+					work_modality?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: "clients_planner_fkey";
+						columns: ["planner"];
+						isOneToOne: false;
+						referencedRelation: "view_users";
+						referencedColumns: ["id"];
+					},
+				];
+			};
 			patients: {
 				Row: {
 					created_at: string;
-					declared_limitations: string | null;
-					dental_restrictions: string | null;
-					files: string | null;
+					declared_limitations: string;
+					dental_restrictions: string;
+					files: string;
 					id: number;
-					last_name: string | null;
+					last_name: string;
 					name: string;
-					observations_or_instructions: string | null;
-					suggested_adminations_and_actions: string | null;
+					observations_or_instructions: string;
+					suggested_adminations_and_actions: string;
 					sworn_declaration: boolean;
-					treatment_approach: string | null;
-					treatment_objective: string | null;
+					treatment_approach: string;
+					treatment_objective: string;
 					type_of_plan: string;
 				};
 				Insert: {
 					created_at?: string;
-					declared_limitations?: string | null;
-					dental_restrictions?: string | null;
-					files?: string | null;
-					id?: number;
-					last_name?: string | null;
+					declared_limitations: string;
+					dental_restrictions: string;
+					files: string;
+					id?: never;
+					last_name: string;
 					name: string;
-					observations_or_instructions?: string | null;
-					suggested_adminations_and_actions?: string | null;
+					observations_or_instructions: string;
+					suggested_adminations_and_actions: string;
 					sworn_declaration?: boolean;
-					treatment_approach?: string | null;
-					treatment_objective?: string | null;
+					treatment_approach: string;
+					treatment_objective: string;
 					type_of_plan: string;
 				};
 				Update: {
 					created_at?: string;
-					declared_limitations?: string | null;
-					dental_restrictions?: string | null;
-					files?: string | null;
-					id?: number;
-					last_name?: string | null;
+					declared_limitations?: string;
+					dental_restrictions?: string;
+					files?: string;
+					id?: never;
+					last_name?: string;
 					name?: string;
-					observations_or_instructions?: string | null;
-					suggested_adminations_and_actions?: string | null;
+					observations_or_instructions?: string;
+					suggested_adminations_and_actions?: string;
 					sworn_declaration?: boolean;
-					treatment_approach?: string | null;
-					treatment_objective?: string | null;
+					treatment_approach?: string;
+					treatment_objective?: string;
 					type_of_plan?: string;
 				};
 				Relationships: [];
@@ -132,7 +218,14 @@ export type Database = {
 			};
 		};
 		Functions: {
-			[_ in never]: never;
+			assign_client_role: {
+				Args: { p_id_client: string };
+				Returns: string;
+			};
+			assign_planner_role: {
+				Args: { p_id_planner: string };
+				Returns: string;
+			};
 		};
 		Enums: {
 			status: "Active" | "Inactive";
@@ -143,21 +236,28 @@ export type Database = {
 	};
 };
 
-type DefaultSchema = Database[Extract<keyof Database, "public">];
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">;
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<
+	keyof Database,
+	"public"
+>];
 
 export type Tables<
 	DefaultSchemaTableNameOrOptions extends
 		| keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-		| { schema: keyof Database },
+		| { schema: keyof DatabaseWithoutInternals },
 	TableName extends DefaultSchemaTableNameOrOptions extends {
-		schema: keyof Database;
+		schema: keyof DatabaseWithoutInternals;
 	}
-		? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-				Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+		? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+				DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
 		: never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-	? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-			Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+	schema: keyof DatabaseWithoutInternals;
+}
+	? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+			DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
 			Row: infer R;
 		}
 		? R
@@ -175,14 +275,16 @@ export type Tables<
 export type TablesInsert<
 	DefaultSchemaTableNameOrOptions extends
 		| keyof DefaultSchema["Tables"]
-		| { schema: keyof Database },
+		| { schema: keyof DatabaseWithoutInternals },
 	TableName extends DefaultSchemaTableNameOrOptions extends {
-		schema: keyof Database;
+		schema: keyof DatabaseWithoutInternals;
 	}
-		? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+		? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
 		: never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-	? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+	schema: keyof DatabaseWithoutInternals;
+}
+	? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
 			Insert: infer I;
 		}
 		? I
@@ -198,14 +300,16 @@ export type TablesInsert<
 export type TablesUpdate<
 	DefaultSchemaTableNameOrOptions extends
 		| keyof DefaultSchema["Tables"]
-		| { schema: keyof Database },
+		| { schema: keyof DatabaseWithoutInternals },
 	TableName extends DefaultSchemaTableNameOrOptions extends {
-		schema: keyof Database;
+		schema: keyof DatabaseWithoutInternals;
 	}
-		? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+		? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
 		: never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-	? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+	schema: keyof DatabaseWithoutInternals;
+}
+	? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
 			Update: infer U;
 		}
 		? U
@@ -221,14 +325,16 @@ export type TablesUpdate<
 export type Enums<
 	DefaultSchemaEnumNameOrOptions extends
 		| keyof DefaultSchema["Enums"]
-		| { schema: keyof Database },
+		| { schema: keyof DatabaseWithoutInternals },
 	EnumName extends DefaultSchemaEnumNameOrOptions extends {
-		schema: keyof Database;
+		schema: keyof DatabaseWithoutInternals;
 	}
-		? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+		? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
 		: never = never,
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-	? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+> = DefaultSchemaEnumNameOrOptions extends {
+	schema: keyof DatabaseWithoutInternals;
+}
+	? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
 	: DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
 		? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
 		: never;
@@ -236,14 +342,16 @@ export type Enums<
 export type CompositeTypes<
 	PublicCompositeTypeNameOrOptions extends
 		| keyof DefaultSchema["CompositeTypes"]
-		| { schema: keyof Database },
+		| { schema: keyof DatabaseWithoutInternals },
 	CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-		schema: keyof Database;
+		schema: keyof DatabaseWithoutInternals;
 	}
-		? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+		? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
 		: never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-	? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+> = PublicCompositeTypeNameOrOptions extends {
+	schema: keyof DatabaseWithoutInternals;
+}
+	? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
 	: PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
 		? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
 		: never;

@@ -1,5 +1,5 @@
 import { createBrowserRouter, Navigate, Outlet } from "react-router";
-import Home from "@/pages/home";
+import Clients from "@/pages/clients";
 import Patients from "@/pages/patient";
 import CreatePatient from "@/pages/patient/create";
 import Register from "@/pages/register";
@@ -36,7 +36,7 @@ const router = createBrowserRouter([
 		children: [
 			{
 				index: true,
-				element: <Home />,
+				element: <Clients />,
 			},
 			{
 				path: "pacientes",
