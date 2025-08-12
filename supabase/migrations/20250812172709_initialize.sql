@@ -16,6 +16,13 @@ create table "op3dcloud"."patients" (
     "observations_or_instructions" text not null,
     "files" text not null,
     "sworn_declaration" boolean not null default false,
+    "expiration" date not null,
+    "id_planner" uuid not null,
+    "status_files" text not null,
+    "case_status" text not null,
+    "notes" text not null,
+    "observations" text not null,
+    "status" text not null,
     "created_at" timestamp with time zone not null default now()
 );
 
@@ -58,6 +65,10 @@ alter table "op3dcloud"."user_has_role" add constraint "team_user_roles_pkey" PR
 alter table "op3dcloud"."patients" add constraint "patients_id_client_fkey" FOREIGN KEY (id_client) REFERENCES auth.users(id) not valid;
 
 alter table "op3dcloud"."patients" validate constraint "patients_id_client_fkey";
+
+alter table "op3dcloud"."patients" add constraint "patients_id_planner_fkey" FOREIGN KEY (id_planner) REFERENCES auth.users(id) not valid;
+
+alter table "op3dcloud"."patients" validate constraint "patients_id_planner_fkey";
 
 alter table "op3dcloud"."user_has_role" add constraint "team_user_roles_id_role_fkey" FOREIGN KEY (id_role) REFERENCES op3dcloud.roles(id) not valid;
 
@@ -205,6 +216,53 @@ create or replace view "op3dcloud"."view_clients" as  SELECT u.id,
      JOIN op3dcloud.user_has_role u_h_r ON ((u.id = u_h_r.id_user)))
      JOIN op3dcloud.roles r ON ((u_h_r.id_role = r.id)))
   WHERE (r.name = 'client'::text);
+
+
+create or replace view "op3dcloud"."view_planners" as  SELECT u.id,
+    r.id AS id_role,
+    r.name AS role,
+    u.email,
+    concat_ws(' '::text, (u.raw_user_meta_data ->> 'name'::text), (u.raw_user_meta_data ->> 'last_name'::text)) AS username,
+    (NULLIF((u.raw_user_meta_data ->> 'credits'::text), ''::text))::integer AS credits,
+    ((u.raw_user_meta_data ->> 'status'::text))::op3dcloud.status AS status,
+    (u.raw_user_meta_data ->> 'phone'::text) AS phone,
+    (u.raw_user_meta_data ->> 'country'::text) AS country,
+    (u.raw_user_meta_data ->> 'entity'::text) AS entity,
+    (u.raw_user_meta_data ->> 'user_type'::text) AS user_type,
+    (u.raw_user_meta_data ->> 'logo'::text) AS logo,
+    (u.raw_user_meta_data ->> 'experience_in_digital_planning'::text) AS experience_in_digital_planning,
+    (u.raw_user_meta_data ->> 'digital_model_zocalo_height'::text) AS digital_model_zocalo_height,
+    (u.raw_user_meta_data ->> 'treatment_approach'::text) AS treatment_approach,
+    (u.raw_user_meta_data ->> 'work_modality'::text) AS work_modality,
+    (u.raw_user_meta_data ->> 'reports_language'::text) AS reports_language,
+    (u.raw_user_meta_data ->> 'how_did_you_meet_us'::text) AS how_did_you_meet_us,
+    u.created_at,
+    ((u.created_at + '7 days'::interval))::date AS expiration,
+    (NULLIF((u.raw_user_meta_data ->> 'planner'::text), ''::text))::uuid AS planner,
+    (u.raw_user_meta_data ->> 'status_files'::text) AS status_files,
+    (u.raw_user_meta_data ->> 'case_status'::text) AS case_status,
+    (u.raw_user_meta_data ->> 'notes'::text) AS notes
+   FROM ((auth.users u
+     JOIN op3dcloud.user_has_role u_h_r ON ((u.id = u_h_r.id_user)))
+     JOIN op3dcloud.roles r ON ((u_h_r.id_role = r.id)))
+  WHERE (r.name = 'planner'::text);
+
+
+create or replace view "op3dcloud"."view_dashboard_admin" as  SELECT p.id,
+    p.created_at,
+    concat(p.name, ' ', p.last_name) AS patient_name,
+    p.status,
+    ((p.created_at + '7 days'::interval))::date AS expiration,
+    vp.id AS planner_id,
+    vp.username AS planner_name,
+    vc.id AS client_id,
+    vc.username AS client_name,
+    p.status_files,
+    p.case_status,
+    p.notes
+   FROM ((op3dcloud.patients p
+     LEFT JOIN op3dcloud.view_clients vc ON ((p.id_client = vc.id)))
+     LEFT JOIN op3dcloud.view_planners vp ON ((p.id_planner = vp.id)));
 
 
 create policy "CRUD"
