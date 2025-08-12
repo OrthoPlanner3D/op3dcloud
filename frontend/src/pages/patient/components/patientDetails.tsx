@@ -78,9 +78,6 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 								</p>
 							</div>
 						</div>
-						<Badge variant="outline" className="text-sm">
-							{displayPatient.type_of_plan}
-						</Badge>
 					</div>
 				</CardHeader>
 			</Card>

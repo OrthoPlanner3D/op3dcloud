@@ -16,3 +16,18 @@ export async function getClients(): Promise<ClientsViewRow[]> {
 		throw error;
 	}
 }
+
+export async function getClientById(id: string): Promise<ClientsViewRow> {
+	try {
+		const { data, error } = await supabase
+			.from("view_clients")
+			.select("*")
+			.eq("id", id)
+			.single();
+		if (error) throw error.message;
+		return data;
+	} catch (error) {
+		console.error(error);
+		throw error;
+	}
+}

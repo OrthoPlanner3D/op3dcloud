@@ -29,6 +29,7 @@ export function LoginForm({
 
 		if (error) {
 			console.error("Error al iniciar sesión", error.message);
+			return;
 		}
 
 		setUser({

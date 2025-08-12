@@ -1,10 +1,14 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import {
 	ArrowUpDown,
+	CalendarClockIcon,
+	CalendarIcon,
 	MoreHorizontal,
 	PencilIcon,
 	TrashIcon,
+	UserIcon,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -15,9 +19,10 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { confirm, formatDate } from "@/lib/utils";
-import type { ClientsViewRow } from "@/types/db/clients/clients";
+import type { DashboardAdminViewRow } from "@/types/db/dashboard-admin/dashboard-admin";
+import useEditClientModalStore from "./state/stores/useEditClientModalStore";
 
-export const columns: ColumnDef<ClientsViewRow>[] = [
+export const columns: ColumnDef<DashboardAdminViewRow>[] = [
 	{
 		accessorKey: "id",
 		header: ({ column }) => {
@@ -50,12 +55,25 @@ export const columns: ColumnDef<ClientsViewRow>[] = [
 			);
 		},
 		cell: ({ row }) => {
-			return formatDate(row.original.created_at);
+			return (
+				<Badge variant="secondary">
+					<CalendarIcon
+						className="-ms-0.5 opacity-60 capitalize"
+						size={12}
+						aria-hidden="true"
+					/>
+					{formatDate(row.original.created_at)}
+				</Badge>
+			);
 		},
 	},
 	{
-		accessorKey: "username",
+		accessorKey: "client_name",
 		header: "Cliente",
+	},
+	{
+		accessorKey: "patient_name",
+		header: "Paciente",
 	},
 	{
 		accessorKey: "status",
@@ -64,10 +82,34 @@ export const columns: ColumnDef<ClientsViewRow>[] = [
 	{
 		accessorKey: "expiration",
 		header: "Vencimiento",
+		cell: ({ row }) => {
+			return (
+				<Badge variant="secondary">
+					<CalendarClockIcon
+						className="-ms-0.5 opacity-60 capitalize"
+						size={12}
+						aria-hidden="true"
+					/>
+					{formatDate(row.original.expiration)}
+				</Badge>
+			);
+		},
 	},
 	{
-		accessorKey: "planner",
+		accessorKey: "planner_name",
 		header: "Planificador",
+		cell: ({ row }) => {
+			return (
+				<Badge variant="secondary">
+					<UserIcon
+						className="-ms-0.5 opacity-60 capitalize"
+						size={12}
+						aria-hidden="true"
+					/>
+					{row.original.planner_name}
+				</Badge>
+			);
+		},
 	},
 	{
 		accessorKey: "status_files",
@@ -84,7 +126,10 @@ export const columns: ColumnDef<ClientsViewRow>[] = [
 	{
 		id: "actions",
 		cell: ({ row }) => {
-			console.log(row.original.id);
+			const open = useEditClientModalStore((state) => state.open);
+			const setId = useEditClientModalStore((state) => state.setId);
+
+			if (!row.original.id) return null;
 
 			return (
 				<DropdownMenu>
@@ -97,7 +142,14 @@ export const columns: ColumnDef<ClientsViewRow>[] = [
 					<DropdownMenuContent align="end">
 						<DropdownMenuLabel>Acciones</DropdownMenuLabel>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem>
+						<DropdownMenuItem
+							onClick={() => {
+								if (!row.original.id) return;
+
+								setId(row.original.id);
+								open();
+							}}
+						>
 							<PencilIcon className="h-4 w-4 mr-2" />
 							Editar
 						</DropdownMenuItem>

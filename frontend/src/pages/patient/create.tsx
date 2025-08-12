@@ -1,6 +1,7 @@
+import { ArrowLeftIcon } from "lucide-react";
 import { useState } from "react";
 import { type FieldValues, useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import BrandLogo from "@/components/ui/brandLogo";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -30,27 +31,14 @@ import {
 } from "@/components/ui/stepper";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/config/supabase.config";
+import type { PatientsInsert } from "@/types/db/patients/patients";
 
 const steps = [1, 2, 3, 4, 5];
-
-interface IPatient {
-	name: string;
-	last_name: string;
-	type_of_plan: string;
-	treatment_approach: string;
-	treatment_objective: string;
-	dental_restrictions: string;
-	declared_limitations: string;
-	suggested_adminations_and_actions: string;
-	observations_or_instructions: string;
-	files: string;
-	sworn_declaration: boolean;
-}
 
 export default function CreatePatient() {
 	const [currentStep, setCurrentStep] = useState(1);
 	const navigate = useNavigate();
-	const form = useForm({
+	const form = useForm<PatientsInsert>({
 		defaultValues: {
 			name: "",
 			last_name: "",
@@ -112,24 +100,10 @@ export default function CreatePatient() {
 		}
 	}
 
-	async function createPatient(patient: IPatient) {
+	async function createPatient(patient: PatientsInsert) {
 		const { data, error } = await supabase
 			.from("patients")
-			.insert({
-				name: patient.name,
-				last_name: patient.last_name,
-				type_of_plan: patient.type_of_plan,
-				treatment_approach: patient.treatment_approach,
-				treatment_objective: patient.treatment_objective,
-				dental_restrictions: patient.dental_restrictions,
-				declared_limitations: patient.declared_limitations,
-				suggested_adminations_and_actions:
-					patient.suggested_adminations_and_actions,
-				observations_or_instructions:
-					patient.observations_or_instructions,
-				files: patient.files,
-				sworn_declaration: patient.sworn_declaration,
-			})
+			.insert(patient)
 			.select();
 
 		if (error) {
@@ -141,7 +115,7 @@ export default function CreatePatient() {
 		return data;
 	}
 
-	async function onSubmit(values: IPatient) {
+	async function onSubmit(values: PatientsInsert) {
 		try {
 			console.log("Enviando...");
 			console.log(values);
@@ -158,105 +132,115 @@ export default function CreatePatient() {
 	}
 
 	return (
-		<div className="relative min-h-screen flex items-center justify-center">
-			<div className="max-w-xl w-full mx-auto grid grid-rows-12 min-h-[850px] px-4">
-				<div className="row-span-2 flex flex-col items-center justify-center gap-4">
-					<BrandLogo className="size-20" />
-					<div className="text-center">
-						<p className="text-sm font-light text-muted-foreground tracking-wide">
-							Registro de Paciente
-						</p>
+		<div className="relative min-h-[calc(100vh-32px)]">
+			<div>
+				<Button variant="ghost" asChild>
+					<Link to="/pacientes">
+						<ArrowLeftIcon />
+					</Link>
+				</Button>
+			</div>
+
+			<div className="flex items-center justify-center">
+				<div className="max-w-xl w-full mx-auto grid grid-rows-12 min-h-[calc(100vh-4.25rem)] px-4">
+					<div className="row-span-2 flex flex-col items-center justify-center gap-4">
+						<BrandLogo className="size-20" />
+						<div className="text-center">
+							<p className="text-sm font-light text-muted-foreground tracking-wide">
+								Registro de Paciente
+							</p>
+						</div>
 					</div>
-				</div>
 
-				<Stepper
-					value={currentStep}
-					onValueChange={setCurrentStep}
-					className="row-span-1"
-				>
-					{steps.map((step) => (
-						<StepperItem
-							key={step}
-							step={step}
-							className="not-last:flex-1"
-						>
-							<StepperTrigger asChild>
-								<StepperIndicator />
-							</StepperTrigger>
-							{step < steps.length && <StepperSeparator />}
-						</StepperItem>
-					))}
-				</Stepper>
-
-				<div className="row-span-8 flex items-center justify-center">
-					<Form {...form}>
-						<form
-							onSubmit={form.handleSubmit(onSubmit)}
-							className="space-y-8 max-w-3xl mx-auto w-full self-baseline"
-						>
-							{currentStep === 1 && <Step1 form={form} />}
-							{currentStep === 2 && <Step2 form={form} />}
-							{currentStep === 3 && <Step3 form={form} />}
-							{currentStep === 4 && <Step4 form={form} />}
-							{currentStep === 5 && <Step5 form={form} />}
-						</form>
-					</Form>
-				</div>
-
-				<div className="flex justify-center space-x-4 row-span-1 items-center">
-					<Button
-						variant="outline"
-						className="w-32"
-						onClick={() => setCurrentStep((prev) => prev - 1)}
-						disabled={currentStep === 1}
+					<Stepper
+						value={currentStep}
+						onValueChange={setCurrentStep}
+						className="row-span-1"
 					>
-						Anterior
-					</Button>
-					{currentStep === 1 && (
+						{steps.map((step) => (
+							<StepperItem
+								key={step}
+								step={step}
+								className="not-last:flex-1"
+							>
+								<StepperTrigger asChild>
+									<StepperIndicator />
+								</StepperTrigger>
+								{step < steps.length && <StepperSeparator />}
+							</StepperItem>
+						))}
+					</Stepper>
+
+					<div className="row-span-8 flex items-center justify-center">
+						<Form {...form}>
+							<form
+								onSubmit={form.handleSubmit(onSubmit)}
+								className="space-y-8 max-w-3xl mx-auto w-full self-baseline"
+							>
+								{currentStep === 1 && <Step1 form={form} />}
+								{currentStep === 2 && <Step2 form={form} />}
+								{currentStep === 3 && <Step3 form={form} />}
+								{currentStep === 4 && <Step4 form={form} />}
+								{currentStep === 5 && <Step5 form={form} />}
+							</form>
+						</Form>
+					</div>
+
+					<div className="flex justify-center space-x-4 row-span-1 items-center">
 						<Button
 							variant="outline"
 							className="w-32"
-							onClick={validateStep1}
+							onClick={() => setCurrentStep((prev) => prev - 1)}
+							disabled={currentStep === 1}
 						>
-							Siguiente
+							Anterior
 						</Button>
-					)}
-					{currentStep === 2 && (
-						<Button
-							variant="outline"
-							className="w-32"
-							onClick={validateStep2}
-						>
-							Siguiente
-						</Button>
-					)}
-					{currentStep === 3 && (
-						<Button
-							variant="outline"
-							className="w-32"
-							onClick={validateStep3}
-						>
-							Siguiente
-						</Button>
-					)}
-					{currentStep === 4 && (
-						<Button
-							variant="outline"
-							className="w-32"
-							onClick={validateStep4}
-						>
-							Siguiente
-						</Button>
-					)}
-					{currentStep === 5 && (
-						<Button
-							variant="default"
-							className="w-32"
-							onClick={validateStep5}
-						>
-							Registrar
-						</Button>
-					)}
+						{currentStep === 1 && (
+							<Button
+								variant="outline"
+								className="w-32"
+								onClick={validateStep1}
+							>
+								Siguiente
+							</Button>
+						)}
+						{currentStep === 2 && (
+							<Button
+								variant="outline"
+								className="w-32"
+								onClick={validateStep2}
+							>
+								Siguiente
+							</Button>
+						)}
+						{currentStep === 3 && (
+							<Button
+								variant="outline"
+								className="w-32"
+								onClick={validateStep3}
+							>
+								Siguiente
+							</Button>
+						)}
+						{currentStep === 4 && (
+							<Button
+								variant="outline"
+								className="w-32"
+								onClick={validateStep4}
+							>
+								Siguiente
+							</Button>
+						)}
+						{currentStep === 5 && (
+							<Button
+								variant="default"
+								className="w-32"
+								onClick={validateStep5}
+							>
+								Registrar
+							</Button>
+						)}
+					</div>
 				</div>
 			</div>
 		</div>
@@ -336,7 +320,9 @@ function Step1({ form }: { form: FieldValues }) {
 								<SelectItem value="Refinamiento">
 									Refinamiento
 								</SelectItem>
-								<SelectItem value="Express">Express</SelectItem>
+								<SelectItem value="Retenedores">
+									Retenedores
+								</SelectItem>
 							</SelectContent>
 						</Select>
 						<FormMessage />

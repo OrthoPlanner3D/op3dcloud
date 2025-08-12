@@ -3,6 +3,8 @@
 // import { UnknowError } from "@/errors/unknownError";
 // import type { IUser } from "@/types/user/user";
 
+import { supabaseAdmin } from "@/config/supabase.config";
+
 // export async function getViewUserById(id: string): Promise<IUser> {
 // 	try {
 // 		const { data: user, error } = await supabase
@@ -22,3 +24,14 @@
 // 		throw new UnknowError("Error desconocido");
 // 	}
 // }
+
+export async function getUserById(id: string) {
+	try {
+		const { data, error } = await supabaseAdmin.auth.admin.getUserById(id);
+		if (error) throw error;
+
+		return data.user;
+	} catch (error) {
+		console.error(error);
+	}
+}

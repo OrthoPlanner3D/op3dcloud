@@ -11,15 +11,22 @@ export type Database = {
 		Tables: {
 			patients: {
 				Row: {
+					case_status: string;
 					created_at: string;
 					declared_limitations: string;
 					dental_restrictions: string;
+					expiration: string;
 					files: string;
 					id: number;
 					id_client: string;
+					id_planner: string;
 					last_name: string;
 					name: string;
+					notes: string;
+					observations: string;
 					observations_or_instructions: string;
+					status: string;
+					status_files: string;
 					suggested_adminations_and_actions: string;
 					sworn_declaration: boolean;
 					treatment_approach: string;
@@ -27,15 +34,22 @@ export type Database = {
 					type_of_plan: string;
 				};
 				Insert: {
+					case_status: string;
 					created_at?: string;
 					declared_limitations: string;
 					dental_restrictions: string;
+					expiration: string;
 					files: string;
 					id?: never;
 					id_client: string;
+					id_planner: string;
 					last_name: string;
 					name: string;
+					notes: string;
+					observations: string;
 					observations_or_instructions: string;
+					status: string;
+					status_files: string;
 					suggested_adminations_and_actions: string;
 					sworn_declaration?: boolean;
 					treatment_approach: string;
@@ -43,15 +57,22 @@ export type Database = {
 					type_of_plan: string;
 				};
 				Update: {
+					case_status?: string;
 					created_at?: string;
 					declared_limitations?: string;
 					dental_restrictions?: string;
+					expiration?: string;
 					files?: string;
 					id?: never;
 					id_client?: string;
+					id_planner?: string;
 					last_name?: string;
 					name?: string;
+					notes?: string;
+					observations?: string;
 					observations_or_instructions?: string;
+					status?: string;
+					status_files?: string;
 					suggested_adminations_and_actions?: string;
 					sworn_declaration?: boolean;
 					treatment_approach?: string;
@@ -64,6 +85,55 @@ export type Database = {
 						columns: ["id_client"];
 						isOneToOne: false;
 						referencedRelation: "view_clients";
+						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "patients_id_client_fkey";
+						columns: ["id_client"];
+						isOneToOne: false;
+						referencedRelation: "view_dashboard_admin";
+						referencedColumns: ["client_id"];
+					},
+					{
+						foreignKeyName: "patients_id_client_fkey";
+						columns: ["id_client"];
+						isOneToOne: false;
+						referencedRelation: "view_dashboard_admin";
+						referencedColumns: ["planner_id"];
+					},
+					{
+						foreignKeyName: "patients_id_client_fkey";
+						columns: ["id_client"];
+						isOneToOne: false;
+						referencedRelation: "view_planners";
+						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "patients_id_planner_fkey";
+						columns: ["id_planner"];
+						isOneToOne: false;
+						referencedRelation: "view_clients";
+						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "patients_id_planner_fkey";
+						columns: ["id_planner"];
+						isOneToOne: false;
+						referencedRelation: "view_dashboard_admin";
+						referencedColumns: ["client_id"];
+					},
+					{
+						foreignKeyName: "patients_id_planner_fkey";
+						columns: ["id_planner"];
+						isOneToOne: false;
+						referencedRelation: "view_dashboard_admin";
+						referencedColumns: ["planner_id"];
+					},
+					{
+						foreignKeyName: "patients_id_planner_fkey";
+						columns: ["id_planner"];
+						isOneToOne: false;
+						referencedRelation: "view_planners";
 						referencedColumns: ["id"];
 					},
 				];
@@ -127,10 +197,38 @@ export type Database = {
 						referencedColumns: ["id_role"];
 					},
 					{
+						foreignKeyName: "team_user_roles_id_role_fkey";
+						columns: ["id_role"];
+						isOneToOne: false;
+						referencedRelation: "view_planners";
+						referencedColumns: ["id_role"];
+					},
+					{
 						foreignKeyName: "team_user_roles_id_user_fkey";
 						columns: ["id_user"];
 						isOneToOne: false;
 						referencedRelation: "view_clients";
+						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "team_user_roles_id_user_fkey";
+						columns: ["id_user"];
+						isOneToOne: false;
+						referencedRelation: "view_dashboard_admin";
+						referencedColumns: ["client_id"];
+					},
+					{
+						foreignKeyName: "team_user_roles_id_user_fkey";
+						columns: ["id_user"];
+						isOneToOne: false;
+						referencedRelation: "view_dashboard_admin";
+						referencedColumns: ["planner_id"];
+					},
+					{
+						foreignKeyName: "team_user_roles_id_user_fkey";
+						columns: ["id_user"];
+						isOneToOne: false;
+						referencedRelation: "view_planners";
 						referencedColumns: ["id"];
 					},
 				];
@@ -138,6 +236,52 @@ export type Database = {
 		};
 		Views: {
 			view_clients: {
+				Row: {
+					case_status: string | null;
+					country: string | null;
+					created_at: string | null;
+					credits: number | null;
+					digital_model_zocalo_height: string | null;
+					email: string | null;
+					entity: string | null;
+					experience_in_digital_planning: string | null;
+					expiration: string | null;
+					how_did_you_meet_us: string | null;
+					id: string | null;
+					id_role: number | null;
+					logo: string | null;
+					notes: string | null;
+					phone: string | null;
+					planner: string | null;
+					reports_language: string | null;
+					role: string | null;
+					status: Database["op3dcloud"]["Enums"]["status"] | null;
+					status_files: string | null;
+					treatment_approach: string | null;
+					user_type: string | null;
+					username: string | null;
+					work_modality: string | null;
+				};
+				Relationships: [];
+			};
+			view_dashboard_admin: {
+				Row: {
+					case_status: string | null;
+					client_id: string | null;
+					client_name: string | null;
+					created_at: string | null;
+					expiration: string | null;
+					id: number | null;
+					notes: string | null;
+					patient_name: string | null;
+					planner_id: string | null;
+					planner_name: string | null;
+					status: string | null;
+					status_files: string | null;
+				};
+				Relationships: [];
+			};
+			view_planners: {
 				Row: {
 					case_status: string | null;
 					country: string | null;
