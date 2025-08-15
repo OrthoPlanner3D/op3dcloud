@@ -7,8 +7,11 @@ import Planners from "@/pages/planners";
 import PlannersStore from "@/pages/planners/store";
 import Register from "@/pages/register";
 import SignIn from "@/pages/sign-in";
+import TermsAndConditions from "@/pages/terms";
+import PrivacyPolicy from "@/pages/privacy";
 import PrivateGuard from "./guards/PrivateGuard";
 import PublicGuard from "./guards/PublicGuard";
+import PublicLayout from "@/layout/PublicLayout";
 
 const router = createBrowserRouter([
 	// Public routes
@@ -16,7 +19,9 @@ const router = createBrowserRouter([
 		path: "/registro",
 		element: (
 			<PublicGuard>
-				<Register />
+				<PublicLayout>
+					<Register />
+				</PublicLayout>
 			</PublicGuard>
 		),
 	},
@@ -24,7 +29,29 @@ const router = createBrowserRouter([
 		path: "/inicia-sesion",
 		element: (
 			<PublicGuard>
-				<SignIn />
+				<PublicLayout>
+					<SignIn />
+				</PublicLayout>
+			</PublicGuard>
+		),
+	},
+	{
+		path: "/terminos-y-condiciones",
+		element: (
+			<PublicGuard>
+				<PublicLayout>
+					<TermsAndConditions />
+				</PublicLayout>
+			</PublicGuard>
+		),
+	},
+	{
+		path: "/politica-de-privacidad",
+		element: (
+			<PublicGuard>
+				<PublicLayout>
+					<PrivacyPolicy />
+				</PublicLayout>
 			</PublicGuard>
 		),
 	},

@@ -98,11 +98,11 @@ export function LoginForm({
 			</form>
 			<div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
 				Al hacer clic en Continuar, usted acepta nuestros{" "}
-				<a href="https://www.orthoplanner3d.com/terminos-y-condiciones">
+				<a href="/terminos-y-condiciones">
 					Términos y condiciones
 				</a>{" "}
 				y nuestra{" "}
-				<a href="https://www.orthoplanner3d.com/politica-de-privacidad">
+				<a href="/politica-de-privacidad">
 					Política de privacidad
 				</a>
 				.
