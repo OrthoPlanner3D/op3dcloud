@@ -1,4 +1,4 @@
-import { ArrowLeftIcon, PlusIcon, UsersIcon } from "lucide-react";
+import { ArrowLeftIcon, PlusIcon, UsersIcon, FileTextIcon, ClipboardListIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import SearchInput from "@/components/search-input";
@@ -9,6 +9,7 @@ import { getPatientsByeCLient } from "@/services/supabase/patients.service";
 import { useUserStore } from "@/state/stores/useUserStore";
 import type { PatientsRow } from "@/types/db/patients/patients";
 import PatientDetail from "./components/patientDetails";
+import TreatmentPlanningForm from "../clients/components/display-form";
 
 export default function Patients() {
 	const user = useUserStore((state) => state.user);
@@ -17,6 +18,7 @@ export default function Patients() {
 	const [selectedPatient, setSelectedPatient] = useState<PatientsRow | null>(
 		null,
 	);
+	const [activeTab, setActiveTab] = useState<"details" | "form">("details");
 
 	const filteredPatients = searchQuery.trim()
 		? patients.filter((patient) => {
@@ -31,6 +33,7 @@ export default function Patients() {
 	const handleOnClick = (patient: PatientsRow) => {
 		console.log(patient);
 		setSelectedPatient(patient);
+		setActiveTab("details");
 	};
 
 	const handleSearch = (query: string) => {
@@ -112,7 +115,44 @@ export default function Patients() {
 
 				<div className="col-span-9 h-[calc(100vh-4.5rem)]">
 					{selectedPatient ? (
-						<PatientDetail patient={selectedPatient} />
+						<div className="h-full">
+							{/* Navegación de pestañas */}
+							<div className="border-b mb-4">
+								<div className="flex space-x-1">
+									<button
+										onClick={() => setActiveTab("details")}
+										className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+											activeTab === "details"
+												? "bg-background border-b-2 border-primary text-primary"
+												: "text-muted-foreground hover:text-foreground"
+										}`}
+									>
+										<FileTextIcon className="inline-block w-4 h-4 mr-2" />
+										Detalles del Paciente
+									</button>
+									<button
+										onClick={() => setActiveTab("form")}
+										className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+											activeTab === "form"
+												? "bg-background border-b-2 border-primary text-primary"
+												: "text-muted-foreground hover:text-foreground"
+										}`}
+									>
+										<ClipboardListIcon className="inline-block w-4 h-4 mr-2" />
+										Planificación de Tratamiento
+									</button>
+								</div>
+							</div>
+
+							{/* Contenido de las pestañas */}
+							{activeTab === "details" ? (
+								<PatientDetail patient={selectedPatient} />
+							) : (
+								<div className="h-full overflow-auto">
+									<TreatmentPlanningForm />
+								</div>
+							)}
+						</div>
 					) : (
 						<div className="h-full flex items-center justify-center">
 							<EmptyPatient />

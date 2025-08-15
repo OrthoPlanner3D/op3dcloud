@@ -10,7 +10,7 @@ export default function Clients() {
 	const data = use(dashboardAdminPromise);
 
 	return (
-		<div className="border-2 border-blue-500 border-dotted w-full min-h-[calc(100vh-2.75rem)] lg:h-full">
+		<div className="w-full min-h-[calc(100vh-2.75rem)] lg:h-full">
 			<div className="container mx-auto">
 				<DataTable columns={columns} data={data} />
 				<ModalEditClient />
