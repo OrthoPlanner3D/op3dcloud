@@ -11,22 +11,22 @@ export type Database = {
     Tables: {
       patients: {
         Row: {
-          case_status: string
+          case_status: string | null
           created_at: string
           declared_limitations: string
           dental_restrictions: string
-          expiration: string
+          expiration: string | null
           files: string
           id: number
           id_client: string
-          id_planner: string
+          id_planner: string | null
           last_name: string
           name: string
-          notes: string
-          observations: string
+          notes: string | null
+          observations: string | null
           observations_or_instructions: string
-          status: string
-          status_files: string
+          status: string | null
+          status_files: string | null
           suggested_adminations_and_actions: string
           sworn_declaration: boolean
           treatment_approach: string
@@ -34,22 +34,22 @@ export type Database = {
           type_of_plan: string
         }
         Insert: {
-          case_status: string
+          case_status?: string | null
           created_at?: string
           declared_limitations: string
           dental_restrictions: string
-          expiration: string
+          expiration?: string | null
           files: string
           id?: never
           id_client: string
-          id_planner: string
+          id_planner?: string | null
           last_name: string
           name: string
-          notes: string
-          observations: string
+          notes?: string | null
+          observations?: string | null
           observations_or_instructions: string
-          status: string
-          status_files: string
+          status?: string | null
+          status_files?: string | null
           suggested_adminations_and_actions: string
           sworn_declaration?: boolean
           treatment_approach: string
@@ -57,22 +57,22 @@ export type Database = {
           type_of_plan: string
         }
         Update: {
-          case_status?: string
+          case_status?: string | null
           created_at?: string
           declared_limitations?: string
           dental_restrictions?: string
-          expiration?: string
+          expiration?: string | null
           files?: string
           id?: never
           id_client?: string
-          id_planner?: string
+          id_planner?: string | null
           last_name?: string
           name?: string
-          notes?: string
-          observations?: string
+          notes?: string | null
+          observations?: string | null
           observations_or_instructions?: string
-          status?: string
-          status_files?: string
+          status?: string | null
+          status_files?: string | null
           suggested_adminations_and_actions?: string
           sworn_declaration?: boolean
           treatment_approach?: string

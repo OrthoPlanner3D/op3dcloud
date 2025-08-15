@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/stepper";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/config/supabase.config";
+import { useUserStore } from "@/state/stores/useUserStore";
 import type { PatientsInsert } from "@/types/db/patients/patients";
 
 const steps = [1, 2, 3, 4, 5];
@@ -38,6 +39,7 @@ const steps = [1, 2, 3, 4, 5];
 export default function CreatePatient() {
 	const [currentStep, setCurrentStep] = useState(1);
 	const navigate = useNavigate();
+	const user = useUserStore((state) => state.user);
 	const form = useForm<PatientsInsert>({
 		defaultValues: {
 			name: "",
@@ -117,9 +119,14 @@ export default function CreatePatient() {
 
 	async function onSubmit(values: PatientsInsert) {
 		try {
-			console.log("Enviando...");
-			console.log(values);
-			await createPatient(values);
+			if (!user?.id) {
+				throw new Error("Usuario no autenticado");
+			}
+
+			await createPatient({
+				...values,
+				id_client: user.id,
+			});
 
 			navigate("/", {
 				state: {
