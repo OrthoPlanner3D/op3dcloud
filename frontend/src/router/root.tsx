@@ -16,45 +16,34 @@ import PublicLayout from "@/layout/PublicLayout";
 const router = createBrowserRouter([
 	// Public routes
 	{
-		path: "/registro",
+		path: "/public",
 		element: (
 			<PublicGuard>
 				<PublicLayout>
-					<Register />
+					<Outlet />
 				</PublicLayout>
 			</PublicGuard>
 		),
+		children: [
+			{
+				path: "registro",
+				element: <Register />,
+			},
+			{
+				path: "inicia-sesion",
+				element: <SignIn />,
+			},
+			{
+				path: "terminos-y-condiciones",
+				element: <TermsAndConditions />,
+			},
+			{
+				path: "politica-de-privacidad",
+				element: <PrivacyPolicy />,
+			},
+		],
 	},
-	{
-		path: "/inicia-sesion",
-		element: (
-			<PublicGuard>
-				<PublicLayout>
-					<SignIn />
-				</PublicLayout>
-			</PublicGuard>
-		),
-	},
-	{
-		path: "/terminos-y-condiciones",
-		element: (
-			<PublicGuard>
-				<PublicLayout>
-					<TermsAndConditions />
-				</PublicLayout>
-			</PublicGuard>
-		),
-	},
-	{
-		path: "/politica-de-privacidad",
-		element: (
-			<PublicGuard>
-				<PublicLayout>
-					<PrivacyPolicy />
-				</PublicLayout>
-			</PublicGuard>
-		),
-	},
+	
 	// Private routes for clients
 	{
 		path: "/",
@@ -112,7 +101,7 @@ const router = createBrowserRouter([
 	},
 	{
 		path: "*",
-		element: <Navigate to="/inicia-sesion" />,
+		element: <Navigate to="/public/inicia-sesion" />,
 	},
 ]);
 

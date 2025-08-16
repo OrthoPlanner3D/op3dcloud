@@ -137,16 +137,6 @@ export default function TermsAndConditions() {
       </div>
 
       <Separator className="my-8" />
-      
-      <div className="text-center text-sm text-muted-foreground">
-        <p className="mb-4">
-          La aceptación de estos términos se formaliza mediante la marcación del checkbox correspondiente 
-          previo al uso de la Plataforma.
-        </p>
-        <p className="font-medium">
-          © 2024 OrthoPlanner3D™. Todos los derechos reservados.
-        </p>
-      </div>
     </div>
   );
 }

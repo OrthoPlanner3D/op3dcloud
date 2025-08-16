@@ -44,8 +44,7 @@ export function LoginForm({
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<div className="flex flex-col gap-6">
 					<div className="flex flex-col items-center gap-2">
-						<a
-							href="https://www.orthoplanner3d.com/"
+						<Link to="/"
 							className="flex flex-col items-center gap-2 font-medium"
 							target="_blank"
 							rel="noreferrer"
@@ -54,7 +53,7 @@ export function LoginForm({
 								<BrandLogo className="size-26" />
 							</div>
 							<span className="sr-only">OP3DCloud.</span>
-						</a>
+						</Link>
 						<h1 className="text-xl font-bold">
 							Bienvenido a OP3D&trade;.
 						</h1>
@@ -98,13 +97,19 @@ export function LoginForm({
 			</form>
 			<div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
 				Al hacer clic en Continuar, usted acepta nuestros{" "}
-				<a href="/terminos-y-condiciones">
+				<Link
+					to="/terminos-y-condiciones"
+					className="underline underline-offset-4"
+				>
 					Términos y condiciones
-				</a>{" "}
+				</Link>{" "}
 				y nuestra{" "}
-				<a href="/politica-de-privacidad">
+				<Link
+					to="/politica-de-privacidad"
+					className="underline underline-offset-4"
+				>
 					Política de privacidad
-				</a>
+				</Link>
 				.
 			</div>
 		</div>
