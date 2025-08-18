@@ -62,8 +62,8 @@ export default function Patients() {
 				</Link>
 			</div>
 
-			<div className="grid grid-cols-1 md:grid-cols-12 md:h-[calc(100vh-4.5rem)] lg:gap-2">
-				<div className="col-span-3 h-[calc(100vh-4.5rem) space-y-3">
+			<div className="grid grid-cols-1 md:grid-cols-12 lg:gap-2">
+				<div className="col-span-3 h-[calc(100vh-4.5rem)] space-y-3">
 					<div>
 						<SearchInput
 							onSearch={handleSearch}
@@ -113,9 +113,9 @@ export default function Patients() {
 					</ScrollArea>
 				</div>
 
-				<div className="col-span-9 h-[calc(100vh-4.5rem)]">
+				<div className="col-span-9">
 					{selectedPatient ? (
-						<div className="h-full">
+						<div>
 							{/* Navegación de pestañas */}
 							<div className="border-b mb-4">
 								<div className="flex space-x-1">
@@ -146,9 +146,11 @@ export default function Patients() {
 
 							{/* Contenido de las pestañas */}
 							{activeTab === "details" ? (
-								<PatientDetail patient={selectedPatient} />
+								<div className="h-[calc(100vh-4.5rem)] overflow-auto">
+									<PatientDetail patient={selectedPatient} />
+								</div>
 							) : (
-								<div className="h-full overflow-auto">
+								<div>
 									<TreatmentPlanningForm />
 								</div>
 							)}
