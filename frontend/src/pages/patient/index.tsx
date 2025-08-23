@@ -1,4 +1,10 @@
-import { ArrowLeftIcon, PlusIcon, UsersIcon, FileTextIcon, ClipboardListIcon } from "lucide-react";
+import {
+	ArrowLeftIcon,
+	ClipboardListIcon,
+	FileTextIcon,
+	PlusIcon,
+	UsersIcon,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import SearchInput from "@/components/search-input";
@@ -8,8 +14,8 @@ import { formatDate } from "@/lib/utils";
 import { getPatientsByeCLient } from "@/services/supabase/patients.service";
 import { useUserStore } from "@/state/stores/useUserStore";
 import type { PatientsRow } from "@/types/db/patients/patients";
-import PatientDetail from "./components/patientDetails";
 import TreatmentPlanningForm from "../clients/components/display-form";
+import PatientDetail from "./components/patientDetails";
 
 export default function Patients() {
 	const user = useUserStore((state) => state.user);
@@ -120,6 +126,7 @@ export default function Patients() {
 							<div className="border-b mb-4">
 								<div className="flex space-x-1">
 									<button
+										type="button"
 										onClick={() => setActiveTab("details")}
 										className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
 											activeTab === "details"
@@ -131,6 +138,7 @@ export default function Patients() {
 										Detalles del Paciente
 									</button>
 									<button
+										type="button"
 										onClick={() => setActiveTab("form")}
 										className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
 											activeTab === "form"

@@ -1,22 +1,22 @@
 import { createBrowserRouter, Navigate, Outlet } from "react-router";
+import PublicLayout from "@/layout/PublicLayout";
 import Accesses from "@/pages/accesses";
 import Clients from "@/pages/clients";
 import Patients from "@/pages/patient";
 import CreatePatient from "@/pages/patient/create";
 import Planners from "@/pages/planners";
 import PlannersStore from "@/pages/planners/store";
+import PrivacyPolicy from "@/pages/privacy";
 import Register from "@/pages/register";
 import SignIn from "@/pages/sign-in";
 import TermsAndConditions from "@/pages/terms";
-import PrivacyPolicy from "@/pages/privacy";
 import PrivateGuard from "./guards/PrivateGuard";
 import PublicGuard from "./guards/PublicGuard";
-import PublicLayout from "@/layout/PublicLayout";
 
 const router = createBrowserRouter([
 	// Public routes
 	{
-		path: "/public",
+		path: "/",
 		element: (
 			<PublicGuard>
 				<PublicLayout>
@@ -30,6 +30,7 @@ const router = createBrowserRouter([
 				element: <Register />,
 			},
 			{
+				index: true,
 				path: "inicia-sesion",
 				element: <SignIn />,
 			},
@@ -43,7 +44,7 @@ const router = createBrowserRouter([
 			},
 		],
 	},
-	
+
 	// Private routes for clients
 	{
 		path: "/",
@@ -90,6 +91,19 @@ const router = createBrowserRouter([
 		],
 	},
 	{
+		path: "/dashboard",
+		element: (
+			<PrivateGuard>
+				<Outlet />
+			</PrivateGuard>
+		),
+		children: [
+			{
+				index: true,
+			},
+		],
+	},
+	{
 		path: "/auth/callback",
 		element: (
 			<PublicGuard>
@@ -101,7 +115,7 @@ const router = createBrowserRouter([
 	},
 	{
 		path: "*",
-		element: <Navigate to="/public/inicia-sesion" />,
+		element: <Navigate to="/inicia-sesion" />,
 	},
 ]);
 

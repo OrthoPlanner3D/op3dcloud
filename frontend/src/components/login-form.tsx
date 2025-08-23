@@ -44,7 +44,8 @@ export function LoginForm({
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<div className="flex flex-col gap-6">
 					<div className="flex flex-col items-center gap-2">
-						<Link to="/"
+						<Link
+							to="/"
 							className="flex flex-col items-center gap-2 font-medium"
 							target="_blank"
 							rel="noreferrer"
