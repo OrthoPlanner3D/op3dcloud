@@ -1,5 +1,5 @@
-import { ChevronsUpDown, LogOut, User2 } from "lucide-react";
-import { useNavigate } from "react-router";
+import { ChevronsUpDown, FingerprintIcon, LogOut, User2 } from "lucide-react";
+import { Link, useNavigate } from "react-router";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
 	DropdownMenu,
@@ -80,6 +80,12 @@ export function NavUser() {
 						<DropdownMenuItem onClick={handleLogout}>
 							<LogOut />
 							Log out
+						</DropdownMenuItem>
+						<DropdownMenuItem asChild>
+							<Link to="/accesos">
+								<FingerprintIcon />
+								Accesos
+							</Link>
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>

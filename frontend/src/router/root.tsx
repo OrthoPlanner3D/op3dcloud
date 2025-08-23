@@ -1,4 +1,5 @@
 import { createBrowserRouter, Navigate, Outlet } from "react-router";
+import Accesses from "@/pages/accesses";
 import Clients from "@/pages/clients";
 import Patients from "@/pages/patient";
 import CreatePatient from "@/pages/patient/create";
@@ -65,6 +66,10 @@ const router = createBrowserRouter([
 						element: <PlannersStore />,
 					},
 				],
+			},
+			{
+				path: "accesos",
+				element: <Accesses />,
 			},
 		],
 	},
