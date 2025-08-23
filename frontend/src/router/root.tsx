@@ -2,6 +2,8 @@ import { createBrowserRouter, Navigate, Outlet } from "react-router";
 import Clients from "@/pages/clients";
 import Patients from "@/pages/patient";
 import CreatePatient from "@/pages/patient/create";
+import Planners from "@/pages/planners";
+import PlannersStore from "@/pages/planners/store";
 import Register from "@/pages/register";
 import SignIn from "@/pages/sign-in";
 import PrivateGuard from "./guards/PrivateGuard";
@@ -48,6 +50,19 @@ const router = createBrowserRouter([
 					{
 						path: "crear",
 						element: <CreatePatient />,
+					},
+				],
+			},
+			{
+				path: "planificadores",
+				children: [
+					{
+						index: true,
+						element: <Planners />,
+					},
+					{
+						path: "crear",
+						element: <PlannersStore />,
 					},
 				],
 			},
