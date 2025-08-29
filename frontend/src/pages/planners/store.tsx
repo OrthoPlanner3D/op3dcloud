@@ -13,6 +13,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/config/supabase.config";
 
 interface IFormValues {
 	name: string;
@@ -26,20 +27,57 @@ export default function PlannersStore() {
 	const form = useForm<IFormValues>();
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 
-	function onSubmit(values: IFormValues) {
+	async function onSubmit(values: IFormValues) {
 		try {
-			console.log(values);
-			toast(
-				<pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-					<code className="text-white">
-						{JSON.stringify(values, null, 2)}
-					</code>
-				</pre>,
-			);
+			// Validate password confirmation
+			if (values.password !== values.confirm_password) {
+				toast.error("Las contraseñas no coinciden");
+				return;
+			}
+
+			setIsLoading(true);
+
+			// Sign up with Supabase
+			const { data, error } = await supabase.auth.signUp({
+				email: values.email,
+				password: values.password,
+				options: {
+					data: {
+						name: values.name,
+						lastname: values.lastname,
+						email: values.email,
+						role: 'planner', // Assuming you want to set a role for planners
+						password: values.password,
+						confirm_password: values.confirm_password,
+					}
+				}
+			});
+
+			if (error) {
+				console.error("Supabase signup error:", error);
+				toast.error(error.message || "Error al registrar el usuario");
+				return;
+			}
+
+			if (data.user) {
+				toast.success("Usuario registrado exitosamente");
+				// Reset form after successful submission
+				form.reset({
+					name: '',
+					lastname: '',
+					email: '',
+					password: '',
+					confirm_password: ''
+				});
+			}
+
 		} catch (error) {
 			console.error("Form submission error", error);
-			toast.error("Failed to submit the form. Please try again.");
+			toast.error("Error al enviar el formulario. Por favor, inténtalo de nuevo.");
+		} finally {
+			setIsLoading(false);
 		}
 	}
 
@@ -210,7 +248,9 @@ export default function PlannersStore() {
 								/>
 							</div>
 						</div>
-						<Button type="submit">Registrar</Button>
+						<Button type="submit" disabled={isLoading}>
+							{isLoading ? "Registrando..." : "Registrar"}
+						</Button>
 					</form>
 				</Form>
 			</div>
