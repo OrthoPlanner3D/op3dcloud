@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -26,7 +24,6 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-// Schema de validación
 const formSchema = z.object({
 	maxilares: z.string().min(1, "Debe seleccionar un maxilar"),
 	cantidadSuperior: z.string().min(1, "Cantidad superior es requerida"),
@@ -44,7 +41,6 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-// Valores por defecto del formulario
 const defaultValues: FormData = {
 	maxilares: "",
 	cantidadSuperior: "",
@@ -69,14 +65,12 @@ export default function TreatmentPlanningForm() {
 		defaultValues,
 	});
 
-	// Watch para campos de selección múltiple
 	const watchedManufactura = form.watch("manufactura");
 	const watchedConsideracionesDiagnosticas = form.watch("consideracionesDiagnosticas");
 	const watchedCriterioAccionClinica = form.watch("criterioAccionClinica");
 	const watchedDerivaciones = form.watch("derivaciones");
 	const watchedPotencialVenta = form.watch("potencialVenta");
 
-	// Función para manejar cambios en campos de selección múltiple
 	const handleMultiSelectChange = (field: keyof FormData, value: string) => {
 		const currentValues = form.getValues(field) as string[] || [];
 		const newValues = currentValues.includes(value)
@@ -85,26 +79,19 @@ export default function TreatmentPlanningForm() {
 		form.setValue(field, newValues);
 	};
 
-	// Función para resetear el formulario
 	const resetForm = () => {
 		form.reset(defaultValues);
 		setResetKey(prev => prev + 1);
 	};
 
-	// Función para enviar el formulario
 	const onSubmit = async (data: FormData) => {
 		try {
 			setIsLoading(true);
 			
-			// Simular operación asíncrona
 			await new Promise(resolve => setTimeout(resolve, 1000));
 			
-			// Agregar IDs automáticamente
 			const formDataWithIds = {
 				...data,
-				idPaciente: "123",
-				idCliente: "456",
-				idPlanner: "789",
 			};
 			
 			console.log("Datos del formulario de planificación con IDs:", formDataWithIds);
@@ -120,13 +107,11 @@ export default function TreatmentPlanningForm() {
 		}
 	};
 
-	// Función para limpiar el formulario
 	const handleReset = () => {
 		resetForm();
 		toast.info("Formulario limpiado");
 	};
 
-	// Componente para mostrar valores seleccionados
 	const SelectedValues = ({ 
 		values, 
 		field, 
@@ -168,7 +153,6 @@ export default function TreatmentPlanningForm() {
 
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-					{/* Maxilares a Tratar */}
 					<FormField
 						control={form.control}
 						name="maxilares"
@@ -195,7 +179,6 @@ export default function TreatmentPlanningForm() {
 						)}
 					/>
 
-					{/* Cantidades */}
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<FormField
 							control={form.control}
@@ -242,7 +225,6 @@ export default function TreatmentPlanningForm() {
 						/>
 					</div>
 
-					{/* Render Simulación */}
 					<FormField
 						control={form.control}
 						name="renderSimulacion"
@@ -264,7 +246,6 @@ export default function TreatmentPlanningForm() {
 						)}
 					/>
 
-					{/* Complejidad */}
 					<FormField
 						control={form.control}
 						name="complejidad"
@@ -308,7 +289,6 @@ export default function TreatmentPlanningForm() {
 						)}
 					/>
 
-					{/* Pronóstico */}
 					<FormField
 						control={form.control}
 						name="pronostico"
@@ -351,7 +331,6 @@ export default function TreatmentPlanningForm() {
 						)}
 					/>
 
-					{/* Manufactura */}
 					<FormField
 						control={form.control}
 						name="manufactura"
@@ -389,7 +368,6 @@ export default function TreatmentPlanningForm() {
 						)}
 					/>
 
-					{/* Consideraciones Diagnósticas */}
 					<FormField
 						control={form.control}
 						name="consideracionesDiagnosticas"
@@ -428,7 +406,6 @@ export default function TreatmentPlanningForm() {
 						)}
 					/>
 
-					{/* Criterio de Acción Clínica */}
 					<FormField
 						control={form.control}
 						name="criterioAccionClinica"
@@ -468,7 +445,6 @@ export default function TreatmentPlanningForm() {
 						)}
 					/>
 
-					{/* Derivaciones */}
 					<FormField
 						control={form.control}
 						name="derivaciones"
@@ -507,7 +483,6 @@ export default function TreatmentPlanningForm() {
 						)}
 					/>
 
-					{/* Potencial de Venta */}
 					<FormField
 						control={form.control}
 						name="potencialVenta"
@@ -546,7 +521,6 @@ export default function TreatmentPlanningForm() {
 						)}
 					/>
 
-					{/* Observaciones Adicionales */}
 					<FormField
 						control={form.control}
 						name="observacionesAdicionales"
@@ -569,7 +543,6 @@ export default function TreatmentPlanningForm() {
 						)}
 					/>
 
-					{/* Botones de acción */}
 					<div className="flex justify-end space-x-4">
 						<Button
 							type="button"
