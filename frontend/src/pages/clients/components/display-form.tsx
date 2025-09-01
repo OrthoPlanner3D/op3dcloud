@@ -88,13 +88,12 @@ export default function TreatmentPlanningForm() {
 		try {
 			setIsLoading(true);
 			
-			await new Promise(resolve => setTimeout(resolve, 1000));
-			
-			const formDataWithIds = {
+			const formData= {
 				...data,
 			};
 			
-			console.log("Datos del formulario de planificación con IDs:", formDataWithIds);
+			//quitar los ids seteados en el formulario
+			console.log("Datos del formulario de planificación:", formData);
 			toast.success("Formulario enviado correctamente");
 			
 			resetForm();
