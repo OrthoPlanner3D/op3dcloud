@@ -24,10 +24,20 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { getPatientById, updatePatient } from "@/services/supabase/dashboard-admin.service";
+import {
+	getPatientById,
+	updatePatient,
+} from "@/services/supabase/dashboard-admin.service";
 import { getPlanners } from "@/services/supabase/planners.service";
-import type { DashboardAdminViewRow, PatientUpdateData } from "@/types/db/dashboard-admin/dashboard-admin";
+import type {
+	DashboardAdminViewRow,
+	PatientUpdateData,
+} from "@/types/db/dashboard-admin/dashboard-admin";
 import useEditClientModalStore from "../state/stores/useEditClientModalStore";
+
+interface ModalEditClientProps {
+	onClientUpdated?: () => void;
+}
 
 interface IFormData {
 	id_planner: string;
@@ -38,7 +48,7 @@ interface IFormData {
 
 const plannersPromise = getPlanners();
 
-export default function ModalEditClient() {
+export default function ModalEditClient({ onClientUpdated }: ModalEditClientProps) {
 	const id = useEditClientModalStore((state) => state.id);
 	const isOpen = useEditClientModalStore((state) => state.isOpen);
 	const close = useEditClientModalStore((state) => state.close);
@@ -51,9 +61,9 @@ export default function ModalEditClient() {
 	const onSubmit = async (values: IFormData) => {
 		try {
 			if (!id) return;
-			
+
 			setIsLoading(true);
-			
+
 			const updateData: PatientUpdateData = {
 				id_planner: values.id_planner || null,
 				status_files: values.status_files || null,
@@ -65,8 +75,8 @@ export default function ModalEditClient() {
 
 			toast.success("Cliente actualizado exitosamente");
 			close();
-			// Recargar la página para mostrar los cambios actualizados
-			window.location.reload();
+			// Trigger data refresh in parent component
+			onClientUpdated?.();
 		} catch (error) {
 			console.error("Error updating patient:", error);
 			toast.error("Error al actualizar el cliente. Inténtalo de nuevo.");
@@ -110,27 +120,32 @@ export default function ModalEditClient() {
 				<DialogHeader>
 					<DialogTitle>Editar cliente</DialogTitle>
 				</DialogHeader>
-				<Form {...form}>
-					<form
-						onSubmit={form.handleSubmit(onSubmit)}
-						className="space-y-8 max-w-3xl mx-auto py-10 w-full"
-					>
-						{isLoadingPatient && (
-							<div className="text-center py-4">
-								<div className="text-sm text-muted-foreground">Cargando datos del cliente...</div>
-							</div>
-						)}
-						{!isLoadingPatient && !patient && (
-							<div className="text-center py-4">
-								<div className="text-sm text-muted-foreground">No se pudieron cargar los datos del cliente</div>
-							</div>
-						)}
-					<FormField
-						control={form.control}
-						name="id_planner"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Planificador</FormLabel>
+				{isLoadingPatient && (
+					<div className="text-center py-4">
+						<div className="text-sm text-muted-foreground">
+							Cargando datos del cliente...
+						</div>
+					</div>
+				)}
+				{!isLoadingPatient && !patient && (
+					<div className="text-center py-4">
+						<div className="text-sm text-muted-foreground">
+							No se pudieron cargar los datos del cliente
+						</div>
+					</div>
+				)}
+				{!isLoadingPatient && patient && (
+					<Form {...form}>
+						<form
+							onSubmit={form.handleSubmit(onSubmit)}
+							className="space-y-8 max-w-3xl mx-auto py-10 w-full"
+						>
+						<FormField
+							control={form.control}
+							name="id_planner"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Planificador</FormLabel>
 									<Select
 										onValueChange={field.onChange}
 										defaultValue={field.value}
@@ -142,24 +157,24 @@ export default function ModalEditClient() {
 												<SelectValue placeholder="Selecciona un planificador" />
 											</SelectTrigger>
 										</FormControl>
-									<SelectContent>
-										{planners &&
-											planners.length > 0 &&
-											planners.map((planner) => (
-												<SelectItem
-													key={planner.id}
-													value={planner.id ?? ""}
-												>
-													{planner.username}
-												</SelectItem>
-											))}
-									</SelectContent>
-								</Select>
+										<SelectContent>
+											{planners &&
+												planners.length > 0 &&
+												planners.map((planner) => (
+													<SelectItem
+														key={planner.id}
+														value={planner.id ?? ""}
+													>
+														{planner.username}
+													</SelectItem>
+												))}
+										</SelectContent>
+									</Select>
 
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 
 						<FormField
 							control={form.control}
@@ -268,11 +283,16 @@ export default function ModalEditClient() {
 								</FormItem>
 							)}
 						/>
-						<Button type="submit" className="w-full" disabled={isLoading || isLoadingPatient}>
-							{isLoading ? "Guardando..." : "Guardar"}
-						</Button>
-					</form>
-				</Form>
+							<Button
+								type="submit"
+								className="w-full"
+								disabled={isLoading || isLoadingPatient}
+							>
+								{isLoading ? "Guardando..." : "Guardar"}
+							</Button>
+						</form>
+					</Form>
+				)}
 			</DialogContent>
 		</Dialog>
 	);

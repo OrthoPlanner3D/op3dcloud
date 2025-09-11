@@ -48,11 +48,11 @@ export default function PlannersStore() {
 						name: values.name,
 						lastname: values.lastname,
 						email: values.email,
-						role: 'planner', // Assuming you want to set a role for planners
+						role: "planner", // Assuming you want to set a role for planners
 						password: values.password,
 						confirm_password: values.confirm_password,
-					}
-				}
+					},
+				},
 			});
 
 			if (error) {
@@ -65,17 +65,18 @@ export default function PlannersStore() {
 				toast.success("Usuario registrado exitosamente");
 				// Reset form after successful submission
 				form.reset({
-					name: '',
-					lastname: '',
-					email: '',
-					password: '',
-					confirm_password: ''
+					name: "",
+					lastname: "",
+					email: "",
+					password: "",
+					confirm_password: "",
 				});
 			}
-
 		} catch (error) {
 			console.error("Form submission error", error);
-			toast.error("Error al enviar el formulario. Por favor, inténtalo de nuevo.");
+			toast.error(
+				"Error al enviar el formulario. Por favor, inténtalo de nuevo.",
+			);
 		} finally {
 			setIsLoading(false);
 		}
