@@ -1,5 +1,4 @@
-"use client";
-
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -13,607 +12,551 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import {
+	Form,
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
-// Tipo para los datos del formulario
-type FormData = {
-	maxilares: string;
-	cantidadSuperior: string;
-	cantidadInferior: string;
-	renderSimulacion: string;
-	complejidad: string;
-	pronostico: string;
-	manufactura: string[];
-	consideracionesDiagnosticas: string[];
-	criterioAccionClinica: string[];
-	derivaciones: string[];
-	potencialVenta: string[];
-	observacionesAdicionales: string;
+const formSchema = z.object({
+	maxilares: z.string().min(1, "Debe seleccionar un maxilar"),
+	cantidadSuperior: z.string().min(1, "Cantidad superior es requerida"),
+	cantidadInferior: z.string().min(1, "Cantidad inferior es requerida"),
+	renderSimulacion: z.string().url("Debe ser una URL válida").optional().or(z.literal("")),
+	complejidad: z.string().min(1, "Debe seleccionar la complejidad"),
+	pronostico: z.string().min(1, "Debe seleccionar el pronóstico"),
+	manufactura: z.array(z.string()).min(1, "Debe seleccionar al menos una opción"),
+	consideracionesDiagnosticas: z.array(z.string()).min(1, "Debe seleccionar al menos una consideración"),
+	criterioAccionClinica: z.array(z.string()).min(1, "Debe seleccionar al menos un criterio"),
+	derivaciones: z.array(z.string()).optional(),
+	potencialVenta: z.array(z.string()).optional(),
+	observacionesAdicionales: z.string().optional(),
+});
+
+type FormData = z.infer<typeof formSchema>;
+
+const defaultValues: FormData = {
+	maxilares: "",
+	cantidadSuperior: "",
+	cantidadInferior: "",
+	renderSimulacion: "",
+	complejidad: "",
+	pronostico: "",
+	manufactura: [],
+	consideracionesDiagnosticas: [],
+	criterioAccionClinica: [],
+	derivaciones: [],
+	potencialVenta: [],
+	observacionesAdicionales: "",
 };
 
 export default function TreatmentPlanningForm() {
-	// Inicializar React Hook Form
-	const { register, handleSubmit, setValue, watch, reset } =
-		useForm<FormData>({
-			defaultValues: {
-				maxilares: "",
-				cantidadSuperior: "",
-				cantidadInferior: "",
-				renderSimulacion: "",
-				complejidad: "",
-				pronostico: "",
-				manufactura: [],
-				consideracionesDiagnosticas: [],
-				criterioAccionClinica: [],
-				derivaciones: [],
-				potencialVenta: [],
-				observacionesAdicionales: "",
-			},
-		});
+	const [isLoading, setIsLoading] = useState(false);
+	const [resetKey, setResetKey] = useState(0);
 
-	// Función para manejar cambios en campos de selección múltiple
+	const form = useForm<FormData>({
+		resolver: zodResolver(formSchema),
+		defaultValues,
+	});
+
+	const watchedManufactura = form.watch("manufactura");
+	const watchedConsideracionesDiagnosticas = form.watch("consideracionesDiagnosticas");
+	const watchedCriterioAccionClinica = form.watch("criterioAccionClinica");
+	const watchedDerivaciones = form.watch("derivaciones");
+	const watchedPotencialVenta = form.watch("potencialVenta");
+
 	const handleMultiSelectChange = (field: keyof FormData, value: string) => {
-		const currentValues = (watch(field) as string[]) || [];
-		if (currentValues.includes(value)) {
-			setValue(
-				field,
-				currentValues.filter((v: string) => v !== value),
-			);
-		} else {
-			setValue(field, [...currentValues, value]);
+		const currentValues = form.getValues(field) as string[] || [];
+		const newValues = currentValues.includes(value)
+			? currentValues.filter((v: string) => v !== value)
+			: [...currentValues, value];
+		form.setValue(field, newValues);
+	};
+
+	const resetForm = () => {
+		form.reset(defaultValues);
+		setResetKey(prev => prev + 1);
+	};
+
+	const onSubmit = async (data: FormData) => {
+		try {
+			setIsLoading(true);
+			
+			const formData= {
+				...data,
+			};
+			
+			//quitar los ids seteados en el formulario
+			console.log("Datos del formulario de planificación:", formData);
+			toast.success("Formulario enviado correctamente");
+			
+			resetForm();
+			
+		} catch (error) {
+			console.error("Error al enviar el formulario:", error);
+			toast.error("Error al enviar el formulario. Por favor, inténtalo de nuevo.");
+		} finally {
+			setIsLoading(false);
 		}
 	};
 
-	// Función para enviar el formulario
-	const onSubmit = (_data: FormData) => {
-		toast.success("Formulario enviado correctamente");
+	const handleReset = () => {
+		resetForm();
+		toast.info("Formulario limpiado");
 	};
 
-	// Función para limpiar el formulario
-	const handleReset = () => {
-		reset();
-	};
+	const SelectedValues = ({ 
+		values, 
+		field, 
+		colorClass 
+	}: { 
+		values: string[]; 
+		field: keyof FormData; 
+		colorClass: string; 
+	}) => (
+		<div className="mt-2 flex flex-wrap gap-1">
+			{values.map((value) => (
+				<span
+					key={value}
+					className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${colorClass}`}
+				>
+					{value}
+					<button
+						type="button"
+						className="ml-1 hover:opacity-70"
+						onClick={() => handleMultiSelectChange(field, value)}
+					>
+						×
+					</button>
+				</span>
+			))}
+		</div>
+	);
 
 	return (
 		<div className="max-w-4xl mx-auto py-10">
-			{/* Encabezado del formulario */}
 			<div className="mb-8">
 				<h1 className="text-3xl font-bold text-gray-900 mb-2">
 					Planificación de Tratamiento
 				</h1>
 				<p className="text-gray-600">
-					Complete el formulario para la planificación del caso
-					ortodóntico
+					Complete el formulario para la planificación del caso ortodóntico
 				</p>
 			</div>
 
-			<form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-				{/* Campo: Maxilares a Tratar */}
-				<div>
-					<label
-						htmlFor="maxilares"
-						className="block text-sm font-medium text-gray-700 mb-2"
-					>
-						Maxilares a Tratar
-					</label>
-					<Select
-						onValueChange={(value) => setValue("maxilares", value)}
-					>
-						<SelectTrigger id="maxilares">
-							<SelectValue placeholder="Seleccionar Maxilar" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="ambos">Ambos</SelectItem>
-							<SelectItem value="superior">Superior</SelectItem>
-							<SelectItem value="inferior">Inferior</SelectItem>
-						</SelectContent>
-					</Select>
-					<p className="mt-1 text-sm text-gray-500">
-						Indica qué maxilares serán tratados en la planificación
-					</p>
-				</div>
+			<Form {...form}>
+				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+					<FormField
+						control={form.control}
+						name="maxilares"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Maxilares a Tratar</FormLabel>
+								<FormControl>
+									<Select onValueChange={field.onChange} value={field.value}>
+										<SelectTrigger>
+											<SelectValue placeholder="Seleccionar Maxilar" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="ambos">Ambos</SelectItem>
+											<SelectItem value="superior">Superior</SelectItem>
+											<SelectItem value="inferior">Inferior</SelectItem>
+										</SelectContent>
+									</Select>
+								</FormControl>
+								<FormDescription>
+									Indica qué maxilares serán tratados en la planificación
+								</FormDescription>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
 
-				{/* Grid para campos de cantidad */}
-				<div className="grid grid-cols-12 gap-4">
-					<div className="col-span-4">
-						<label
-							htmlFor="cantidadSuperior"
-							className="block text-sm font-medium text-gray-700 mb-2"
-						>
-							Cantidad en Superior
-						</label>
-						<Input
-							id="cantidadSuperior"
-							placeholder="Cantidad"
-							type="number"
-							{...register("cantidadSuperior")}
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<FormField
+							control={form.control}
+							name="cantidadSuperior"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Cantidad en Superior</FormLabel>
+									<FormControl>
+										<Input
+											placeholder="Cantidad"
+											type="number"
+											min="1"
+											{...field}
+										/>
+									</FormControl>
+									<FormDescription>
+										Cantidad de alineadores para el maxilar superior
+									</FormDescription>
+									<FormMessage />
+								</FormItem>
+							)}
 						/>
-						<p className="mt-1 text-sm text-gray-500">
-							Cantidad de alineadores para el maxilar superior
-						</p>
+
+						<FormField
+							control={form.control}
+							name="cantidadInferior"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Cantidad en Inferior</FormLabel>
+									<FormControl>
+										<Input
+											placeholder="Cantidad"
+											type="number"
+											min="1"
+											{...field}
+										/>
+									</FormControl>
+									<FormDescription>
+										Cantidad de alineadores para el maxilar inferior
+									</FormDescription>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 					</div>
-				</div>
 
-				{/* Campo: Cantidad en Inferior */}
-				<div>
-					<label
-						htmlFor="cantidadInferior"
-						className="block text-sm font-medium text-gray-700 mb-2"
-					>
-						Cantidad en Inferior
-					</label>
-					<Input
-						id="cantidadInferior"
-						placeholder="Cantidad"
-						type="number"
-						{...register("cantidadInferior")}
-					/>
-					<p className="mt-1 text-sm text-gray-500">
-						Cantidad de alineadores para el maxilar inferior
-					</p>
-				</div>
-
-				{/* Campo: Render Simulación */}
-				<div>
-					<label
-						htmlFor="renderSimulacion"
-						className="block text-sm font-medium text-gray-700 mb-2"
-					>
-						Render Simulación
-					</label>
-					<Input
-						id="renderSimulacion"
-						placeholder="Url"
-						type="url"
-						{...register("renderSimulacion")}
-					/>
-					<p className="mt-1 text-sm text-gray-500">
-						Enlace externo (ej: video de Youtube) que muestre la
-						simulación del caso
-					</p>
-				</div>
-
-				{/* Campo: Complejidad */}
-				<div>
-					<fieldset>
-						<legend className="block text-sm font-medium text-gray-700 mb-3">
-							Complejidad
-						</legend>
-						<RadioGroup
-							onValueChange={(value: string) =>
-								setValue("complejidad", value)
-							}
-							className="flex flex-col space-y-1"
-						>
-							{[
-								["Baja", "baja"],
-								["Moderada", "moderada"],
-								["Alta", "alta"],
-							].map((option) => (
-								<div
-									className="flex items-center space-x-3 space-y-0"
-									key={option[1]}
-								>
-									<RadioGroupItem
-										value={option[1]}
-										id={`complejidad-${option[1]}`}
+					<FormField
+						control={form.control}
+						name="renderSimulacion"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Render Simulación</FormLabel>
+								<FormControl>
+									<Input
+										placeholder="https://ejemplo.com/simulacion"
+										type="url"
+										{...field}
 									/>
-									<label
-										htmlFor={`complejidad-${option[1]}`}
-										className="font-normal"
-									>
-										{option[0]}
-									</label>
-								</div>
-							))}
-						</RadioGroup>
-					</fieldset>
-					<p className="mt-1 text-sm text-gray-500">
-						Nivel de dificultad del caso
-					</p>
-				</div>
-
-				{/* Campo: Pronóstico */}
-				<div>
-					<fieldset>
-						<legend className="block text-sm font-medium text-gray-700 mb-3">
-							Pronóstico
-						</legend>
-						<RadioGroup
-							onValueChange={(value: string) =>
-								setValue("pronostico", value)
-							}
-							className="flex flex-col space-y-1"
-						>
-							{[
-								["Favorable", "favorable"],
-								["Reservado", "reservado"],
-							].map((option) => (
-								<div
-									className="flex items-center space-x-3 space-y-0"
-									key={option[1]}
-								>
-									<RadioGroupItem
-										value={option[1]}
-										id={`pronostico-${option[1]}`}
-									/>
-									<label
-										htmlFor={`pronostico-${option[1]}`}
-										className="font-normal"
-									>
-										{option[0]}
-									</label>
-								</div>
-							))}
-						</RadioGroup>
-					</fieldset>
-					<p className="mt-1 text-sm text-gray-500">
-						Evaluación general de la previsibilidad del tratamiento
-					</p>
-				</div>
-
-				{/* Campo: Manufactura - Recomendaciones y Requerimientos */}
-				<div>
-					<label
-						htmlFor="manufactura"
-						className="block text-sm font-medium text-gray-700 mb-2"
-					>
-						Manufactura - Recomendaciones y Requerimientos
-					</label>
-					<Select
-						onValueChange={(value) =>
-							handleMultiSelectChange("manufactura", value)
-						}
-					>
-						<SelectTrigger className="w-full max-w-xs">
-							<SelectValue placeholder="Seleccionar recomendaciones" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="calidad-alta">
-								Calidad Alta
-							</SelectItem>
-							<SelectItem value="material-premium">
-								Material Premium
-							</SelectItem>
-							<SelectItem value="acabado-especial">
-								Acabado Especial
-							</SelectItem>
-							<SelectItem value="control-calidad">
-								Control de Calidad
-							</SelectItem>
-						</SelectContent>
-					</Select>
-					{/* Mostrar valores seleccionados */}
-					{watch("manufactura") &&
-						watch("manufactura").length > 0 && (
-							<div className="mt-2 flex flex-wrap gap-1">
-								{watch("manufactura").map((value) => (
-									<span
-										key={value}
-										className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800"
-									>
-										{value}
-										<button
-											type="button"
-											className="ml-1 text-blue-600 hover:text-blue-800"
-											onClick={() =>
-												handleMultiSelectChange(
-													"manufactura",
-													value,
-												)
-											}
-										>
-											×
-										</button>
-									</span>
-								))}
-							</div>
+								</FormControl>
+								<FormDescription>
+									Enlace externo (ej: video de Youtube) que muestre la simulación del caso
+								</FormDescription>
+								<FormMessage />
+							</FormItem>
 						)}
-					<p className="mt-1 text-sm text-gray-500">
-						Selección de instrucciones técnicas y clínicas
-						predefinidas para la fabricación de los alineadores
-					</p>
-				</div>
+					/>
 
-				{/* Campo: Consideraciones Diagnósticas */}
-				<div>
-					<label
-						htmlFor="consideracionesDiagnosticas"
-						className="block text-sm font-medium text-gray-700 mb-2"
-					>
-						Consideraciones Diagnósticas
-					</label>
-					<Select
-						onValueChange={(value) =>
-							handleMultiSelectChange(
-								"consideracionesDiagnosticas",
-								value,
-							)
-						}
-					>
-						<SelectTrigger className="w-full max-w-xs">
-							<SelectValue placeholder="Seleccionar consideraciones" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="apiñamiento">
-								Apiñamiento
-							</SelectItem>
-							<SelectItem value="mordida-abierta">
-								Mordida Abierta
-							</SelectItem>
-							<SelectItem value="mordida-cruzada">
-								Mordida Cruzada
-							</SelectItem>
-							<SelectItem value="sobre-mordida">
-								Sobre Mordida
-							</SelectItem>
-							<SelectItem value="dientes-incluidos">
-								Dientes Incluidos
-							</SelectItem>
-						</SelectContent>
-					</Select>
-					{/* Mostrar valores seleccionados */}
-					{watch("consideracionesDiagnosticas") &&
-						watch("consideracionesDiagnosticas").length > 0 && (
-							<div className="mt-2 flex flex-wrap gap-1">
-								{watch("consideracionesDiagnosticas").map(
-									(value) => (
-										<span
-											key={value}
-											className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800"
-										>
-											{value}
-											<button
-												type="button"
-												className="ml-1 text-green-600 hover:text-green-800"
-												onClick={() =>
-													handleMultiSelectChange(
-														"consideracionesDiagnosticas",
-														value,
-													)
-												}
+					<FormField
+						control={form.control}
+						name="complejidad"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Complejidad</FormLabel>
+								<FormControl>
+									<RadioGroup
+										onValueChange={field.onChange}
+										value={field.value}
+										className="flex flex-col space-y-1"
+									>
+										{[
+											["Baja", "baja"],
+											["Moderada", "moderada"],
+											["Alta", "alta"],
+										].map((option) => (
+											<div
+												className="flex items-center space-x-3 space-y-0"
+												key={option[1]}
 											>
-												×
-											</button>
-										</span>
-									),
-								)}
-							</div>
+												<RadioGroupItem
+													value={option[1]}
+													id={`complejidad-${option[1]}`}
+												/>
+												<label
+													htmlFor={`complejidad-${option[1]}`}
+													className="font-normal"
+												>
+													{option[0]}
+												</label>
+											</div>
+										))}
+									</RadioGroup>
+								</FormControl>
+								<FormDescription>
+									Nivel de dificultad del caso
+								</FormDescription>
+								<FormMessage />
+							</FormItem>
 						)}
-					<p className="mt-1 text-sm text-gray-500">
-						Selección de hallazgos clínicos relevantes que pueden
-						influir en el tratamiento
-					</p>
-				</div>
-
-				{/* Campo: Criterio de Acción Clínica */}
-				<div>
-					<label
-						htmlFor="criterioAccionClinica"
-						className="block text-sm font-medium text-gray-700 mb-2"
-					>
-						Criterio de Acción Clínica
-					</label>
-					<Select
-						onValueChange={(value) =>
-							handleMultiSelectChange(
-								"criterioAccionClinica",
-								value,
-							)
-						}
-					>
-						<SelectTrigger className="w-full max-w-xs">
-							<SelectValue placeholder="Seleccionar criterios" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="expansión-palatal">
-								Expansión Palatal
-							</SelectItem>
-							<SelectItem value="intrusión">Intrusión</SelectItem>
-							<SelectItem value="extrusión">Extrusión</SelectItem>
-							<SelectItem value="rotación">Rotación</SelectItem>
-							<SelectItem value="mesialización">
-								Mesialización
-							</SelectItem>
-							<SelectItem value="distalización">
-								Distalización
-							</SelectItem>
-						</SelectContent>
-					</Select>
-					{/* Mostrar valores seleccionados */}
-					{watch("criterioAccionClinica") &&
-						watch("criterioAccionClinica").length > 0 && (
-							<div className="mt-2 flex flex-wrap gap-1">
-								{watch("criterioAccionClinica").map((value) => (
-									<span
-										key={value}
-										className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-purple-100 text-purple-800"
-									>
-										{value}
-										<button
-											type="button"
-											className="ml-1 text-purple-600 hover:text-purple-800"
-											onClick={() =>
-												handleMultiSelectChange(
-													"criterioAccionClinica",
-													value,
-												)
-											}
-										>
-											×
-										</button>
-									</span>
-								))}
-							</div>
-						)}
-					<p className="mt-1 text-sm text-gray-500">
-						Selección de movimientos y estrategias que se aplicarán
-						en la planificación
-					</p>
-				</div>
-
-				{/* Campo: Derivaciones */}
-				<div>
-					<label
-						htmlFor="derivaciones"
-						className="block text-sm font-medium text-gray-700 mb-2"
-					>
-						Derivaciones
-					</label>
-					<Select
-						onValueChange={(value) =>
-							handleMultiSelectChange("derivaciones", value)
-						}
-					>
-						<SelectTrigger className="w-full max-w-xs">
-							<SelectValue placeholder="Seleccionar especialidades" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="cirugia-ortognatica">
-								Cirugía Ortognática
-							</SelectItem>
-							<SelectItem value="periodoncia">
-								Periodoncia
-							</SelectItem>
-							<SelectItem value="endodoncia">
-								Endodoncia
-							</SelectItem>
-							<SelectItem value="implantologia">
-								Implantología
-							</SelectItem>
-							<SelectItem value="odontopediatria">
-								Odontopediatría
-							</SelectItem>
-						</SelectContent>
-					</Select>
-					{/* Mostrar valores seleccionados */}
-					{watch("derivaciones") &&
-						watch("derivaciones").length > 0 && (
-							<div className="mt-2 flex flex-wrap gap-1">
-								{watch("derivaciones").map((value) => (
-									<span
-										key={value}
-										className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-orange-100 text-orange-800"
-									>
-										{value}
-										<button
-											type="button"
-											className="ml-1 text-orange-600 hover:text-orange-800"
-											onClick={() =>
-												handleMultiSelectChange(
-													"derivaciones",
-													value,
-												)
-											}
-										>
-											×
-										</button>
-									</span>
-								))}
-							</div>
-						)}
-					<p className="mt-1 text-sm text-gray-500">
-						Especialidades a las que se recomienda derivar al
-						paciente
-					</p>
-				</div>
-
-				{/* Campo: Potencial de Venta */}
-				<div>
-					<label
-						htmlFor="potencialVenta"
-						className="block text-sm font-medium text-gray-700 mb-2"
-					>
-						Potencial de Venta
-					</label>
-					<Select
-						onValueChange={(value) =>
-							handleMultiSelectChange("potencialVenta", value)
-						}
-					>
-						<SelectTrigger className="w-full max-w-xs">
-							<SelectValue placeholder="Seleccionar tratamientos" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="blanqueamiento">
-								Blanqueamiento
-							</SelectItem>
-							<SelectItem value="carillas">Carillas</SelectItem>
-							<SelectItem value="ortodoncia-adultos">
-								Ortodoncia para Adultos
-							</SelectItem>
-							<SelectItem value="retenedores">
-								Retenedores
-							</SelectItem>
-							<SelectItem value="seguimiento">
-								Seguimiento Prolongado
-							</SelectItem>
-						</SelectContent>
-					</Select>
-					{/* Mostrar valores seleccionados */}
-					{watch("potencialVenta") &&
-						watch("potencialVenta").length > 0 && (
-							<div className="mt-2 flex flex-wrap gap-1">
-								{watch("potencialVenta").map((value) => (
-									<span
-										key={value}
-										className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-pink-100 text-pink-800"
-									>
-										{value}
-										<button
-											type="button"
-											className="ml-1 text-pink-600 hover:text-pink-800"
-											onClick={() =>
-												handleMultiSelectChange(
-													"potencialVenta",
-													value,
-												)
-											}
-										>
-											×
-										</button>
-									</span>
-								))}
-							</div>
-						)}
-					<p className="mt-1 text-sm text-gray-500">
-						Tratamientos complementarios que pueden ofrecerse al
-						paciente
-					</p>
-				</div>
-
-				{/* Campo: Observaciones Adicionales */}
-				<div>
-					<label
-						htmlFor="observacionesAdicionales"
-						className="block text-sm font-medium text-gray-700 mb-2"
-					>
-						Observaciones Adicionales
-					</label>
-					<Textarea
-						id="observacionesAdicionales"
-						placeholder="Escriba observaciones adicionales..."
-						className="resize-none"
-						rows={4}
-						{...register("observacionesAdicionales")}
 					/>
-					<p className="mt-1 text-sm text-gray-500">
-						Notas complementarias no contempladas en las secciones
-						anteriores
-					</p>
-				</div>
 
-				{/* Botones de acción */}
-				<div className="flex justify-end space-x-4">
-					<Button
-						type="button"
-						variant="outline"
-						onClick={handleReset}
-					>
-						Limpiar Formulario
-					</Button>
-					<Button type="submit">Enviar Planificación</Button>
-				</div>
-			</form>
+					<FormField
+						control={form.control}
+						name="pronostico"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Pronóstico</FormLabel>
+								<FormControl>
+									<RadioGroup
+										onValueChange={field.onChange}
+										value={field.value}
+										className="flex flex-col space-y-1"
+									>
+										{[
+											["Favorable", "favorable"],
+											["Reservado", "reservado"],
+										].map((option) => (
+											<div
+												className="flex items-center space-x-3 space-y-0"
+												key={option[1]}
+											>
+												<RadioGroupItem
+													value={option[1]}
+													id={`pronostico-${option[1]}`}
+												/>
+												<label
+													htmlFor={`pronostico-${option[1]}`}
+													className="font-normal"
+												>
+													{option[0]}
+												</label>
+											</div>
+										))}
+									</RadioGroup>
+								</FormControl>
+								<FormDescription>
+									Evaluación general de la previsibilidad del tratamiento
+								</FormDescription>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
+					<FormField
+						control={form.control}
+						name="manufactura"
+						render={() => (
+							<FormItem>
+								<FormLabel>Manufactura - Recomendaciones y Requerimientos</FormLabel>
+								<FormControl>
+									<Select
+										key={`manufactura-${resetKey}`}
+										onValueChange={(value) => handleMultiSelectChange("manufactura", value)}
+									>
+										<SelectTrigger className="w-full max-w-xs">
+											<SelectValue placeholder="Seleccionar recomendaciones" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="calidad-alta">Calidad Alta</SelectItem>
+											<SelectItem value="material-premium">Material Premium</SelectItem>
+											<SelectItem value="acabado-especial">Acabado Especial</SelectItem>
+											<SelectItem value="control-calidad">Control de Calidad</SelectItem>
+										</SelectContent>
+									</Select>
+								</FormControl>
+								{watchedManufactura && watchedManufactura.length > 0 && (
+									<SelectedValues
+										values={watchedManufactura}
+										field="manufactura"
+										colorClass="bg-blue-100 text-blue-800"
+									/>
+								)}
+								<FormDescription>
+									Selección de instrucciones técnicas y clínicas predefinidas para la fabricación de los alineadores
+								</FormDescription>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
+					<FormField
+						control={form.control}
+						name="consideracionesDiagnosticas"
+						render={() => (
+							<FormItem>
+								<FormLabel>Consideraciones Diagnósticas</FormLabel>
+								<FormControl>
+									<Select
+										key={`consideracionesDiagnosticas-${resetKey}`}
+										onValueChange={(value) => handleMultiSelectChange("consideracionesDiagnosticas", value)}
+									>
+										<SelectTrigger className="w-full max-w-xs">
+											<SelectValue placeholder="Seleccionar consideraciones" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="apiñamiento">Apiñamiento</SelectItem>
+											<SelectItem value="mordida-abierta">Mordida Abierta</SelectItem>
+											<SelectItem value="mordida-cruzada">Mordida Cruzada</SelectItem>
+											<SelectItem value="sobre-mordida">Sobre Mordida</SelectItem>
+											<SelectItem value="dientes-incluidos">Dientes Incluidos</SelectItem>
+										</SelectContent>
+									</Select>
+								</FormControl>
+								{watchedConsideracionesDiagnosticas && watchedConsideracionesDiagnosticas.length > 0 && (
+									<SelectedValues
+										values={watchedConsideracionesDiagnosticas}
+										field="consideracionesDiagnosticas"
+										colorClass="bg-green-100 text-green-800"
+									/>
+								)}
+								<FormDescription>
+									Selección de hallazgos clínicos relevantes que pueden influir en el tratamiento
+								</FormDescription>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
+					<FormField
+						control={form.control}
+						name="criterioAccionClinica"
+						render={() => (
+							<FormItem>
+								<FormLabel>Criterio de Acción Clínica</FormLabel>
+								<FormControl>
+									<Select
+										key={`criterioAccionClinica-${resetKey}`}
+										onValueChange={(value) => handleMultiSelectChange("criterioAccionClinica", value)}
+									>
+										<SelectTrigger className="w-full max-w-xs">
+											<SelectValue placeholder="Seleccionar criterios" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="expansión-palatal">Expansión Palatal</SelectItem>
+											<SelectItem value="intrusión">Intrusión</SelectItem>
+											<SelectItem value="extrusión">Extrusión</SelectItem>
+											<SelectItem value="rotación">Rotación</SelectItem>
+											<SelectItem value="mesialización">Mesialización</SelectItem>
+											<SelectItem value="distalización">Distalización</SelectItem>
+										</SelectContent>
+									</Select>
+								</FormControl>
+								{watchedCriterioAccionClinica && watchedCriterioAccionClinica.length > 0 && (
+									<SelectedValues
+										values={watchedCriterioAccionClinica}
+										field="criterioAccionClinica"
+										colorClass="bg-purple-100 text-purple-800"
+									/>
+								)}
+								<FormDescription>
+									Selección de movimientos y estrategias que se aplicarán en la planificación
+								</FormDescription>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
+					<FormField
+						control={form.control}
+						name="derivaciones"
+						render={() => (
+							<FormItem>
+								<FormLabel>Derivaciones</FormLabel>
+								<FormControl>
+									<Select
+										key={`derivaciones-${resetKey}`}
+										onValueChange={(value) => handleMultiSelectChange("derivaciones", value)}
+									>
+										<SelectTrigger className="w-full max-w-xs">
+											<SelectValue placeholder="Seleccionar especialidades" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="cirugia-ortognatica">Cirugía Ortognática</SelectItem>
+											<SelectItem value="periodoncia">Periodoncia</SelectItem>
+											<SelectItem value="endodoncia">Endodoncia</SelectItem>
+											<SelectItem value="implantologia">Implantología</SelectItem>
+											<SelectItem value="odontopediatria">Odontopediatría</SelectItem>
+										</SelectContent>
+									</Select>
+								</FormControl>
+								{watchedDerivaciones && watchedDerivaciones.length > 0 && (
+									<SelectedValues
+										values={watchedDerivaciones}
+										field="derivaciones"
+										colorClass="bg-orange-100 text-orange-800"
+									/>
+								)}
+								<FormDescription>
+									Especialidades a las que se recomienda derivar al paciente
+								</FormDescription>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
+					<FormField
+						control={form.control}
+						name="potencialVenta"
+						render={() => (
+							<FormItem>
+								<FormLabel>Potencial de Venta</FormLabel>
+								<FormControl>
+									<Select
+										key={`potencialVenta-${resetKey}`}
+										onValueChange={(value) => handleMultiSelectChange("potencialVenta", value)}
+									>
+										<SelectTrigger className="w-full max-w-xs">
+											<SelectValue placeholder="Seleccionar tratamientos" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="blanqueamiento">Blanqueamiento</SelectItem>
+											<SelectItem value="carillas">Carillas</SelectItem>
+											<SelectItem value="ortodoncia-adultos">Ortodoncia para Adultos</SelectItem>
+											<SelectItem value="retenedores">Retenedores</SelectItem>
+											<SelectItem value="seguimiento">Seguimiento Prolongado</SelectItem>
+										</SelectContent>
+									</Select>
+								</FormControl>
+								{watchedPotencialVenta && watchedPotencialVenta.length > 0 && (
+									<SelectedValues
+										values={watchedPotencialVenta}
+										field="potencialVenta"
+										colorClass="bg-pink-100 text-pink-800"
+									/>
+								)}
+								<FormDescription>
+									Tratamientos complementarios que pueden ofrecerse al paciente
+								</FormDescription>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
+					<FormField
+						control={form.control}
+						name="observacionesAdicionales"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Observaciones Adicionales</FormLabel>
+								<FormControl>
+									<Textarea
+										placeholder="Escriba observaciones adicionales..."
+										className="resize-none"
+										rows={4}
+										{...field}
+									/>
+								</FormControl>
+								<FormDescription>
+									Notas complementarias no contempladas en las secciones anteriores
+								</FormDescription>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
+					<div className="flex justify-end space-x-4">
+						<Button
+							type="button"
+							variant="outline"
+							onClick={handleReset}
+							disabled={isLoading}
+						>
+							Limpiar Formulario
+						</Button>
+						<Button type="submit" disabled={isLoading}>
+							{isLoading ? "Enviando..." : "Enviar Planificación"}
+						</Button>
+					</div>
+				</form>
+			</Form>
 		</div>
 	);
 }
