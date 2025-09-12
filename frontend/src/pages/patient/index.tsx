@@ -158,7 +158,7 @@ export default function Patients() {
 									<PatientDetail patient={selectedPatient} />
 								</div>
 							) : (
-								<div>
+								<div className="h-[calc(100vh-4.5rem)] overflow-auto">
 									<TreatmentPlanningForm />
 								</div>
 							)}
