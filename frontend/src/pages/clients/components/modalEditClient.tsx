@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
+	DialogDescription,
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
@@ -56,6 +57,8 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 	const [patient, setPatient] = useState<DashboardAdminViewRow | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [isLoadingPatient, setIsLoadingPatient] = useState(false);
+	const [formInitialized, setFormInitialized] = useState(false);
+	const [hasError, setHasError] = useState(false);
 	const form = useForm<IFormData>();
 
 	const onSubmit = async (values: IFormData) => {
@@ -86,21 +89,23 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 	};
 
 	useEffect(() => {
-		if (!id) return;
+		if (!id || !isOpen) return;
 
 		setIsLoadingPatient(true);
+		setHasError(false);
 		getPatientById(String(id))
 			.then((patientData) => {
 				setPatient(patientData);
 			})
 			.catch((error) => {
 				console.error("Error getting patient:", error);
+				setHasError(true);
 				toast.error("Error al cargar los datos del cliente");
 			})
 			.finally(() => {
 				setIsLoadingPatient(false);
 			});
-	}, [id]);
+	}, [id, isOpen]);
 
 	useEffect(() => {
 		if (patient) {
@@ -110,15 +115,34 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 				case_status: patient.case_status || "",
 				notes: patient.notes || "",
 			};
-			form.reset(formData);
+			
+			
+			
+			// Reset form with new data
+			form.reset(formData, { keepDefaultValues: false });
+			setFormInitialized(true);
 		}
 	}, [patient, form]);
+
+	// Reset form initialization when modal closes
+	useEffect(() => {
+		if (!isOpen) {
+			setFormInitialized(false);
+			setPatient(null);
+			setIsLoadingPatient(false);
+			setHasError(false);
+		}
+	}, [isOpen]);
+
 
 	return (
 		<Dialog open={isOpen} onOpenChange={close}>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>Editar cliente</DialogTitle>
+					<DialogDescription>
+						Modifica la información del cliente seleccionado
+					</DialogDescription>
 				</DialogHeader>
 				{isLoadingPatient && (
 					<div className="text-center py-4">
@@ -127,14 +151,21 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 						</div>
 					</div>
 				)}
-				{!isLoadingPatient && !patient && (
+				{!isLoadingPatient && !patient && hasError && (
+					<div className="text-center py-4">
+						<div className="text-sm text-red-500">
+							Error al cargar los datos del cliente
+						</div>
+					</div>
+				)}
+				{!isLoadingPatient && !patient && !hasError && (
 					<div className="text-center py-4">
 						<div className="text-sm text-muted-foreground">
 							No se pudieron cargar los datos del cliente
 						</div>
 					</div>
 				)}
-				{!isLoadingPatient && patient && (
+				{!isLoadingPatient && patient && formInitialized && id && (
 					<Form {...form}>
 						<form
 							onSubmit={form.handleSubmit(onSubmit)}
@@ -148,7 +179,6 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 									<FormLabel>Planificador</FormLabel>
 									<Select
 										onValueChange={field.onChange}
-										defaultValue={field.value}
 										value={field.value}
 										disabled={isLoadingPatient}
 									>
@@ -165,7 +195,7 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 														key={planner.id}
 														value={planner.id ?? ""}
 													>
-														{planner.username}
+														{planner.username || planner.email || planner.id}
 													</SelectItem>
 												))}
 										</SelectContent>
@@ -184,7 +214,6 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 									<FormLabel>Estado de archivos</FormLabel>
 									<Select
 										onValueChange={field.onChange}
-										defaultValue={field.value}
 										value={field.value}
 										disabled={isLoadingPatient}
 									>
@@ -234,7 +263,6 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 									<FormLabel>Estado del caso</FormLabel>
 									<Select
 										onValueChange={field.onChange}
-										defaultValue={field.value}
 										value={field.value}
 										disabled={isLoadingPatient}
 									>

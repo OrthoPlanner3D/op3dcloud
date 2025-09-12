@@ -22,13 +22,19 @@ export async function getPatientById(
 	id: string,
 ): Promise<DashboardAdminViewRow> {
 	try {
+		const numericId = Number.parseInt(id);
+		
 		const { data, error } = await supabase
 			.from("view_dashboard_admin")
 			.select("*")
-			.eq("id", Number.parseInt(id))
+			.eq("id", numericId)
 			.single();
 
-		if (error) throw error;
+		if (error) {
+			console.error("Supabase error:", error);
+			throw error;
+		}
+		
 		return data;
 	} catch (error) {
 		console.error("Error in getPatientById:", error);
