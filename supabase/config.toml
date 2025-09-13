@@ -57,6 +57,7 @@ schema_paths = [
     "./schemas/table_roles.sql",
     "./schemas/table_patients.sql",
     "./schemas/table_user_has_role.sql",
+    "./schemas/table_treatment_planning.sql",
     # views
     "./schemas/view_clients.sql",
     "./schemas/view_planners.sql",
