@@ -154,35 +154,36 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 
 	return (
 		<Dialog open={isOpen} onOpenChange={close}>
-			<DialogContent>
+			<DialogContent className="min-h-[400px]">
 				<DialogHeader>
 					<DialogTitle>Editar cliente</DialogTitle>
 				</DialogHeader>
 
-				{/* Loading State */}
-				{isLoadingPatient && (
-					<div className="text-center py-4">
-						<div className="text-sm text-muted-foreground">
-							Cargando datos del cliente...
+				<div className="flex-1">
+					{/* Loading State */}
+					{isLoadingPatient && (
+						<div className="flex items-center justify-center h-32">
+							<div className="text-sm text-muted-foreground">
+								Cargando datos del cliente...
+							</div>
 						</div>
-					</div>
-				)}
+					)}
 
-				{/* Error State */}
-				{!isLoadingPatient && !patient && (
-					<div className="text-center py-4">
-						<div className="text-sm text-muted-foreground">
-							No se pudieron cargar los datos del cliente
+					{/* Error State */}
+					{!isLoadingPatient && !patient && (
+						<div className="flex items-center justify-center h-32">
+							<div className="text-sm text-muted-foreground">
+								No se pudieron cargar los datos del cliente
+							</div>
 						</div>
-					</div>
-				)}
+					)}
 
-				{/* Form Content */}
-				{!isLoadingPatient && patient && (
+					{/* Form Content */}
+					{!isLoadingPatient && patient && (
 					<Form {...form}>
 						<form
 							onSubmit={form.handleSubmit(onSubmit)}
-							className="space-y-8 max-w-3xl mx-auto py-10 w-full"
+							className="space-y-6 w-full"
 						>
 							{/* Planner Selection */}
 							<FormField
@@ -316,7 +317,8 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 							</Button>
 						</form>
 					</Form>
-				)}
+					)}
+				</div>
 			</DialogContent>
 		</Dialog>
 	);

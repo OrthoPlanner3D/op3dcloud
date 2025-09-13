@@ -94,7 +94,7 @@ export default function PatientLayout({ children }: Props) {
 					<NavUser />
 				</SidebarFooter>
 			</Sidebar>
-			<main className="w-full p-4 overflow-hidden">
+			<main className="w-full p-4">
 				<SidebarTrigger className="lg:hidden" />
 				{children}
 			</main>
