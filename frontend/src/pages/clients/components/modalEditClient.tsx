@@ -48,20 +48,71 @@ interface IFormData {
 
 const plannersPromise = getPlanners();
 
+// Constants for select options
+const STATUS_FILES_OPTIONS = [
+	"Escaneo con errores",
+	"Mordida con errores", 
+	"Faltan fotos",
+	"Falta rx",
+	"Rx deficiente",
+	"Info insuficiente",
+	"Info erronea",
+	"Reescaneo solicitado",
+] as const;
+
+const CASE_STATUS_OPTIONS = [
+	"Prioridad",
+	"Interconsulta", 
+	"Replanning",
+	"Baja",
+] as const;
+
 export default function ModalEditClient({ onClientUpdated }: ModalEditClientProps) {
 	const id = useEditClientModalStore((state) => state.id);
 	const isOpen = useEditClientModalStore((state) => state.isOpen);
 	const close = useEditClientModalStore((state) => state.close);
 	const planners = use(plannersPromise);
+	
 	const [patient, setPatient] = useState<DashboardAdminViewRow | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [isLoadingPatient, setIsLoadingPatient] = useState(false);
+	
 	const form = useForm<IFormData>();
 
-	const onSubmit = async (values: IFormData) => {
-		try {
-			if (!id) return;
+	// Helper function to create form data from patient
+	const createFormData = (patientData: DashboardAdminViewRow): IFormData => ({
+		id_planner: patientData.planner_id || "",
+		status_files: patientData.status_files || "",
+		case_status: patientData.case_status || "",
+		notes: patientData.notes || "",
+	});
 
+	// Helper function to reset form and state
+	const resetModalState = () => {
+		setPatient(null);
+		setIsLoadingPatient(false);
+		form.reset();
+	};
+
+	// Helper function to load patient data
+	const loadPatientData = async (patientId: string) => {
+		setIsLoadingPatient(true);
+		try {
+			const patientData = await getPatientById(patientId);
+			setPatient(patientData);
+			form.reset(createFormData(patientData));
+		} catch (error) {
+			console.error("Error getting patient:", error);
+			toast.error("Error al cargar los datos del cliente");
+		} finally {
+			setIsLoadingPatient(false);
+		}
+	};
+
+	const onSubmit = async (values: IFormData) => {
+		if (!id) return;
+
+		try {
 			setIsLoading(true);
 
 			const updateData: PatientUpdateData = {
@@ -75,7 +126,6 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 
 			toast.success("Cliente actualizado exitosamente");
 			close();
-			// Trigger data refresh in parent component
 			onClientUpdated?.();
 		} catch (error) {
 			console.error("Error updating patient:", error);
@@ -85,34 +135,22 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 		}
 	};
 
+	// Handle modal state and data loading
 	useEffect(() => {
-		if (!id) return;
-
-		setIsLoadingPatient(true);
-		getPatientById(String(id))
-			.then((patientData) => {
-				setPatient(patientData);
-			})
-			.catch((error) => {
-				console.error("Error getting patient:", error);
-				toast.error("Error al cargar los datos del cliente");
-			})
-			.finally(() => {
-				setIsLoadingPatient(false);
-			});
-	}, [id]);
-
-	useEffect(() => {
-		if (patient) {
-			const formData: IFormData = {
-				id_planner: patient.planner_id || "",
-				status_files: patient.status_files || "",
-				case_status: patient.case_status || "",
-				notes: patient.notes || "",
-			};
-			form.reset(formData);
+		if (!id || !isOpen) {
+			resetModalState();
+			return;
 		}
-	}, [patient, form]);
+
+		// If we already have the correct patient data, just reset the form
+		if (patient && patient.id === Number(id)) {
+			form.reset(createFormData(patient));
+			return;
+		}
+
+		// Load new patient data
+		loadPatientData(String(id));
+	}, [id, isOpen, patient, form]);
 
 	return (
 		<Dialog open={isOpen} onOpenChange={close}>
@@ -120,6 +158,8 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 				<DialogHeader>
 					<DialogTitle>Editar cliente</DialogTitle>
 				</DialogHeader>
+
+				{/* Loading State */}
 				{isLoadingPatient && (
 					<div className="text-center py-4">
 						<div className="text-sm text-muted-foreground">
@@ -127,6 +167,8 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 						</div>
 					</div>
 				)}
+
+				{/* Error State */}
 				{!isLoadingPatient && !patient && (
 					<div className="text-center py-4">
 						<div className="text-sm text-muted-foreground">
@@ -134,13 +176,16 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 						</div>
 					</div>
 				)}
+
+				{/* Form Content */}
 				{!isLoadingPatient && patient && (
 					<Form {...form}>
 						<form
 							onSubmit={form.handleSubmit(onSubmit)}
 							className="space-y-8 max-w-3xl mx-auto py-10 w-full"
 						>
-						<FormField
+							{/* Planner Selection */}
+							<FormField
 							control={form.control}
 							name="id_planner"
 							render={({ field }) => (
@@ -176,9 +221,10 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 							)}
 						/>
 
-						<FormField
-							control={form.control}
-							name="status_files"
+							{/* Files Status Selection */}
+							<FormField
+								control={form.control}
+								name="status_files"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Estado de archivos</FormLabel>
@@ -194,30 +240,11 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 											</SelectTrigger>
 										</FormControl>
 										<SelectContent>
-											<SelectItem value="Escaneo con errores">
-												Escaneo con errores
-											</SelectItem>
-											<SelectItem value="Mordida con errores">
-												Mordida con errores
-											</SelectItem>
-											<SelectItem value="Faltan fotos">
-												Faltan fotos
-											</SelectItem>
-											<SelectItem value="Falta rx">
-												Falta rx
-											</SelectItem>
-											<SelectItem value="Rx deficiente">
-												Rx deficiente
-											</SelectItem>
-											<SelectItem value="Info insuficiente">
-												Info insuficiente
-											</SelectItem>
-											<SelectItem value="Info erronea">
-												Info erronea
-											</SelectItem>
-											<SelectItem value="Reescaneo solicitado">
-												Reescaneo solicitado
-											</SelectItem>
+											{STATUS_FILES_OPTIONS.map((option) => (
+												<SelectItem key={option} value={option}>
+													{option}
+												</SelectItem>
+											))}
 										</SelectContent>
 									</Select>
 
@@ -226,9 +253,10 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 							)}
 						/>
 
-						<FormField
-							control={form.control}
-							name="case_status"
+							{/* Case Status Selection */}
+							<FormField
+								control={form.control}
+								name="case_status"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Estado del caso</FormLabel>
@@ -244,18 +272,11 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 											</SelectTrigger>
 										</FormControl>
 										<SelectContent>
-											<SelectItem value="Prioridad">
-												Prioridad
-											</SelectItem>
-											<SelectItem value="Interconsulta">
-												Interconsulta
-											</SelectItem>
-											<SelectItem value="Replanning">
-												Replanning
-											</SelectItem>
-											<SelectItem value="Baja">
-												Baja
-											</SelectItem>
+											{CASE_STATUS_OPTIONS.map((option) => (
+												<SelectItem key={option} value={option}>
+													{option}
+												</SelectItem>
+											))}
 										</SelectContent>
 									</Select>
 
@@ -264,9 +285,10 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 							)}
 						/>
 
-						<FormField
-							control={form.control}
-							name="notes"
+							{/* Notes Field */}
+							<FormField
+								control={form.control}
+								name="notes"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Notas</FormLabel>
@@ -283,6 +305,8 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 								</FormItem>
 							)}
 						/>
+
+							{/* Submit Button */}
 							<Button
 								type="submit"
 								className="w-full"
