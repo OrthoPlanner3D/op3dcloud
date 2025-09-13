@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { createTreatmentPlanning } from "@/services/supabase/treatment-planning.service";
 
 const formSchema = z.object({
 	maxilares: z.string().min(1, "Debe seleccionar un maxilar"),
@@ -88,12 +89,28 @@ export default function TreatmentPlanningForm() {
 		try {
 			setIsLoading(true);
 			
-			const formData= {
-				...data,
+			// Mapear los datos del formulario a la estructura de la base de datos
+			const treatmentPlanningData = {
+				maxillaries: data.maxilares,
+				upper_quantity: parseInt(data.cantidadSuperior),
+				lower_quantity: parseInt(data.cantidadInferior),
+				simulation_render: data.renderSimulacion || null,
+				complexity: data.complejidad,
+				prognosis: data.pronostico,
+				manufacturing: data.manufactura,
+				diagnostic_considerations: data.consideracionesDiagnosticas,
+				clinical_action_criteria: data.criterioAccionClinica,
+				referrals: data.derivaciones || [],
+				sales_potential: data.potencialVenta || [],
+				additional_observations: data.observacionesAdicionales || null,
 			};
 			
-			//quitar los ids seteados en el formulario
-			console.log("Datos del formulario de planificación:", formData);
+			console.log("Datos del formulario de planificación:", treatmentPlanningData);
+			
+			// Guardar en la base de datos
+			const result = await createTreatmentPlanning(treatmentPlanningData);
+			
+			console.log("Planificación de tratamiento guardada:", result);
 			toast.success("Formulario enviado correctamente");
 			
 			resetForm();
