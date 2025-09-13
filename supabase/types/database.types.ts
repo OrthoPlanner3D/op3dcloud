@@ -159,6 +159,57 @@ export type Database = {
         }
         Relationships: []
       }
+      treatment_planning: {
+        Row: {
+          additional_observations: string | null
+          clinical_action_criteria: string[]
+          complexity: string
+          created_at: string
+          diagnostic_considerations: string[]
+          id: number
+          lower_quantity: number
+          manufacturing: string[]
+          maxillaries: string
+          prognosis: string
+          referrals: string[] | null
+          sales_potential: string[] | null
+          simulation_render: string | null
+          upper_quantity: number
+        }
+        Insert: {
+          additional_observations?: string | null
+          clinical_action_criteria?: string[]
+          complexity: string
+          created_at?: string
+          diagnostic_considerations?: string[]
+          id?: never
+          lower_quantity: number
+          manufacturing?: string[]
+          maxillaries: string
+          prognosis: string
+          referrals?: string[] | null
+          sales_potential?: string[] | null
+          simulation_render?: string | null
+          upper_quantity: number
+        }
+        Update: {
+          additional_observations?: string | null
+          clinical_action_criteria?: string[]
+          complexity?: string
+          created_at?: string
+          diagnostic_considerations?: string[]
+          id?: never
+          lower_quantity?: number
+          manufacturing?: string[]
+          maxillaries?: string
+          prognosis?: string
+          referrals?: string[] | null
+          sales_potential?: string[] | null
+          simulation_render?: string | null
+          upper_quantity?: number
+        }
+        Relationships: []
+      }
       user_has_role: {
         Row: {
           created_at: string
