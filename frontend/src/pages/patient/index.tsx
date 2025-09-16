@@ -61,6 +61,16 @@ export default function Patients() {
 		}
 	}, [user]);
 
+	useEffect(() => {
+		document.body.style.overflow = 'hidden';
+		document.documentElement.style.overflow = 'hidden';
+		
+		return () => {
+			document.body.style.overflow = '';
+			document.documentElement.style.overflow = '';
+		};
+	}, []);
+
 	return (
 		<div>
 			<div className="py-1">
@@ -138,7 +148,6 @@ export default function Patients() {
 				<div className="col-span-9">
 					{selectedPatient ? (
 						<div>
-							{/* Navegación de pestañas */}
 							<div className="border-b mb-4">
 								<div className="flex space-x-1">
 									<button
@@ -168,7 +177,6 @@ export default function Patients() {
 								</div>
 							</div>
 
-							{/* Contenido de las pestañas */}
 							{activeTab === "details" ? (
 								<div className="h-[calc(100vh-4.5rem)] overflow-auto">
 									<PatientDetail patient={selectedPatient} />
