@@ -12,45 +12,66 @@ import SignIn from "@/pages/sign-in";
 import TermsAndConditions from "@/pages/terms";
 import PrivateGuard from "./guards/PrivateGuard";
 import PublicGuard from "./guards/PublicGuard";
+import RoleGuard from "./guards/RoleGuard";
+import SmartRedirect from "@/components/SmartRedirect";
 
 const router = createBrowserRouter([
-	// Public routes
+	// Ruta raíz - redirección inteligente
 	{
 		path: "/",
+		element: <SmartRedirect />,
+	},
+
+	// Public routes
+	{
+		path: "/inicia-sesion",
 		element: (
 			<PublicGuard>
 				<PublicLayout>
-					<Outlet />
+					<SignIn />
 				</PublicLayout>
 			</PublicGuard>
 		),
-		children: [
-			{
-				path: "registro",
-				element: <Register />,
-			},
-			{
-				index: true,
-				path: "inicia-sesion",
-				element: <SignIn />,
-			},
-			{
-				path: "terminos-y-condiciones",
-				element: <TermsAndConditions />,
-			},
-			{
-				path: "politica-de-privacidad",
-				element: <PrivacyPolicy />,
-			},
-		],
+	},
+	{
+		path: "/registro",
+		element: (
+			<PublicGuard>
+				<PublicLayout>
+					<Register />
+				</PublicLayout>
+			</PublicGuard>
+		),
+	},
+	{
+		path: "/terminos-y-condiciones",
+		element: (
+			<PublicGuard>
+				<PublicLayout>
+					<TermsAndConditions />
+				</PublicLayout>
+			</PublicGuard>
+		),
+	},
+	{
+		path: "/politica-de-privacidad",
+		element: (
+			<PublicGuard>
+				<PublicLayout>
+					<PrivacyPolicy />
+				</PublicLayout>
+			</PublicGuard>
+		),
 	},
 
-	// Private routes for clients
+	// Private routes - Dashboard (solo admin y planner)
 	{
-		path: "/",
+		path: "/dashboard",
 		element: (
 			<PrivateGuard>
-				<Outlet />
+				<RoleGuard requireDashboardAccess={true}>
+					<Outlet />
+				</RoleGuard>
 			</PrivateGuard>
 		),
 		children: [
@@ -58,40 +79,46 @@ const router = createBrowserRouter([
 				index: true,
 				element: <Clients />,
 			},
+		],
+	},
+
+	// Private routes - Accesos (solo admin)
+	{
+		path: "/accesos",
+		element: (
+			<PrivateGuard>
+				<RoleGuard allowedRoles={["admin"]}>
+					<Accesses />
+				</RoleGuard>
+			</PrivateGuard>
+		),
+	},
+
+	// Private routes - Planificadores (solo admin)
+	{
+		path: "/planificadores",
+		element: (
+			<PrivateGuard>
+				<RoleGuard allowedRoles={["admin"]}>
+					<Outlet />
+				</RoleGuard>
+			</PrivateGuard>
+		),
+		children: [
 			{
-				path: "pacientes",
-				children: [
-					{
-						index: true,
-						element: <Patients />,
-					},
-					{
-						path: "crear",
-						element: <CreatePatient />,
-					},
-				],
+				index: true,
+				element: <Planners />,
 			},
 			{
-				path: "planificadores",
-				children: [
-					{
-						index: true,
-						element: <Planners />,
-					},
-					{
-						path: "crear",
-						element: <PlannersStore />,
-					},
-				],
-			},
-			{
-				path: "accesos",
-				element: <Accesses />,
+				path: "crear",
+				element: <PlannersStore />,
 			},
 		],
 	},
+
+	// Private routes - Pacientes (todos los usuarios autenticados)
 	{
-		path: "/dashboard",
+		path: "/pacientes",
 		element: (
 			<PrivateGuard>
 				<Outlet />
@@ -100,9 +127,16 @@ const router = createBrowserRouter([
 		children: [
 			{
 				index: true,
+				element: <Patients />,
+			},
+			{
+				path: "crear",
+				element: <CreatePatient />,
 			},
 		],
 	},
+
+	// Auth callback
 	{
 		path: "/auth/callback",
 		element: (
@@ -113,6 +147,8 @@ const router = createBrowserRouter([
 			</PublicGuard>
 		),
 	},
+
+	// Catch all - redirigir a login
 	{
 		path: "*",
 		element: <Navigate to="/inicia-sesion" />,

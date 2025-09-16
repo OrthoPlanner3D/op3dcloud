@@ -3,22 +3,25 @@ import {
 	ClipboardListIcon,
 	FileTextIcon,
 	PlusIcon,
+	EditIcon,
+	TrashIcon,
 	UsersIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import SearchInput from "@/components/search-input";
+import RoleInfo from "@/components/RoleInfo";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDate } from "@/lib/utils";
 import { getPatientsByeCLient } from "@/services/supabase/patients.service";
-import { useUserStore } from "@/state/stores/useUserStore";
+import { useAuthWithRole } from "@/hooks/useAuthWithRole";
 import type { PatientsRow } from "@/types/db/patients/patients";
 import TreatmentPlanningForm from "../clients/components/display-form";
 import PatientDetail from "./components/patientDetails";
 
 export default function Patients() {
-	const user = useUserStore((state) => state.user);
+	const { user, canEditPatients, canDeletePatients } = useAuthWithRole();
 	const [patients, setPatients] = useState<PatientsRow[]>([]);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [selectedPatient, setSelectedPatient] = useState<PatientsRow | null>(
@@ -61,15 +64,28 @@ export default function Patients() {
 	return (
 		<div>
 			<div className="py-1">
-				<Link to="/pacientes/crear">
-					<Button variant="outline" size="sm">
-						<PlusIcon /> Crear Paciente
-					</Button>
-				</Link>
+				<div className="flex items-center gap-2">
+					<Link to="/pacientes/crear">
+						<Button variant="outline" size="sm">
+							<PlusIcon /> Crear Paciente
+						</Button>
+					</Link>
+					{canEditPatients() && (
+						<Button variant="outline" size="sm" disabled>
+							<EditIcon /> Editar Seleccionado
+						</Button>
+					)}
+					{canDeletePatients() && (
+						<Button variant="outline" size="sm" disabled>
+							<TrashIcon /> Eliminar Seleccionado
+						</Button>
+					)}
+				</div>
 			</div>
 
 			<div className="grid grid-cols-1 md:grid-cols-12 lg:gap-2">
 				<div className="col-span-3 h-[calc(100vh-4.5rem)] space-y-3">
+					<RoleInfo />
 					<div>
 						<SearchInput
 							onSearch={handleSearch}

@@ -1,13 +1,24 @@
-// import type { IUser } from "@/types/user/user";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
+/**
+ * Tipos de roles disponibles en el sistema
+ */
+export type UserRole = "client" | "planner" | "admin";
+
+/**
+ * Interfaz para el usuario
+ */
 interface IUser {
 	id: string;
 	email: string;
 	username: string;
+	role?: UserRole;
 }
 
+/**
+ * Interfaz para el store de usuario
+ */
 interface UserStore {
 	user: IUser | null;
 	setUser: (user: IUser) => void;
