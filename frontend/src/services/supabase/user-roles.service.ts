@@ -1,9 +1,5 @@
 import { supabase, supabaseAdmin } from "@/config/supabase.config";
-
-/**
- * Tipos de roles disponibles en el sistema
- */
-export type UserRole = "client" | "planner" | "admin";
+import type { UserRole } from "@/types/db/users/user";
 
 /**
  * Interfaz para usuario con información de rol

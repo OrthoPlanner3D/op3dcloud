@@ -1,10 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-
-/**
- * Tipos de roles disponibles en el sistema
- */
-export type UserRole = "client" | "planner" | "admin";
+import type { UserRole } from "@/types/db/users/user";
 
 /**
  * Interfaz para el usuario
