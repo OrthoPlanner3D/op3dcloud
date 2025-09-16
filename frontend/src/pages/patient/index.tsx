@@ -60,8 +60,6 @@ export default function Patients() {
 		}
 	}, [user]);
 
-	// Removed global overflow side effect. Use container-scoped overflow control instead.
-
 	return (
 		<div className="patients-container">
 			<div className="py-1">

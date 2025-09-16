@@ -1,4 +1,4 @@
-import { supabase } from "@/config/supabase.config";
+import { supabase, supabaseAdmin } from "@/config/supabase.config";
 
 /**
  * Tipos de roles disponibles en el sistema
@@ -111,8 +111,8 @@ export async function getUserWithRole(userId: string): Promise<UserWithRole | nu
 			.maybeSingle();
 
 		if (!roleError && roleData) {
-			// Obtener información del usuario desde auth.users
-			const { data: userData, error: userError } = await supabase.auth.getUser();
+			// Obtener información del usuario usando el cliente admin
+			const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(userId);
 			
 			if (!userError && userData.user) {
 				const metadata = userData.user.user_metadata || {};
