@@ -58,8 +58,20 @@ export default function Patients() {
 		}
 	}, [user]);
 
+	useEffect(() => {
+		// Add CSS classes to prevent body scroll
+		document.body.classList.add('patients-page-active');
+		document.documentElement.classList.add('patients-page-active');
+		
+		return () => {
+			// Remove CSS classes when component unmounts
+			document.body.classList.remove('patients-page-active');
+			document.documentElement.classList.remove('patients-page-active');
+		};
+	}, []);
+
 	return (
-		<div>
+		<div className="patients-container">
 			<div className="py-1">
 				<Link to="/pacientes/crear">
 					<Button variant="outline" size="sm">
