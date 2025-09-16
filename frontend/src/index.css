@@ -118,3 +118,20 @@
 		@apply bg-background text-foreground;
 	}
 }
+
+/* Patient component specific styles */
+.patients-container {
+	height: 100vh;
+	overflow: hidden;
+}
+
+/* When patients page is active, prevent body scroll */
+body.patients-page-active {
+	overflow: hidden;
+	height: 100vh;
+}
+
+html.patients-page-active {
+	overflow: hidden;
+	height: 100vh;
+}

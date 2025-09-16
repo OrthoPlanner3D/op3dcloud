@@ -61,17 +61,19 @@ export default function Patients() {
 	}, [user]);
 
 	useEffect(() => {
-		document.body.style.overflow = 'hidden';
-		document.documentElement.style.overflow = 'hidden';
+		// Add CSS classes to prevent body scroll
+		document.body.classList.add('patients-page-active');
+		document.documentElement.classList.add('patients-page-active');
 		
 		return () => {
-			document.body.style.overflow = '';
-			document.documentElement.style.overflow = '';
+			// Remove CSS classes when component unmounts
+			document.body.classList.remove('patients-page-active');
+			document.documentElement.classList.remove('patients-page-active');
 		};
 	}, []);
 
 	return (
-		<div>
+		<div className="patients-container">
 			<div className="py-1">
 				<div className="flex items-center gap-2">
 					<Link to="/pacientes/crear">
