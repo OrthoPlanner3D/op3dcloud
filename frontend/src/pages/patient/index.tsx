@@ -10,7 +10,6 @@ import {
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import SearchInput from "@/components/search-input";
-import RoleInfo from "@/components/RoleInfo";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDate } from "@/lib/utils";
@@ -95,7 +94,6 @@ export default function Patients() {
 
 			<div className="grid grid-cols-1 md:grid-cols-12 lg:gap-2">
 				<div className="col-span-3 h-[calc(100vh-4.5rem)] space-y-3">
-					<RoleInfo />
 					<div>
 						<SearchInput
 							onSearch={handleSearch}
