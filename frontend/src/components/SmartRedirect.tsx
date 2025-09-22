@@ -8,7 +8,7 @@ import { useAuthWithRole } from "@/hooks/useAuthWithRole";
  * - No autenticado → Login
  */
 export default function SmartRedirect() {
-	const { user, isLoading, canAccessDashboard } = useAuthWithRole();
+	const { user, isLoading, hasAnyRole } = useAuthWithRole();
 
 	// Mostrar loading mientras se obtiene la información del usuario
 	if (isLoading) {
@@ -27,7 +27,7 @@ export default function SmartRedirect() {
 	}
 
 	// Redirigir según permisos del usuario
-	return canAccessDashboard() ? 
+	return hasAnyRole(["admin", "planner"]) ? 
 		<Navigate to="/dashboard" replace /> : 
 		<Navigate to="/pacientes" replace />;
 }

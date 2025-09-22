@@ -20,7 +20,7 @@ import TreatmentPlanningForm from "../clients/components/display-form";
 import PatientDetail from "./components/patientDetails";
 
 export default function Patients() {
-	const { user, canEditPatients, canDeletePatients } = useAuthWithRole();
+	const { user, hasAnyRole, isAdmin } = useAuthWithRole();
 	const [patients, setPatients] = useState<PatientsRow[]>([]);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [selectedPatient, setSelectedPatient] = useState<PatientsRow | null>(
@@ -69,12 +69,12 @@ export default function Patients() {
 							<PlusIcon /> Crear Paciente
 						</Button>
 					</Link>
-					{canEditPatients() && (
+					{hasAnyRole(["admin", "planner"]) && (
 						<Button variant="outline" size="sm" disabled>
 							<EditIcon /> Editar Seleccionado
 						</Button>
 					)}
-					{canDeletePatients() && (
+					{isAdmin() && (
 						<Button variant="outline" size="sm" disabled>
 							<TrashIcon /> Eliminar Seleccionado
 						</Button>

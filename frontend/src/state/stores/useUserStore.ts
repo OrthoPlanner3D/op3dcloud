@@ -3,7 +3,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import type { UserRole } from "@/types/db/users/user";
 
 /**
- * Interfaz para el usuario
+ * Interfaz para el usuario en el store (versión simplificada para persistencia)
  */
 interface IUser {
 	id: string;
