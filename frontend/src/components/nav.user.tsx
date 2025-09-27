@@ -16,12 +16,14 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar";
 import { useUserStore } from "@/state/stores/useUserStore";
+import { useAuthWithRole } from "@/hooks/useAuthWithRole";
 
 export function NavUser() {
 	const { isMobile } = useSidebar();
 	const navigate = useNavigate();
 	const removeUser = useUserStore((state) => state.removeUser);
 	const user = useUserStore((state) => state.user);
+	const { isAdmin } = useAuthWithRole();
 
 	const handleLogout = () => {
 		removeUser();
@@ -81,12 +83,14 @@ export function NavUser() {
 							<LogOut />
 							Log out
 						</DropdownMenuItem>
-						<DropdownMenuItem asChild>
-							<Link to="/accesos">
-								<FingerprintIcon />
-								Accesos
-							</Link>
-						</DropdownMenuItem>
+						{isAdmin() && (
+							<DropdownMenuItem asChild>
+								<Link to="/accesos">
+									<FingerprintIcon />
+									Accesos
+								</Link>
+							</DropdownMenuItem>
+						)}
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</SidebarMenuItem>
