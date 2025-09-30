@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { getDashboardAdmin } from "@/services/supabase/dashboard-admin.service";
+import type { DashboardAdminViewRow } from "@/types/db/dashboard-admin/dashboard-admin";
 import { columns } from "./columns";
 import ModalEditClient from "./components/modalEditClient";
 import { DataTable } from "./data-table";
-import type { DashboardAdminViewRow } from "@/types/db/dashboard-admin/dashboard-admin";
 
 export default function Clients() {
 	const [data, setData] = useState<DashboardAdminViewRow[]>([]);

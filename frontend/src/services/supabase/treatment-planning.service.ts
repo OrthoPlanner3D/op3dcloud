@@ -1,12 +1,25 @@
 import { supabase } from "@/config/supabase.config";
-import type { TablesInsert, TablesUpdate, Tables } from "@/types/db/database.types";
+import type {
+	Tables,
+	TablesInsert,
+	TablesUpdate,
+} from "@/types/db/database.types";
 
-type TreatmentPlanningRow = Tables<{ schema: "op3dcloud" }, "treatment_planning">;
-type TreatmentPlanningInsert = TablesInsert<{ schema: "op3dcloud" }, "treatment_planning">;
-type TreatmentPlanningUpdate = TablesUpdate<{ schema: "op3dcloud" }, "treatment_planning">;
+type TreatmentPlanningRow = Tables<
+	{ schema: "op3dcloud" },
+	"treatment_planning"
+>;
+type TreatmentPlanningInsert = TablesInsert<
+	{ schema: "op3dcloud" },
+	"treatment_planning"
+>;
+type TreatmentPlanningUpdate = TablesUpdate<
+	{ schema: "op3dcloud" },
+	"treatment_planning"
+>;
 
 export async function createTreatmentPlanning(
-	data: TreatmentPlanningInsert
+	data: TreatmentPlanningInsert,
 ): Promise<TreatmentPlanningRow> {
 	try {
 		const { data: result, error } = await supabase
@@ -25,7 +38,7 @@ export async function createTreatmentPlanning(
 }
 
 export async function getTreatmentPlanningById(
-	id: number
+	id: number,
 ): Promise<TreatmentPlanningRow> {
 	try {
 		const { data, error } = await supabase
@@ -43,7 +56,9 @@ export async function getTreatmentPlanningById(
 	}
 }
 
-export async function getAllTreatmentPlanning(): Promise<TreatmentPlanningRow[]> {
+export async function getAllTreatmentPlanning(): Promise<
+	TreatmentPlanningRow[]
+> {
 	try {
 		const { data, error } = await supabase
 			.from("treatment_planning")
@@ -61,7 +76,7 @@ export async function getAllTreatmentPlanning(): Promise<TreatmentPlanningRow[]>
 
 export async function updateTreatmentPlanning(
 	id: number,
-	data: TreatmentPlanningUpdate
+	data: TreatmentPlanningUpdate,
 ): Promise<TreatmentPlanningRow> {
 	try {
 		const { data: result, error } = await supabase

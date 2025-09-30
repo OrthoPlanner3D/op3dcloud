@@ -51,7 +51,7 @@ const plannersPromise = getPlanners();
 // Constants for select options
 const STATUS_FILES_OPTIONS = [
 	"Escaneo con errores",
-	"Mordida con errores", 
+	"Mordida con errores",
 	"Faltan fotos",
 	"Falta rx",
 	"Rx deficiente",
@@ -62,21 +62,23 @@ const STATUS_FILES_OPTIONS = [
 
 const CASE_STATUS_OPTIONS = [
 	"Prioridad",
-	"Interconsulta", 
+	"Interconsulta",
 	"Replanning",
 	"Baja",
 ] as const;
 
-export default function ModalEditClient({ onClientUpdated }: ModalEditClientProps) {
+export default function ModalEditClient({
+	onClientUpdated,
+}: ModalEditClientProps) {
 	const id = useEditClientModalStore((state) => state.id);
 	const isOpen = useEditClientModalStore((state) => state.isOpen);
 	const close = useEditClientModalStore((state) => state.close);
 	const planners = use(plannersPromise);
-	
+
 	const [patient, setPatient] = useState<DashboardAdminViewRow | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [isLoadingPatient, setIsLoadingPatient] = useState(false);
-	
+
 	const form = useForm<IFormData>();
 
 	// Helper function to create form data from patient
@@ -180,143 +182,166 @@ export default function ModalEditClient({ onClientUpdated }: ModalEditClientProp
 
 					{/* Form Content */}
 					{!isLoadingPatient && patient && (
-					<Form {...form}>
-						<form
-							onSubmit={form.handleSubmit(onSubmit)}
-							className="space-y-6 w-full"
-						>
-							{/* Planner Selection */}
-							<FormField
-							control={form.control}
-							name="id_planner"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Planificador</FormLabel>
-									<Select
-										onValueChange={field.onChange}
-										defaultValue={field.value}
-										value={field.value}
-										disabled={isLoadingPatient}
-									>
-										<FormControl className="w-full">
-											<SelectTrigger>
-												<SelectValue placeholder="Selecciona un planificador" />
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											{planners &&
-												planners.length > 0 &&
-												planners.map((planner) => (
-													<SelectItem
-														key={planner.id}
-														value={planner.id ?? ""}
-													>
-														{planner.username}
-													</SelectItem>
-												))}
-										</SelectContent>
-									</Select>
-
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-
-							{/* Files Status Selection */}
-							<FormField
-								control={form.control}
-								name="status_files"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Estado de archivos</FormLabel>
-									<Select
-										onValueChange={field.onChange}
-										defaultValue={field.value}
-										value={field.value}
-										disabled={isLoadingPatient}
-									>
-										<FormControl className="w-full">
-											<SelectTrigger>
-												<SelectValue placeholder="Selecciona un estado" />
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											{STATUS_FILES_OPTIONS.map((option) => (
-												<SelectItem key={option} value={option}>
-													{option}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-
-							{/* Case Status Selection */}
-							<FormField
-								control={form.control}
-								name="case_status"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Estado del caso</FormLabel>
-									<Select
-										onValueChange={field.onChange}
-										defaultValue={field.value}
-										value={field.value}
-										disabled={isLoadingPatient}
-									>
-										<FormControl className="w-full">
-											<SelectTrigger>
-												<SelectValue placeholder="Selecciona un estado" />
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											{CASE_STATUS_OPTIONS.map((option) => (
-												<SelectItem key={option} value={option}>
-													{option}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-
-							{/* Notes Field */}
-							<FormField
-								control={form.control}
-								name="notes"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Notas</FormLabel>
-									<FormControl className="w-full">
-										<Textarea
-											placeholder="Escribe tus notas"
-											className="resize-none"
-											disabled={isLoadingPatient}
-											{...field}
-										/>
-									</FormControl>
-
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-
-							{/* Submit Button */}
-							<Button
-								type="submit"
-								className="w-full"
-								disabled={isLoading || isLoadingPatient}
+						<Form {...form}>
+							<form
+								onSubmit={form.handleSubmit(onSubmit)}
+								className="space-y-6 w-full"
 							>
-								{isLoading ? "Guardando..." : "Guardar"}
-							</Button>
-						</form>
-					</Form>
+								{/* Planner Selection */}
+								<FormField
+									control={form.control}
+									name="id_planner"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Planificador</FormLabel>
+											<Select
+												onValueChange={field.onChange}
+												defaultValue={field.value}
+												value={field.value}
+												disabled={isLoadingPatient}
+											>
+												<FormControl className="w-full">
+													<SelectTrigger>
+														<SelectValue placeholder="Selecciona un planificador" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													{planners &&
+														planners.length > 0 &&
+														planners.map(
+															(planner) => (
+																<SelectItem
+																	key={
+																		planner.id
+																	}
+																	value={
+																		planner.id ??
+																		""
+																	}
+																>
+																	{
+																		planner.username
+																	}
+																</SelectItem>
+															),
+														)}
+												</SelectContent>
+											</Select>
+
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								{/* Files Status Selection */}
+								<FormField
+									control={form.control}
+									name="status_files"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>
+												Estado de archivos
+											</FormLabel>
+											<Select
+												onValueChange={field.onChange}
+												defaultValue={field.value}
+												value={field.value}
+												disabled={isLoadingPatient}
+											>
+												<FormControl className="w-full">
+													<SelectTrigger>
+														<SelectValue placeholder="Selecciona un estado" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													{STATUS_FILES_OPTIONS.map(
+														(option) => (
+															<SelectItem
+																key={option}
+																value={option}
+															>
+																{option}
+															</SelectItem>
+														),
+													)}
+												</SelectContent>
+											</Select>
+
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								{/* Case Status Selection */}
+								<FormField
+									control={form.control}
+									name="case_status"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>
+												Estado del caso
+											</FormLabel>
+											<Select
+												onValueChange={field.onChange}
+												defaultValue={field.value}
+												value={field.value}
+												disabled={isLoadingPatient}
+											>
+												<FormControl className="w-full">
+													<SelectTrigger>
+														<SelectValue placeholder="Selecciona un estado" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													{CASE_STATUS_OPTIONS.map(
+														(option) => (
+															<SelectItem
+																key={option}
+																value={option}
+															>
+																{option}
+															</SelectItem>
+														),
+													)}
+												</SelectContent>
+											</Select>
+
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								{/* Notes Field */}
+								<FormField
+									control={form.control}
+									name="notes"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Notas</FormLabel>
+											<FormControl className="w-full">
+												<Textarea
+													placeholder="Escribe tus notas"
+													className="resize-none"
+													disabled={isLoadingPatient}
+													{...field}
+												/>
+											</FormControl>
+
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								{/* Submit Button */}
+								<Button
+									type="submit"
+									className="w-full"
+									disabled={isLoading || isLoadingPatient}
+								>
+									{isLoading ? "Guardando..." : "Guardar"}
+								</Button>
+							</form>
+						</Form>
 					)}
 				</div>
 			</DialogContent>

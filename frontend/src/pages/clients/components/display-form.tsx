@@ -1,7 +1,18 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import {
+	Form,
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radiogroup";
 import {
@@ -12,29 +23,28 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import {
-	Form,
-	FormControl,
-	FormDescription,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from "@/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { createTreatmentPlanning } from "@/services/supabase/treatment-planning.service";
 
 const formSchema = z.object({
 	maxilares: z.string().min(1, "Debe seleccionar un maxilar"),
 	cantidadSuperior: z.string().min(1, "Cantidad superior es requerida"),
 	cantidadInferior: z.string().min(1, "Cantidad inferior es requerida"),
-	renderSimulacion: z.string().url("Debe ser una URL válida").optional().or(z.literal("")),
+	renderSimulacion: z
+		.string()
+		.url("Debe ser una URL válida")
+		.optional()
+		.or(z.literal("")),
 	complejidad: z.string().min(1, "Debe seleccionar la complejidad"),
 	pronostico: z.string().min(1, "Debe seleccionar el pronóstico"),
-	manufactura: z.array(z.string()).min(1, "Debe seleccionar al menos una opción"),
-	consideracionesDiagnosticas: z.array(z.string()).min(1, "Debe seleccionar al menos una consideración"),
-	criterioAccionClinica: z.array(z.string()).min(1, "Debe seleccionar al menos un criterio"),
+	manufactura: z
+		.array(z.string())
+		.min(1, "Debe seleccionar al menos una opción"),
+	consideracionesDiagnosticas: z
+		.array(z.string())
+		.min(1, "Debe seleccionar al menos una consideración"),
+	criterioAccionClinica: z
+		.array(z.string())
+		.min(1, "Debe seleccionar al menos un criterio"),
 	derivaciones: z.array(z.string()).optional(),
 	potencialVenta: z.array(z.string()).optional(),
 	observacionesAdicionales: z.string().optional(),
@@ -67,13 +77,15 @@ export default function TreatmentPlanningForm() {
 	});
 
 	const watchedManufactura = form.watch("manufactura");
-	const watchedConsideracionesDiagnosticas = form.watch("consideracionesDiagnosticas");
+	const watchedConsideracionesDiagnosticas = form.watch(
+		"consideracionesDiagnosticas",
+	);
 	const watchedCriterioAccionClinica = form.watch("criterioAccionClinica");
 	const watchedDerivaciones = form.watch("derivaciones");
 	const watchedPotencialVenta = form.watch("potencialVenta");
 
 	const handleMultiSelectChange = (field: keyof FormData, value: string) => {
-		const currentValues = form.getValues(field) as string[] || [];
+		const currentValues = (form.getValues(field) as string[]) || [];
 		const newValues = currentValues.includes(value)
 			? currentValues.filter((v: string) => v !== value)
 			: [...currentValues, value];
@@ -82,18 +94,18 @@ export default function TreatmentPlanningForm() {
 
 	const resetForm = () => {
 		form.reset(defaultValues);
-		setResetKey(prev => prev + 1);
+		setResetKey((prev) => prev + 1);
 	};
 
 	const onSubmit = async (data: FormData) => {
 		try {
 			setIsLoading(true);
-			
+
 			// Mapear los datos del formulario a la estructura de la base de datos
 			const treatmentPlanningData = {
 				maxillaries: data.maxilares,
-				upper_quantity: parseInt(data.cantidadSuperior),
-				lower_quantity: parseInt(data.cantidadInferior),
+				upper_quantity: Number.parseInt(data.cantidadSuperior),
+				lower_quantity: Number.parseInt(data.cantidadInferior),
 				simulation_render: data.renderSimulacion || null,
 				complexity: data.complejidad,
 				prognosis: data.pronostico,
@@ -104,20 +116,24 @@ export default function TreatmentPlanningForm() {
 				sales_potential: data.potencialVenta || [],
 				additional_observations: data.observacionesAdicionales || null,
 			};
-			
-			console.log("Datos del formulario de planificación:", treatmentPlanningData);
-			
+
+			console.log(
+				"Datos del formulario de planificación:",
+				treatmentPlanningData,
+			);
+
 			// Guardar en la base de datos
 			const result = await createTreatmentPlanning(treatmentPlanningData);
-			
+
 			console.log("Planificación de tratamiento guardada:", result);
 			toast.success("Formulario enviado correctamente");
-			
+
 			resetForm();
-			
 		} catch (error) {
 			console.error("Error al enviar el formulario:", error);
-			toast.error("Error al enviar el formulario. Por favor, inténtalo de nuevo.");
+			toast.error(
+				"Error al enviar el formulario. Por favor, inténtalo de nuevo.",
+			);
 		} finally {
 			setIsLoading(false);
 		}
@@ -128,14 +144,14 @@ export default function TreatmentPlanningForm() {
 		toast.info("Formulario limpiado");
 	};
 
-	const SelectedValues = ({ 
-		values, 
-		field, 
-		colorClass 
-	}: { 
-		values: string[]; 
-		field: keyof FormData; 
-		colorClass: string; 
+	const SelectedValues = ({
+		values,
+		field,
+		colorClass,
+	}: {
+		values: string[];
+		field: keyof FormData;
+		colorClass: string;
 	}) => (
 		<div className="mt-2 flex flex-wrap gap-1">
 			{values.map((value) => (
@@ -163,12 +179,16 @@ export default function TreatmentPlanningForm() {
 					Planificación de Tratamiento
 				</h1>
 				<p className="text-gray-600">
-					Complete el formulario para la planificación del caso ortodóntico
+					Complete el formulario para la planificación del caso
+					ortodóntico
 				</p>
 			</div>
 
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+				<form
+					onSubmit={form.handleSubmit(onSubmit)}
+					className="space-y-8"
+				>
 					<FormField
 						control={form.control}
 						name="maxilares"
@@ -176,19 +196,29 @@ export default function TreatmentPlanningForm() {
 							<FormItem>
 								<FormLabel>Maxilares a Tratar</FormLabel>
 								<FormControl>
-									<Select onValueChange={field.onChange} value={field.value}>
+									<Select
+										onValueChange={field.onChange}
+										value={field.value}
+									>
 										<SelectTrigger>
 											<SelectValue placeholder="Seleccionar Maxilar" />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value="ambos">Ambos</SelectItem>
-											<SelectItem value="superior">Superior</SelectItem>
-											<SelectItem value="inferior">Inferior</SelectItem>
+											<SelectItem value="ambos">
+												Ambos
+											</SelectItem>
+											<SelectItem value="superior">
+												Superior
+											</SelectItem>
+											<SelectItem value="inferior">
+												Inferior
+											</SelectItem>
 										</SelectContent>
 									</Select>
 								</FormControl>
 								<FormDescription>
-									Indica qué maxilares serán tratados en la planificación
+									Indica qué maxilares serán tratados en la
+									planificación
 								</FormDescription>
 								<FormMessage />
 							</FormItem>
@@ -211,7 +241,8 @@ export default function TreatmentPlanningForm() {
 										/>
 									</FormControl>
 									<FormDescription>
-										Cantidad de alineadores para el maxilar superior
+										Cantidad de alineadores para el maxilar
+										superior
 									</FormDescription>
 									<FormMessage />
 								</FormItem>
@@ -233,7 +264,8 @@ export default function TreatmentPlanningForm() {
 										/>
 									</FormControl>
 									<FormDescription>
-										Cantidad de alineadores para el maxilar inferior
+										Cantidad de alineadores para el maxilar
+										inferior
 									</FormDescription>
 									<FormMessage />
 								</FormItem>
@@ -255,7 +287,8 @@ export default function TreatmentPlanningForm() {
 									/>
 								</FormControl>
 								<FormDescription>
-									Enlace externo (ej: video de Youtube) que muestre la simulación del caso
+									Enlace externo (ej: video de Youtube) que
+									muestre la simulación del caso
 								</FormDescription>
 								<FormMessage />
 							</FormItem>
@@ -340,7 +373,8 @@ export default function TreatmentPlanningForm() {
 									</RadioGroup>
 								</FormControl>
 								<FormDescription>
-									Evaluación general de la previsibilidad del tratamiento
+									Evaluación general de la previsibilidad del
+									tratamiento
 								</FormDescription>
 								<FormMessage />
 							</FormItem>
@@ -352,32 +386,51 @@ export default function TreatmentPlanningForm() {
 						name="manufactura"
 						render={() => (
 							<FormItem>
-								<FormLabel>Manufactura - Recomendaciones y Requerimientos</FormLabel>
+								<FormLabel>
+									Manufactura - Recomendaciones y
+									Requerimientos
+								</FormLabel>
 								<FormControl>
 									<Select
 										key={`manufactura-${resetKey}`}
-										onValueChange={(value) => handleMultiSelectChange("manufactura", value)}
+										onValueChange={(value) =>
+											handleMultiSelectChange(
+												"manufactura",
+												value,
+											)
+										}
 									>
 										<SelectTrigger className="w-full max-w-xs">
 											<SelectValue placeholder="Seleccionar recomendaciones" />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value="calidad-alta">Calidad Alta</SelectItem>
-											<SelectItem value="material-premium">Material Premium</SelectItem>
-											<SelectItem value="acabado-especial">Acabado Especial</SelectItem>
-											<SelectItem value="control-calidad">Control de Calidad</SelectItem>
+											<SelectItem value="calidad-alta">
+												Calidad Alta
+											</SelectItem>
+											<SelectItem value="material-premium">
+												Material Premium
+											</SelectItem>
+											<SelectItem value="acabado-especial">
+												Acabado Especial
+											</SelectItem>
+											<SelectItem value="control-calidad">
+												Control de Calidad
+											</SelectItem>
 										</SelectContent>
 									</Select>
 								</FormControl>
-								{watchedManufactura && watchedManufactura.length > 0 && (
-									<SelectedValues
-										values={watchedManufactura}
-										field="manufactura"
-										colorClass="bg-blue-100 text-blue-800"
-									/>
-								)}
+								{watchedManufactura &&
+									watchedManufactura.length > 0 && (
+										<SelectedValues
+											values={watchedManufactura}
+											field="manufactura"
+											colorClass="bg-blue-100 text-blue-800"
+										/>
+									)}
 								<FormDescription>
-									Selección de instrucciones técnicas y clínicas predefinidas para la fabricación de los alineadores
+									Selección de instrucciones técnicas y
+									clínicas predefinidas para la fabricación de
+									los alineadores
 								</FormDescription>
 								<FormMessage />
 							</FormItem>
@@ -389,33 +442,55 @@ export default function TreatmentPlanningForm() {
 						name="consideracionesDiagnosticas"
 						render={() => (
 							<FormItem>
-								<FormLabel>Consideraciones Diagnósticas</FormLabel>
+								<FormLabel>
+									Consideraciones Diagnósticas
+								</FormLabel>
 								<FormControl>
 									<Select
 										key={`consideracionesDiagnosticas-${resetKey}`}
-										onValueChange={(value) => handleMultiSelectChange("consideracionesDiagnosticas", value)}
+										onValueChange={(value) =>
+											handleMultiSelectChange(
+												"consideracionesDiagnosticas",
+												value,
+											)
+										}
 									>
 										<SelectTrigger className="w-full max-w-xs">
 											<SelectValue placeholder="Seleccionar consideraciones" />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value="apiñamiento">Apiñamiento</SelectItem>
-											<SelectItem value="mordida-abierta">Mordida Abierta</SelectItem>
-											<SelectItem value="mordida-cruzada">Mordida Cruzada</SelectItem>
-											<SelectItem value="sobre-mordida">Sobre Mordida</SelectItem>
-											<SelectItem value="dientes-incluidos">Dientes Incluidos</SelectItem>
+											<SelectItem value="apiñamiento">
+												Apiñamiento
+											</SelectItem>
+											<SelectItem value="mordida-abierta">
+												Mordida Abierta
+											</SelectItem>
+											<SelectItem value="mordida-cruzada">
+												Mordida Cruzada
+											</SelectItem>
+											<SelectItem value="sobre-mordida">
+												Sobre Mordida
+											</SelectItem>
+											<SelectItem value="dientes-incluidos">
+												Dientes Incluidos
+											</SelectItem>
 										</SelectContent>
 									</Select>
 								</FormControl>
-								{watchedConsideracionesDiagnosticas && watchedConsideracionesDiagnosticas.length > 0 && (
-									<SelectedValues
-										values={watchedConsideracionesDiagnosticas}
-										field="consideracionesDiagnosticas"
-										colorClass="bg-green-100 text-green-800"
-									/>
-								)}
+								{watchedConsideracionesDiagnosticas &&
+									watchedConsideracionesDiagnosticas.length >
+										0 && (
+										<SelectedValues
+											values={
+												watchedConsideracionesDiagnosticas
+											}
+											field="consideracionesDiagnosticas"
+											colorClass="bg-green-100 text-green-800"
+										/>
+									)}
 								<FormDescription>
-									Selección de hallazgos clínicos relevantes que pueden influir en el tratamiento
+									Selección de hallazgos clínicos relevantes
+									que pueden influir en el tratamiento
 								</FormDescription>
 								<FormMessage />
 							</FormItem>
@@ -427,34 +502,57 @@ export default function TreatmentPlanningForm() {
 						name="criterioAccionClinica"
 						render={() => (
 							<FormItem>
-								<FormLabel>Criterio de Acción Clínica</FormLabel>
+								<FormLabel>
+									Criterio de Acción Clínica
+								</FormLabel>
 								<FormControl>
 									<Select
 										key={`criterioAccionClinica-${resetKey}`}
-										onValueChange={(value) => handleMultiSelectChange("criterioAccionClinica", value)}
+										onValueChange={(value) =>
+											handleMultiSelectChange(
+												"criterioAccionClinica",
+												value,
+											)
+										}
 									>
 										<SelectTrigger className="w-full max-w-xs">
 											<SelectValue placeholder="Seleccionar criterios" />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value="expansión-palatal">Expansión Palatal</SelectItem>
-											<SelectItem value="intrusión">Intrusión</SelectItem>
-											<SelectItem value="extrusión">Extrusión</SelectItem>
-											<SelectItem value="rotación">Rotación</SelectItem>
-											<SelectItem value="mesialización">Mesialización</SelectItem>
-											<SelectItem value="distalización">Distalización</SelectItem>
+											<SelectItem value="expansión-palatal">
+												Expansión Palatal
+											</SelectItem>
+											<SelectItem value="intrusión">
+												Intrusión
+											</SelectItem>
+											<SelectItem value="extrusión">
+												Extrusión
+											</SelectItem>
+											<SelectItem value="rotación">
+												Rotación
+											</SelectItem>
+											<SelectItem value="mesialización">
+												Mesialización
+											</SelectItem>
+											<SelectItem value="distalización">
+												Distalización
+											</SelectItem>
 										</SelectContent>
 									</Select>
 								</FormControl>
-								{watchedCriterioAccionClinica && watchedCriterioAccionClinica.length > 0 && (
-									<SelectedValues
-										values={watchedCriterioAccionClinica}
-										field="criterioAccionClinica"
-										colorClass="bg-purple-100 text-purple-800"
-									/>
-								)}
+								{watchedCriterioAccionClinica &&
+									watchedCriterioAccionClinica.length > 0 && (
+										<SelectedValues
+											values={
+												watchedCriterioAccionClinica
+											}
+											field="criterioAccionClinica"
+											colorClass="bg-purple-100 text-purple-800"
+										/>
+									)}
 								<FormDescription>
-									Selección de movimientos y estrategias que se aplicarán en la planificación
+									Selección de movimientos y estrategias que
+									se aplicarán en la planificación
 								</FormDescription>
 								<FormMessage />
 							</FormItem>
@@ -470,29 +568,46 @@ export default function TreatmentPlanningForm() {
 								<FormControl>
 									<Select
 										key={`derivaciones-${resetKey}`}
-										onValueChange={(value) => handleMultiSelectChange("derivaciones", value)}
+										onValueChange={(value) =>
+											handleMultiSelectChange(
+												"derivaciones",
+												value,
+											)
+										}
 									>
 										<SelectTrigger className="w-full max-w-xs">
 											<SelectValue placeholder="Seleccionar especialidades" />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value="cirugia-ortognatica">Cirugía Ortognática</SelectItem>
-											<SelectItem value="periodoncia">Periodoncia</SelectItem>
-											<SelectItem value="endodoncia">Endodoncia</SelectItem>
-											<SelectItem value="implantologia">Implantología</SelectItem>
-											<SelectItem value="odontopediatria">Odontopediatría</SelectItem>
+											<SelectItem value="cirugia-ortognatica">
+												Cirugía Ortognática
+											</SelectItem>
+											<SelectItem value="periodoncia">
+												Periodoncia
+											</SelectItem>
+											<SelectItem value="endodoncia">
+												Endodoncia
+											</SelectItem>
+											<SelectItem value="implantologia">
+												Implantología
+											</SelectItem>
+											<SelectItem value="odontopediatria">
+												Odontopediatría
+											</SelectItem>
 										</SelectContent>
 									</Select>
 								</FormControl>
-								{watchedDerivaciones && watchedDerivaciones.length > 0 && (
-									<SelectedValues
-										values={watchedDerivaciones}
-										field="derivaciones"
-										colorClass="bg-orange-100 text-orange-800"
-									/>
-								)}
+								{watchedDerivaciones &&
+									watchedDerivaciones.length > 0 && (
+										<SelectedValues
+											values={watchedDerivaciones}
+											field="derivaciones"
+											colorClass="bg-orange-100 text-orange-800"
+										/>
+									)}
 								<FormDescription>
-									Especialidades a las que se recomienda derivar al paciente
+									Especialidades a las que se recomienda
+									derivar al paciente
 								</FormDescription>
 								<FormMessage />
 							</FormItem>
@@ -508,29 +623,46 @@ export default function TreatmentPlanningForm() {
 								<FormControl>
 									<Select
 										key={`potencialVenta-${resetKey}`}
-										onValueChange={(value) => handleMultiSelectChange("potencialVenta", value)}
+										onValueChange={(value) =>
+											handleMultiSelectChange(
+												"potencialVenta",
+												value,
+											)
+										}
 									>
 										<SelectTrigger className="w-full max-w-xs">
 											<SelectValue placeholder="Seleccionar tratamientos" />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value="blanqueamiento">Blanqueamiento</SelectItem>
-											<SelectItem value="carillas">Carillas</SelectItem>
-											<SelectItem value="ortodoncia-adultos">Ortodoncia para Adultos</SelectItem>
-											<SelectItem value="retenedores">Retenedores</SelectItem>
-											<SelectItem value="seguimiento">Seguimiento Prolongado</SelectItem>
+											<SelectItem value="blanqueamiento">
+												Blanqueamiento
+											</SelectItem>
+											<SelectItem value="carillas">
+												Carillas
+											</SelectItem>
+											<SelectItem value="ortodoncia-adultos">
+												Ortodoncia para Adultos
+											</SelectItem>
+											<SelectItem value="retenedores">
+												Retenedores
+											</SelectItem>
+											<SelectItem value="seguimiento">
+												Seguimiento Prolongado
+											</SelectItem>
 										</SelectContent>
 									</Select>
 								</FormControl>
-								{watchedPotencialVenta && watchedPotencialVenta.length > 0 && (
-									<SelectedValues
-										values={watchedPotencialVenta}
-										field="potencialVenta"
-										colorClass="bg-pink-100 text-pink-800"
-									/>
-								)}
+								{watchedPotencialVenta &&
+									watchedPotencialVenta.length > 0 && (
+										<SelectedValues
+											values={watchedPotencialVenta}
+											field="potencialVenta"
+											colorClass="bg-pink-100 text-pink-800"
+										/>
+									)}
 								<FormDescription>
-									Tratamientos complementarios que pueden ofrecerse al paciente
+									Tratamientos complementarios que pueden
+									ofrecerse al paciente
 								</FormDescription>
 								<FormMessage />
 							</FormItem>
@@ -552,7 +684,8 @@ export default function TreatmentPlanningForm() {
 									/>
 								</FormControl>
 								<FormDescription>
-									Notas complementarias no contempladas en las secciones anteriores
+									Notas complementarias no contempladas en las
+									secciones anteriores
 								</FormDescription>
 								<FormMessage />
 							</FormItem>

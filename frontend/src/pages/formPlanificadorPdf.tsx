@@ -1,5 +1,6 @@
 import {
 	Document,
+	Font,
 	Image,
 	Link,
 	Page,
@@ -10,7 +11,6 @@ import {
 	View,
 } from "@react-pdf/renderer";
 import { useState } from "react";
-import { Font } from "@react-pdf/renderer";
 import logo from "@/assets/images/logos/logo-black.png";
 
 Font.register({
@@ -35,11 +35,11 @@ const styles = StyleSheet.create({
 	},
 	logo: {
 		width: 100,
-		position: 'absolute',
+		position: "absolute",
 		bottom: 30,
 		right: 30,
 		opacity: 0.1,
-		transform: 'rotate(-10deg)',
+		transform: "rotate(-10deg)",
 	},
 	text: {
 		fontSize: 12,
@@ -97,89 +97,217 @@ const MyDocument = () => (
 
 			<Image style={styles.logo} src={logo} />
 
-
 			<View>
 				<Text style={styles.sectionTitle}>Datos del paciente</Text>
 				<View style={styles.sectionWrapper}>
 					<View style={styles.sectionRowItem}>
-						<Text style={[styles.sectionRowCell, styles.sectionRowCellTitle]}>Nombre:</Text>
+						<Text
+							style={[
+								styles.sectionRowCell,
+								styles.sectionRowCellTitle,
+							]}
+						>
+							Nombre:
+						</Text>
 						<Text style={styles.sectionRowCell}>Hernán</Text>
 					</View>
 					<View style={styles.sectionRowItem}>
-						<Text style={[styles.sectionRowCell, styles.sectionRowCellTitle]}>Apellido:</Text>
+						<Text
+							style={[
+								styles.sectionRowCell,
+								styles.sectionRowCellTitle,
+							]}
+						>
+							Apellido:
+						</Text>
 						<Text style={styles.sectionRowCell}>Arica</Text>
 					</View>
 					<View style={styles.sectionRowItemLast}>
-						<Text style={[styles.sectionRowCell, styles.sectionRowCellTitle]}>Apellido:</Text>
-						<Link style={styles.sectionRowCell} src="https://www.youtube.com/watch?v=y38qQRg3UDI&list=RDy38qQRg3UDI&start_radio=1">Abrir link</Link>
+						<Text
+							style={[
+								styles.sectionRowCell,
+								styles.sectionRowCellTitle,
+							]}
+						>
+							Apellido:
+						</Text>
+						<Link
+							style={styles.sectionRowCell}
+							src="https://www.youtube.com/watch?v=y38qQRg3UDI&list=RDy38qQRg3UDI&start_radio=1"
+						>
+							Abrir link
+						</Link>
 					</View>
 				</View>
 			</View>
 
-			<Text style={styles.separator}></Text>
+			<Text style={styles.separator} />
 
 			<View>
 				<Text style={styles.sectionTitle}>Selección</Text>
 				<View style={styles.sectionWrapper}>
 					<View style={styles.sectionRowItem}>
-						<Text style={[styles.sectionRowCell, styles.sectionRowCellTitle]}>Maxilares a tratar:</Text>
+						<Text
+							style={[
+								styles.sectionRowCell,
+								styles.sectionRowCellTitle,
+							]}
+						>
+							Maxilares a tratar:
+						</Text>
 						<Text style={styles.sectionRowCell}>Superior</Text>
 					</View>
 					<View style={styles.sectionRowItem}>
-						<Text style={[styles.sectionRowCell, styles.sectionRowCellTitle]}>Cantidad en superior:</Text>
+						<Text
+							style={[
+								styles.sectionRowCell,
+								styles.sectionRowCellTitle,
+							]}
+						>
+							Cantidad en superior:
+						</Text>
 						<Text style={styles.sectionRowCell}>7</Text>
 					</View>
 					<View style={styles.sectionRowItem}>
-						<Text style={[styles.sectionRowCell, styles.sectionRowCellTitle]}>Cantidad en inferior:</Text>
+						<Text
+							style={[
+								styles.sectionRowCell,
+								styles.sectionRowCellTitle,
+							]}
+						>
+							Cantidad en inferior:
+						</Text>
 						<Text style={styles.sectionRowCell}>20</Text>
 					</View>
 					<View style={styles.sectionRowItem}>
-						<Text style={[styles.sectionRowCell, styles.sectionRowCellTitle]}>Render simulación:</Text>
+						<Text
+							style={[
+								styles.sectionRowCell,
+								styles.sectionRowCellTitle,
+							]}
+						>
+							Render simulación:
+						</Text>
 						<Text style={styles.sectionRowCell}>Link aquí</Text>
 					</View>
 					<View style={styles.sectionRowItem}>
-						<Text style={[styles.sectionRowCell, styles.sectionRowCellTitle]}>Enfoque técnico:</Text>
+						<Text
+							style={[
+								styles.sectionRowCell,
+								styles.sectionRowCellTitle,
+							]}
+						>
+							Enfoque técnico:
+						</Text>
 						<Text style={styles.sectionRowCell}>Link aquí</Text>
 					</View>
 					<View style={styles.sectionRowItem}>
-						<Text style={[styles.sectionRowCell, styles.sectionRowCellTitle]}>Complejidad:</Text>
+						<Text
+							style={[
+								styles.sectionRowCell,
+								styles.sectionRowCellTitle,
+							]}
+						>
+							Complejidad:
+						</Text>
 						<Text style={styles.sectionRowCell}>Moderada</Text>
 					</View>
 					<View style={styles.sectionRowItem}>
-						<Text style={[styles.sectionRowCell, styles.sectionRowCellTitle]}>Pronóstico:</Text>
+						<Text
+							style={[
+								styles.sectionRowCell,
+								styles.sectionRowCellTitle,
+							]}
+						>
+							Pronóstico:
+						</Text>
 						<Text style={styles.sectionRowCell}>Reservado</Text>
 					</View>
 					<View style={styles.sectionRowItem}>
-						<Text style={[styles.sectionRowCell, styles.sectionRowCellTitle]}>Manufactura | Recomendaciones y requerimientos:</Text>
+						<Text
+							style={[
+								styles.sectionRowCell,
+								styles.sectionRowCellTitle,
+							]}
+						>
+							Manufactura | Recomendaciones y requerimientos:
+						</Text>
 						<Text style={styles.sectionRowCell}>Otro</Text>
 					</View>
 					<View style={styles.sectionRowItem}>
-						<Text style={[styles.sectionRowCell, styles.sectionRowCellTitle]}>Consideraciones diagnosticas:</Text>
+						<Text
+							style={[
+								styles.sectionRowCell,
+								styles.sectionRowCellTitle,
+							]}
+						>
+							Consideraciones diagnosticas:
+						</Text>
 						<Text style={styles.sectionRowCell}>Otro</Text>
 					</View>
 					<View style={styles.sectionRowItem}>
-						<Text style={[styles.sectionRowCell, styles.sectionRowCellTitle]}>Criterio de acción clínica:</Text>
-						<Text style={styles.sectionRowCell}>PROTUSIONES Puntos de presión ante resistencia.</Text>
+						<Text
+							style={[
+								styles.sectionRowCell,
+								styles.sectionRowCellTitle,
+							]}
+						>
+							Criterio de acción clínica:
+						</Text>
+						<Text style={styles.sectionRowCell}>
+							PROTUSIONES Puntos de presión ante resistencia.
+						</Text>
 					</View>
 					<View style={styles.sectionRowItem}>
-						<Text style={[styles.sectionRowCell, styles.sectionRowCellTitle]}>Derivaciones:</Text>
-						<Text style={styles.sectionRowCell}>Clínica general</Text>
+						<Text
+							style={[
+								styles.sectionRowCell,
+								styles.sectionRowCellTitle,
+							]}
+						>
+							Derivaciones:
+						</Text>
+						<Text style={styles.sectionRowCell}>
+							Clínica general
+						</Text>
 					</View>
 					<View style={styles.sectionRowItem}>
-						<Text style={[styles.sectionRowCell, styles.sectionRowCellTitle]}>Potencial de venta:</Text>
+						<Text
+							style={[
+								styles.sectionRowCell,
+								styles.sectionRowCellTitle,
+							]}
+						>
+							Potencial de venta:
+						</Text>
 						<Text style={styles.sectionRowCell}>Limpieza</Text>
 					</View>
 					<View style={styles.sectionRowItem}>
-						<Text style={[styles.sectionRowCell, styles.sectionRowCellTitle]}>Calidad de estudios:</Text>
+						<Text
+							style={[
+								styles.sectionRowCell,
+								styles.sectionRowCellTitle,
+							]}
+						>
+							Calidad de estudios:
+						</Text>
 						<Text style={styles.sectionRowCell}>Satisfactorio</Text>
 					</View>
 					<View style={styles.sectionRowItemLast}>
-						<Text style={[styles.sectionRowCell, styles.sectionRowCellTitle]}>Observaciones adicionales:</Text>
-						<Text style={styles.sectionRowCell}>Sin observaciones adicionales</Text>
+						<Text
+							style={[
+								styles.sectionRowCell,
+								styles.sectionRowCellTitle,
+							]}
+						>
+							Observaciones adicionales:
+						</Text>
+						<Text style={styles.sectionRowCell}>
+							Sin observaciones adicionales
+						</Text>
 					</View>
 				</View>
 			</View>
-
 		</Page>
 	</Document>
 );
