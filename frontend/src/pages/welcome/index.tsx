@@ -151,17 +151,6 @@ export default function WelcomePage() {
         </div>
       </div>
 
-      {/* Slide indicators */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2">
-        {greetings.map((_, index) => (
-          <div
-            key={index}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              index === currentSlide ? 'bg-gray-900' : 'bg-gray-300'
-            }`}
-          />
-        ))}
-      </div>
     </div>
   );
 }
