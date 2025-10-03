@@ -6,6 +6,10 @@ interface IUser {
 	id: string;
 	email: string;
 	username: string;
+	user_metadata?: {
+		has_seen_welcome?: boolean;
+		[key: string]: any;
+	};
 }
 
 interface UserStore {
