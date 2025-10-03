@@ -12,6 +12,7 @@ import SignIn from "@/pages/sign-in";
 import TermsAndConditions from "@/pages/terms";
 import PrivateGuard from "./guards/PrivateGuard";
 import PublicGuard from "./guards/PublicGuard";
+import WelcomeGuard from "./guards/WelcomeGuard";
 
 const router = createBrowserRouter([
 	// Public routes
@@ -49,9 +50,11 @@ const router = createBrowserRouter([
 	{
 		path: "/",
 		element: (
-			<PrivateGuard>
-				<Outlet />
-			</PrivateGuard>
+			<WelcomeGuard>
+				<PrivateGuard>
+					<Outlet />
+				</PrivateGuard>
+			</WelcomeGuard>
 		),
 		children: [
 			{
@@ -93,9 +96,11 @@ const router = createBrowserRouter([
 	{
 		path: "/dashboard",
 		element: (
-			<PrivateGuard>
-				<Outlet />
-			</PrivateGuard>
+			<WelcomeGuard>
+				<PrivateGuard>
+					<Outlet />
+				</PrivateGuard>
+			</WelcomeGuard>
 		),
 		children: [
 			{
