@@ -1,8 +1,9 @@
 import { Inbox, LayoutDashboard, Settings, Users } from "lucide-react";
-import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import logo from "@/assets/images/logos/logo-black.png";
 import { NavUser } from "@/components/nav.user";
+import { useUserRole } from "@/hooks/useUserRole";
+import type { UserRole } from "@/services/supabase/users.service";
 import {
 	Sidebar,
 	SidebarContent,
@@ -17,31 +18,13 @@ import {
 	SidebarProvider,
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { getUserRole, type UserRole } from "@/services/supabase/users.service";
-import { useUserStore } from "@/state/stores/useUserStore";
 
 interface Props {
 	children: React.ReactNode;
 }
 
 export default function PatientLayout({ children }: Props) {
-	const [role, setRole] = useState<UserRole | null>(null);
-	const user = useUserStore((state) => state.user);
-
-	useEffect(() => {
-		async function fetchRole() {
-			if (!user?.id) return;
-
-			try {
-				const userRole = await getUserRole(user.id);
-				setRole(userRole);
-			} catch (error) {
-				console.error("Error fetching user role:", error);
-			}
-		}
-
-		fetchRole();
-	}, [user?.id]);
+	const { role } = useUserRole();
 
 	const allItems = [
 		{

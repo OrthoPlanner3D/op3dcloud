@@ -6,6 +6,7 @@ export function useWelcomeCheck() {
 	const [isFirstTime, setIsFirstTime] = useState<boolean | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const user = useUserStore((state) => state.user);
+	const updateUser = useUserStore((state) => state.updateUser);
 
 	useEffect(() => {
 		const checkFirstTimeLogin = async () => {
@@ -67,6 +68,14 @@ export function useWelcomeCheck() {
 
 			// Actualizar el estado local inmediatamente
 			setIsFirstTime(false);
+
+			// Actualizar el store de usuario con los nuevos metadatos
+			updateUser({
+				user_metadata: {
+					...user.user_metadata,
+					has_seen_welcome: true,
+				},
+			});
 
 			return true;
 		} catch (error) {

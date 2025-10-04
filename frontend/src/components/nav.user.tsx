@@ -1,5 +1,4 @@
 import { ChevronsUpDown, FingerprintIcon, LogOut, User2 } from "lucide-react";
-import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -16,30 +15,15 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
-import { getUserRole, type UserRole } from "@/services/supabase/users.service";
 import { useUserStore } from "@/state/stores/useUserStore";
+import { useUserRole } from "@/hooks/useUserRole";
 
 export function NavUser() {
 	const { isMobile } = useSidebar();
 	const navigate = useNavigate();
 	const removeUser = useUserStore((state) => state.removeUser);
 	const user = useUserStore((state) => state.user);
-	const [role, setRole] = useState<UserRole | null>(null);
-
-	useEffect(() => {
-		async function fetchRole() {
-			if (!user?.id) return;
-
-			try {
-				const userRole = await getUserRole(user.id);
-				setRole(userRole);
-			} catch (error) {
-				console.error("Error fetching user role:", error);
-			}
-		}
-
-		fetchRole();
-	}, [user?.id]);
+	const { role } = useUserRole();
 
 	const handleLogout = () => {
 		removeUser();

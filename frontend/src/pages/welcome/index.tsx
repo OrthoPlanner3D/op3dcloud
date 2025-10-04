@@ -18,7 +18,7 @@ export default function WelcomePage() {
 	const [currentSlide, setCurrentSlide] = useState(0);
 	const [isTransitioning, setIsTransitioning] = useState(false);
 	const navigate = useNavigate();
-	const { markWelcomeAsSeen, forceRefresh } = useWelcomeCheck();
+	const { markWelcomeAsSeen } = useWelcomeCheck();
 
 	// Auto-advance slides
 	useEffect(() => {
@@ -40,17 +40,7 @@ export default function WelcomePage() {
 			const success = await markWelcomeAsSeen();
 
 			if (success) {
-				forceRefresh();
 				navigate("/", { replace: true });
-
-				setTimeout(() => {
-					if (
-						window.location.pathname === "/" ||
-						window.location.pathname === "/welcome"
-					) {
-						window.location.reload();
-					}
-				}, 1000);
 			} else {
 				console.error("No se pudo marcar la bienvenida como vista");
 				setIsLoading(false);
