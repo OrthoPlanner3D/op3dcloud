@@ -95,7 +95,7 @@ const router = createBrowserRouter([
 					{
 						path: "crear",
 						element: (
-							<RoleGuard allowedRoles={["admin", "planner"]}>
+							<RoleGuard allowedRoles={["admin", "planner", "client"]}>
 								<CreatePatient />
 							</RoleGuard>
 						),
