@@ -3,89 +3,81 @@ import { supabase } from "@/config/supabase.config";
 import { useUserStore } from "@/state/stores/useUserStore";
 
 export function useWelcomeCheck() {
-  const [isFirstTime, setIsFirstTime] = useState<boolean | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [forceUpdate, setForceUpdate] = useState(0);
-  const user = useUserStore((state) => state.user);
+	const [isFirstTime, setIsFirstTime] = useState<boolean | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
+	const user = useUserStore((state) => state.user);
 
-  useEffect(() => {
-    const checkFirstTimeLogin = async () => {
-      if (!user) {
-        setIsLoading(false);
-        return;
-      }
+	useEffect(() => {
+		const checkFirstTimeLogin = async () => {
+			if (!user) {
+				setIsLoading(false);
+				return;
+			}
 
-      try {
-        // Obtener el usuario actual con sus metadatos
-        const { data: { user: currentUser }, error } = await supabase.auth.getUser();
-        
-        if (error) {
-          console.error("Error getting user:", error);
-          setIsFirstTime(false);
-          return;
-        }
+			try {
+				// Obtener el usuario actual con sus metadatos
+				const {
+					data: { user: currentUser },
+					error,
+				} = await supabase.auth.getUser();
 
-        if (!currentUser) {
-          setIsFirstTime(false);
-          return;
-        }
+				if (error) {
+					console.error("Error getting user:", error);
+					setIsFirstTime(false);
+					return;
+				}
 
-        // Verificar si ya ha visto la bienvenida
-        const hasSeenWelcome = currentUser.user_metadata?.has_seen_welcome;
-        
-        // Si no existe la propiedad o es false, significa que es la primera vez
-        // Si es true, significa que ya vio la bienvenida
-        setIsFirstTime(hasSeenWelcome !== true);
-        
-      } catch (error) {
-        console.error("Error checking first time login:", error);
-        setIsFirstTime(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+				if (!currentUser) {
+					setIsFirstTime(false);
+					return;
+				}
 
-    checkFirstTimeLogin();
-  }, [user, forceUpdate]);
+				// Verificar si ya ha visto la bienvenida
+				const hasSeenWelcome =
+					currentUser.user_metadata?.has_seen_welcome;
 
-  const markWelcomeAsSeen = async () => {
-    if (!user) return false;
+				// Si no existe la propiedad o es false, significa que es la primera vez
+				// Si es true, significa que ya vio la bienvenida
+				setIsFirstTime(hasSeenWelcome !== true);
+			} catch (error) {
+				console.error("Error checking first time login:", error);
+				setIsFirstTime(false);
+			} finally {
+				setIsLoading(false);
+			}
+		};
 
-    try {
-      const { error } = await supabase.auth.updateUser({
-        data: {
-          has_seen_welcome: true
-        }
-      });
+		checkFirstTimeLogin();
+	}, [user]);
 
-      if (error) {
-        console.error("Error updating user metadata:", error);
-        return false;
-      }
+	const markWelcomeAsSeen = async () => {
+		if (!user) return false;
 
-      // Actualizar el estado local inmediatamente
-      setIsFirstTime(false);
-      
-      // Forzar una nueva verificación después de un breve delay
-      setTimeout(() => {
-        setForceUpdate(prev => prev + 1);
-      }, 100);
+		try {
+			const { error } = await supabase.auth.updateUser({
+				data: {
+					has_seen_welcome: true,
+				},
+			});
 
-      return true;
-    } catch (error) {
-      console.error("Error marking welcome as seen:", error);
-      return false;
-    }
-  };
+			if (error) {
+				console.error("Error updating user metadata:", error);
+				return false;
+			}
 
-  const forceRefresh = () => {
-    setForceUpdate(prev => prev + 1);
-  };
+			// Actualizar el estado local inmediatamente
+			setIsFirstTime(false);
 
-  return {
-    isFirstTime,
-    isLoading,
-    markWelcomeAsSeen,
-    forceRefresh
-  };
+			return true;
+		} catch (error) {
+			console.error("Error marking welcome as seen:", error);
+			return false;
+		}
+	};
+
+	return {
+		isFirstTime,
+		isLoading,
+		markWelcomeAsSeen,
+	};
 }

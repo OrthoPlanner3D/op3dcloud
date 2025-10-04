@@ -1,4 +1,5 @@
 import { ChevronsUpDown, FingerprintIcon, LogOut, User2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -15,6 +16,7 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
+import { getUserRole, type UserRole } from "@/services/supabase/users.service";
 import { useUserStore } from "@/state/stores/useUserStore";
 
 export function NavUser() {
@@ -22,6 +24,22 @@ export function NavUser() {
 	const navigate = useNavigate();
 	const removeUser = useUserStore((state) => state.removeUser);
 	const user = useUserStore((state) => state.user);
+	const [role, setRole] = useState<UserRole | null>(null);
+
+	useEffect(() => {
+		async function fetchRole() {
+			if (!user?.id) return;
+
+			try {
+				const userRole = await getUserRole(user.id);
+				setRole(userRole);
+			} catch (error) {
+				console.error("Error fetching user role:", error);
+			}
+		}
+
+		fetchRole();
+	}, [user?.id]);
 
 	const handleLogout = () => {
 		removeUser();
@@ -81,12 +99,14 @@ export function NavUser() {
 							<LogOut />
 							Log out
 						</DropdownMenuItem>
-						<DropdownMenuItem asChild>
-							<Link to="/accesos">
-								<FingerprintIcon />
-								Accesos
-							</Link>
-						</DropdownMenuItem>
+						{role === "admin" && (
+							<DropdownMenuItem asChild>
+								<Link to="/accesos">
+									<FingerprintIcon />
+									Accesos
+								</Link>
+							</DropdownMenuItem>
+						)}
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</SidebarMenuItem>

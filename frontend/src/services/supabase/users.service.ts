@@ -1,37 +1,30 @@
-// import { supabase } from "@/config/supabase.config";
-// import { DataBaseError } from "@/errors/dataBaseError";
-// import { UnknowError } from "@/errors/unknownError";
-// import type { IUser } from "@/types/user/user";
+import { supabase } from "@/config/supabase.config";
 
-import { supabaseAdmin } from "@/config/supabase.config";
+export type UserRole = "admin" | "planner" | "client";
 
-// export async function getViewUserById(id: string): Promise<IUser> {
-// 	try {
-// 		const { data: user, error } = await supabase
-// 			.schema("aut")
-// 			.from("users_view")
-// 			.select("*")
-// 			.eq("id", id)
-// 			.maybeSingle();
-
-// 		if (error != null) throw new DataBaseError(error.message);
-// 		if (!user) throw new DataBaseError("Usuario no encontrado");
-
-// 		return user;
-// 	} catch (error) {
-// 		if (error instanceof DataBaseError) throw error;
-
-// 		throw new UnknowError("Error desconocido");
-// 	}
-// }
-
-export async function getUserById(id: string) {
+export async function getUserRole(userId: string): Promise<UserRole | null> {
 	try {
-		const { data, error } = await supabaseAdmin.auth.admin.getUserById(id);
-		if (error) throw error;
+		const { data, error } = await supabase
+			.schema("op3dcloud")
+			.from("user_has_role")
+			.select(`
+				roles!inner(name)
+			`)
+			.eq("id_user", userId)
+			.single();
 
-		return data.user;
+		if (error) {
+			console.error("Error getting user role:", error);
+			return null;
+		}
+
+		if (data?.roles?.name) {
+			return data.roles.name as UserRole;
+		}
+
+		return null;
 	} catch (error) {
-		console.error(error);
+		console.error("Error getting user role:", error);
+		return null;
 	}
 }

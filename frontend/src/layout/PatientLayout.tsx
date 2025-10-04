@@ -1,4 +1,5 @@
-import { Inbox, LayoutDashboard } from "lucide-react";
+import { Inbox, LayoutDashboard, Settings, Users } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import logo from "@/assets/images/logos/logo-black.png";
 import { NavUser } from "@/components/nav.user";
@@ -16,25 +17,61 @@ import {
 	SidebarProvider,
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { getUserRole, type UserRole } from "@/services/supabase/users.service";
+import { useUserStore } from "@/state/stores/useUserStore";
 
 interface Props {
 	children: React.ReactNode;
 }
 
-const items = [
-	{
-		title: "Dashboard",
-		url: "/",
-		icon: LayoutDashboard,
-	},
-	{
-		title: "Pacientes",
-		url: "/pacientes",
-		icon: Inbox,
-	},
-];
-
 export default function PatientLayout({ children }: Props) {
+	const [role, setRole] = useState<UserRole | null>(null);
+	const user = useUserStore((state) => state.user);
+
+	useEffect(() => {
+		async function fetchRole() {
+			if (!user?.id) return;
+
+			try {
+				const userRole = await getUserRole(user.id);
+				setRole(userRole);
+			} catch (error) {
+				console.error("Error fetching user role:", error);
+			}
+		}
+
+		fetchRole();
+	}, [user?.id]);
+
+	const allItems = [
+		{
+			title: "Dashboard",
+			url: "/",
+			icon: LayoutDashboard,
+			roles: ["admin", "planner", "client"] as UserRole[],
+		},
+		{
+			title: "Pacientes",
+			url: "/pacientes",
+			icon: Inbox,
+			roles: ["admin", "planner"] as UserRole[],
+		},
+		{
+			title: "Planificadores",
+			url: "/planificadores",
+			icon: Users,
+			roles: ["admin"] as UserRole[],
+		},
+		{
+			title: "Accesos",
+			url: "/accesos",
+			icon: Settings,
+			roles: ["admin"] as UserRole[],
+		},
+	];
+
+	const items = allItems.filter((item) => role && item.roles.includes(role));
+
 	return (
 		<SidebarProvider defaultOpen={false}>
 			<Sidebar collapsible="icon">

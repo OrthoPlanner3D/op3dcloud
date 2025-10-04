@@ -8,7 +8,7 @@ interface IUser {
 	username: string;
 	user_metadata?: {
 		has_seen_welcome?: boolean;
-		[key: string]: any;
+		[key: string]: unknown;
 	};
 }
 

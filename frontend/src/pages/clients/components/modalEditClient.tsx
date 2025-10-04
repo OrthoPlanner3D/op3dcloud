@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -82,34 +82,40 @@ export default function ModalEditClient({
 	const form = useForm<IFormData>();
 
 	// Helper function to create form data from patient
-	const createFormData = (patientData: DashboardAdminViewRow): IFormData => ({
-		id_planner: patientData.planner_id || "",
-		status_files: patientData.status_files || "",
-		case_status: patientData.case_status || "",
-		notes: patientData.notes || "",
-	});
+	const createFormData = useCallback(
+		(patientData: DashboardAdminViewRow): IFormData => ({
+			id_planner: patientData.planner_id || "",
+			status_files: patientData.status_files || "",
+			case_status: patientData.case_status || "",
+			notes: patientData.notes || "",
+		}),
+		[],
+	);
 
 	// Helper function to reset form and state
-	const resetModalState = () => {
+	const resetModalState = useCallback(() => {
 		setPatient(null);
 		setIsLoadingPatient(false);
 		form.reset();
-	};
+	}, [form]);
 
 	// Helper function to load patient data
-	const loadPatientData = async (patientId: string) => {
-		setIsLoadingPatient(true);
-		try {
-			const patientData = await getPatientById(patientId);
-			setPatient(patientData);
-			form.reset(createFormData(patientData));
-		} catch (error) {
-			console.error("Error getting patient:", error);
-			toast.error("Error al cargar los datos del cliente");
-		} finally {
-			setIsLoadingPatient(false);
-		}
-	};
+	const loadPatientData = useCallback(
+		async (patientId: string) => {
+			setIsLoadingPatient(true);
+			try {
+				const patientData = await getPatientById(patientId);
+				setPatient(patientData);
+				form.reset(createFormData(patientData));
+			} catch (error) {
+				console.error("Error getting patient:", error);
+				toast.error("Error al cargar los datos del cliente");
+			} finally {
+				setIsLoadingPatient(false);
+			}
+		},
+		[form, createFormData],
+	);
 
 	const onSubmit = async (values: IFormData) => {
 		if (!id) return;
@@ -152,7 +158,15 @@ export default function ModalEditClient({
 
 		// Load new patient data
 		loadPatientData(String(id));
-	}, [id, isOpen, patient, form]);
+	}, [
+		id,
+		isOpen,
+		patient,
+		form,
+		createFormData,
+		loadPatientData,
+		resetModalState,
+	]);
 
 	return (
 		<Dialog open={isOpen} onOpenChange={close}>

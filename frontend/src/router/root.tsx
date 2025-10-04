@@ -1,4 +1,5 @@
 import { createBrowserRouter, Navigate, Outlet } from "react-router";
+import PatientLayout from "@/layout/PatientLayout";
 import PublicLayout from "@/layout/PublicLayout";
 import Accesses from "@/pages/accesses";
 import Clients from "@/pages/clients";
@@ -12,6 +13,7 @@ import SignIn from "@/pages/sign-in";
 import TermsAndConditions from "@/pages/terms";
 import PrivateGuard from "./guards/PrivateGuard";
 import PublicGuard from "./guards/PublicGuard";
+import RoleGuard from "./guards/RoleGuard";
 import WelcomeGuard from "./guards/WelcomeGuard";
 
 const router = createBrowserRouter([
@@ -46,31 +48,45 @@ const router = createBrowserRouter([
 		],
 	},
 
-	// Private routes for clients
+	// Private routes with role-based access
 	{
 		path: "/",
 		element: (
 			<WelcomeGuard>
 				<PrivateGuard>
-					<Outlet />
+					<PatientLayout>
+						<Outlet />
+					</PatientLayout>
 				</PrivateGuard>
 			</WelcomeGuard>
 		),
 		children: [
 			{
 				index: true,
-				element: <Clients />,
+				element: (
+					<RoleGuard allowedRoles={["admin", "planner", "client"]}>
+						<Clients />
+					</RoleGuard>
+				),
 			},
 			{
 				path: "pacientes",
 				children: [
 					{
 						index: true,
-						element: <Patients />,
+						element: (
+							<RoleGuard allowedRoles={["admin", "planner"]}>
+								<Patients />
+							</RoleGuard>
+						),
 					},
 					{
 						path: "crear",
-						element: <CreatePatient />,
+						element: (
+							<RoleGuard allowedRoles={["admin", "planner"]}>
+								<CreatePatient />
+							</RoleGuard>
+						),
 					},
 				],
 			},
@@ -79,17 +95,29 @@ const router = createBrowserRouter([
 				children: [
 					{
 						index: true,
-						element: <Planners />,
+						element: (
+							<RoleGuard allowedRoles={["admin"]}>
+								<Planners />
+							</RoleGuard>
+						),
 					},
 					{
 						path: "crear",
-						element: <PlannersStore />,
+						element: (
+							<RoleGuard allowedRoles={["admin"]}>
+								<PlannersStore />
+							</RoleGuard>
+						),
 					},
 				],
 			},
 			{
 				path: "accesos",
-				element: <Accesses />,
+				element: (
+					<RoleGuard allowedRoles={["admin"]}>
+						<Accesses />
+					</RoleGuard>
+				),
 			},
 		],
 	},

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getDashboardAdmin } from "@/services/supabase/dashboard-admin.service";
 import type { DashboardAdminViewRow } from "@/types/db/dashboard-admin/dashboard-admin";
 import { columns } from "./columns";
@@ -9,7 +9,7 @@ export default function Clients() {
 	const [data, setData] = useState<DashboardAdminViewRow[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 
-	const fetchData = async () => {
+	const fetchData = useCallback(async () => {
 		try {
 			setIsLoading(true);
 			const dashboardData = await getDashboardAdmin();
@@ -19,11 +19,11 @@ export default function Clients() {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, []);
 
 	useEffect(() => {
 		fetchData();
-	}, []);
+	}, [fetchData]);
 
 	const handleClientUpdated = () => {
 		fetchData();
