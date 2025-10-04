@@ -31,13 +31,13 @@ export default function PatientLayout({ children }: Props) {
 			title: "Dashboard",
 			url: "/",
 			icon: LayoutDashboard,
-			roles: ["admin", "planner", "client"] as UserRole[],
+			roles: ["admin", "planner"] as UserRole[],
 		},
 		{
 			title: "Pacientes",
 			url: "/pacientes",
 			icon: Inbox,
-			roles: ["admin", "planner"] as UserRole[],
+			roles: ["admin", "planner", "client"] as UserRole[],
 		},
 	];
 

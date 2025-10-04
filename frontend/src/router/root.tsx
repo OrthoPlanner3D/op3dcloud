@@ -15,6 +15,18 @@ import PrivateGuard from "./guards/PrivateGuard";
 import PublicGuard from "./guards/PublicGuard";
 import RoleGuard from "./guards/RoleGuard";
 import WelcomeGuard from "./guards/WelcomeGuard";
+import { useUserRole } from "@/hooks/useUserRole";
+
+// Component to handle role-based redirection
+function RoleBasedRedirect() {
+	const { role } = useUserRole();
+	
+	if (role === "client") {
+		return <Navigate to="/pacientes" replace />;
+	}
+	
+	return <Clients />;
+}
 
 const router = createBrowserRouter([
 	// Public routes
@@ -65,7 +77,7 @@ const router = createBrowserRouter([
 				index: true,
 				element: (
 					<RoleGuard allowedRoles={["admin", "planner", "client"]}>
-						<Clients />
+						<RoleBasedRedirect />
 					</RoleGuard>
 				),
 			},
@@ -75,7 +87,7 @@ const router = createBrowserRouter([
 					{
 						index: true,
 						element: (
-							<RoleGuard allowedRoles={["admin", "planner"]}>
+							<RoleGuard allowedRoles={["admin", "planner", "client"]}>
 								<Patients />
 							</RoleGuard>
 						),
