@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useUserStore } from "@/state/stores/useUserStore";
 import { getUserRole, type UserRole } from "@/services/supabase/users.service";
+import { useUserStore } from "@/state/stores/useUserStore";
 
 export function useUserRole() {
 	const [role, setRole] = useState<UserRole | null>(null);

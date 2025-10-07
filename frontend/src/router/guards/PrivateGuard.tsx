@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router";
-import PatientLayout from "@/layout/PatientLayout";
-import { useUserStore } from "@/state/stores/useUserStore";
 import { useWelcomeCheck } from "@/hooks/useWelcomeCheck";
+import PatientLayout from "@/layout/PatientLayout";
 import WelcomePage from "@/pages/welcome";
+import { useUserStore } from "@/state/stores/useUserStore";
 
 interface Props {
 	children: React.ReactNode;
@@ -12,7 +12,9 @@ interface Props {
 export default function PrivateGuard({ children }: Props): React.ReactNode {
 	const user = useUserStore((state) => state.user);
 	const { isFirstTime, isLoading } = useWelcomeCheck();
-	const [shouldShowWelcome, setShouldShowWelcome] = useState<boolean | null>(null);
+	const [shouldShowWelcome, setShouldShowWelcome] = useState<boolean | null>(
+		null,
+	);
 
 	// Sincronizar el estado local con el hook
 	useEffect(() => {

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { supabase } from "@/config/supabase.config";
-import { useUserStore } from "@/state/stores/useUserStore";
 import { getUserRole } from "@/services/supabase/users.service";
+import { useUserStore } from "@/state/stores/useUserStore";
 
 interface Props {
 	children: React.ReactNode;
@@ -32,7 +32,7 @@ export default function AuthProvider({ children }: Props): React.ReactNode {
 					if (user) {
 						// Obtener el rol del usuario
 						const userRole = await getUserRole(user.id);
-						
+
 						// Crear objeto de usuario con la información disponible
 						const userData = {
 							id: user.id,
@@ -61,7 +61,7 @@ export default function AuthProvider({ children }: Props): React.ReactNode {
 					if (!error && user) {
 						// Obtener el rol del usuario
 						const userRole = await getUserRole(user.id);
-						
+
 						updateUser({
 							id: user.id,
 							email: user.email || "",

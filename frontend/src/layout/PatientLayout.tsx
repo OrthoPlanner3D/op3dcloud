@@ -2,8 +2,6 @@ import { Inbox, LayoutDashboard } from "lucide-react";
 import { Link } from "react-router";
 import logo from "@/assets/images/logos/logo-black.png";
 import { NavUser } from "@/components/nav.user";
-import { useUserRole } from "@/hooks/useUserRole";
-import type { UserRole } from "@/services/supabase/users.service";
 import {
 	Sidebar,
 	SidebarContent,
@@ -18,6 +16,8 @@ import {
 	SidebarProvider,
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { useUserRole } from "@/hooks/useUserRole";
+import type { UserRole } from "@/services/supabase/users.service";
 
 interface Props {
 	children: React.ReactNode;
