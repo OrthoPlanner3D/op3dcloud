@@ -1,8 +1,6 @@
 import { createBrowserRouter, Navigate, Outlet } from "react-router";
-import PatientLayout from "@/layout/PatientLayout";
 import PublicLayout from "@/layout/PublicLayout";
 import Accesses from "@/pages/accesses";
-import Clients from "@/pages/clients";
 import Patients from "@/pages/patient";
 import CreatePatient from "@/pages/patient/create";
 import Planners from "@/pages/planners";
@@ -121,7 +119,9 @@ const router = createBrowserRouter([
 		path: "/dashboard",
 		element: (
 			<PrivateGuard>
-				<Outlet />
+				<RoleGuard allowedRoles={["admin", "planner"]}>
+					<Outlet />
+				</RoleGuard>
 			</PrivateGuard>
 		),
 		children: [

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { supabase } from "@/config/supabase.config";
 import { useUserStore } from "@/state/stores/useUserStore";
+import { getUserRole } from "@/services/supabase/users.service";
 
 interface Props {
 	children: React.ReactNode;
@@ -29,6 +30,9 @@ export default function AuthProvider({ children }: Props): React.ReactNode {
 					}
 
 					if (user) {
+						// Obtener el rol del usuario
+						const userRole = await getUserRole(user.id);
+						
 						// Crear objeto de usuario con la información disponible
 						const userData = {
 							id: user.id,
@@ -37,6 +41,7 @@ export default function AuthProvider({ children }: Props): React.ReactNode {
 								user.user_metadata?.username ||
 								user.email?.split("@")[0] ||
 								"",
+							role: userRole,
 							// Incluir metadatos del usuario para verificar primera vez
 							user_metadata: user.user_metadata,
 						};
@@ -54,6 +59,9 @@ export default function AuthProvider({ children }: Props): React.ReactNode {
 					} = await supabase.auth.getUser();
 
 					if (!error && user) {
+						// Obtener el rol del usuario
+						const userRole = await getUserRole(user.id);
+						
 						updateUser({
 							id: user.id,
 							email: user.email || "",
@@ -61,6 +69,7 @@ export default function AuthProvider({ children }: Props): React.ReactNode {
 								user.user_metadata?.username ||
 								user.email?.split("@")[0] ||
 								"",
+							role: userRole,
 							user_metadata: user.user_metadata,
 						});
 					}

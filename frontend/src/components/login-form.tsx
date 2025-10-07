@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/config/supabase.config";
 import { cn } from "@/lib/utils";
 import { useUserStore } from "@/state/stores/useUserStore";
+import { getUserRole } from "@/services/supabase/users.service";
 import BrandLogo from "./ui/brandLogo";
 
 interface ILoginForm {
@@ -32,11 +33,17 @@ export function LoginForm({
 			return;
 		}
 
-		setUser({
-			id: userData?.user?.id ?? "",
-			email: userData?.user?.email ?? "",
-			username: `${userData?.user?.user_metadata.name ?? ""} ${userData?.user?.user_metadata.last_name ?? ""}`,
-		});
+		if (userData?.user?.id) {
+			// Obtener el rol del usuario
+			const userRole = await getUserRole(userData.user.id);
+			
+			setUser({
+				id: userData.user.id,
+				email: userData.user.email ?? "",
+				username: `${userData.user.user_metadata?.name ?? ""} ${userData.user.user_metadata?.last_name ?? ""}`,
+				role: userRole,
+			});
+		}
 	}
 
 	return (
