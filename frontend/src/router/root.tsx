@@ -14,18 +14,7 @@ import TermsAndConditions from "@/pages/terms";
 import PrivateGuard from "./guards/PrivateGuard";
 import PublicGuard from "./guards/PublicGuard";
 import RoleGuard from "./guards/RoleGuard";
-import { useUserRole } from "@/hooks/useUserRole";
-
-// Component to handle role-based redirection
-function RoleBasedRedirect() {
-	const { role } = useUserRole();
-	
-	if (role === "client") {
-		return <Navigate to="/pacientes" replace />;
-	}
-	
-	return <Clients />;
-}
+import RoleRedirectGuard from "./guards/RoleRedirectGuard";
 
 const router = createBrowserRouter([
 	// Public routes
@@ -72,7 +61,7 @@ const router = createBrowserRouter([
 				index: true,
 				element: (
 					<RoleGuard allowedRoles={["admin", "planner", "client"]}>
-						<RoleBasedRedirect />
+						<RoleRedirectGuard />
 					</RoleGuard>
 				),
 			},
