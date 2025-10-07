@@ -14,7 +14,6 @@ import TermsAndConditions from "@/pages/terms";
 import PrivateGuard from "./guards/PrivateGuard";
 import PublicGuard from "./guards/PublicGuard";
 import RoleGuard from "./guards/RoleGuard";
-import WelcomeGuard from "./guards/WelcomeGuard";
 import { useUserRole } from "@/hooks/useUserRole";
 
 // Component to handle role-based redirection
@@ -64,13 +63,9 @@ const router = createBrowserRouter([
 	{
 		path: "/",
 		element: (
-			<WelcomeGuard>
-				<PrivateGuard>
-					<PatientLayout>
-						<Outlet />
-					</PatientLayout>
-				</PrivateGuard>
-			</WelcomeGuard>
+			<PrivateGuard>
+				<Outlet />
+			</PrivateGuard>
 		),
 		children: [
 			{
@@ -136,11 +131,9 @@ const router = createBrowserRouter([
 	{
 		path: "/dashboard",
 		element: (
-			<WelcomeGuard>
-				<PrivateGuard>
-					<Outlet />
-				</PrivateGuard>
-			</WelcomeGuard>
+			<PrivateGuard>
+				<Outlet />
+			</PrivateGuard>
 		),
 		children: [
 			{

@@ -6,9 +6,9 @@ interface IUser {
 	id: string;
 	email: string;
 	username: string;
+	role?: "admin" | "planner" | "client";
 	user_metadata?: {
 		has_seen_welcome?: boolean;
-		[key: string]: unknown;
 	};
 }
 
