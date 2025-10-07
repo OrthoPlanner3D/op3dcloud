@@ -15,6 +15,7 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
+import { useUserRole } from "@/hooks/useUserRole";
 import { useUserStore } from "@/state/stores/useUserStore";
 
 export function NavUser() {
@@ -22,6 +23,7 @@ export function NavUser() {
 	const navigate = useNavigate();
 	const removeUser = useUserStore((state) => state.removeUser);
 	const user = useUserStore((state) => state.user);
+	const { role } = useUserRole();
 
 	const handleLogout = () => {
 		removeUser();
@@ -81,12 +83,14 @@ export function NavUser() {
 							<LogOut />
 							Log out
 						</DropdownMenuItem>
-						<DropdownMenuItem asChild>
-							<Link to="/accesos">
-								<FingerprintIcon />
-								Accesos
-							</Link>
-						</DropdownMenuItem>
+						{role === "admin" && (
+							<DropdownMenuItem asChild>
+								<Link to="/accesos">
+									<FingerprintIcon />
+									Accesos
+								</Link>
+							</DropdownMenuItem>
+						)}
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</SidebarMenuItem>

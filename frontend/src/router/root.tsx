@@ -1,7 +1,6 @@
 import { createBrowserRouter, Navigate, Outlet } from "react-router";
 import PublicLayout from "@/layout/PublicLayout";
 import Accesses from "@/pages/accesses";
-import Clients from "@/pages/clients";
 import Patients from "@/pages/patient";
 import CreatePatient from "@/pages/patient/create";
 import Planners from "@/pages/planners";
@@ -12,7 +11,8 @@ import SignIn from "@/pages/sign-in";
 import TermsAndConditions from "@/pages/terms";
 import PrivateGuard from "./guards/PrivateGuard";
 import PublicGuard from "./guards/PublicGuard";
-import WelcomeGuard from "./guards/WelcomeGuard";
+import RoleGuard from "./guards/RoleGuard";
+import RoleRedirectGuard from "./guards/RoleRedirectGuard";
 
 const router = createBrowserRouter([
 	// Public routes
@@ -46,31 +46,45 @@ const router = createBrowserRouter([
 		],
 	},
 
-	// Private routes for clients
+	// Private routes with role-based access
 	{
 		path: "/",
 		element: (
-			<WelcomeGuard>
-				<PrivateGuard>
-					<Outlet />
-				</PrivateGuard>
-			</WelcomeGuard>
+			<PrivateGuard>
+				<Outlet />
+			</PrivateGuard>
 		),
 		children: [
 			{
 				index: true,
-				element: <Clients />,
+				element: (
+					<RoleGuard allowedRoles={["admin", "planner", "client"]}>
+						<RoleRedirectGuard />
+					</RoleGuard>
+				),
 			},
 			{
 				path: "pacientes",
 				children: [
 					{
 						index: true,
-						element: <Patients />,
+						element: (
+							<RoleGuard
+								allowedRoles={["admin", "planner", "client"]}
+							>
+								<Patients />
+							</RoleGuard>
+						),
 					},
 					{
 						path: "crear",
-						element: <CreatePatient />,
+						element: (
+							<RoleGuard
+								allowedRoles={["admin", "planner", "client"]}
+							>
+								<CreatePatient />
+							</RoleGuard>
+						),
 					},
 				],
 			},
@@ -79,28 +93,40 @@ const router = createBrowserRouter([
 				children: [
 					{
 						index: true,
-						element: <Planners />,
+						element: (
+							<RoleGuard allowedRoles={["admin"]}>
+								<Planners />
+							</RoleGuard>
+						),
 					},
 					{
 						path: "crear",
-						element: <PlannersStore />,
+						element: (
+							<RoleGuard allowedRoles={["admin"]}>
+								<PlannersStore />
+							</RoleGuard>
+						),
 					},
 				],
 			},
 			{
 				path: "accesos",
-				element: <Accesses />,
+				element: (
+					<RoleGuard allowedRoles={["admin"]}>
+						<Accesses />
+					</RoleGuard>
+				),
 			},
 		],
 	},
 	{
 		path: "/dashboard",
 		element: (
-			<WelcomeGuard>
-				<PrivateGuard>
+			<PrivateGuard>
+				<RoleGuard allowedRoles={["admin", "planner"]}>
 					<Outlet />
-				</PrivateGuard>
-			</WelcomeGuard>
+				</RoleGuard>
+			</PrivateGuard>
 		),
 		children: [
 			{

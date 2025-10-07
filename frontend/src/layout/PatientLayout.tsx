@@ -16,25 +16,33 @@ import {
 	SidebarProvider,
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { useUserRole } from "@/hooks/useUserRole";
+import type { UserRole } from "@/services/supabase/users.service";
 
 interface Props {
 	children: React.ReactNode;
 }
 
-const items = [
-	{
-		title: "Dashboard",
-		url: "/",
-		icon: LayoutDashboard,
-	},
-	{
-		title: "Pacientes",
-		url: "/pacientes",
-		icon: Inbox,
-	},
-];
-
 export default function PatientLayout({ children }: Props) {
+	const { role } = useUserRole();
+
+	const allItems = [
+		{
+			title: "Dashboard",
+			url: "/",
+			icon: LayoutDashboard,
+			roles: ["admin", "planner"] as UserRole[],
+		},
+		{
+			title: "Pacientes",
+			url: "/pacientes",
+			icon: Inbox,
+			roles: ["admin", "planner", "client"] as UserRole[],
+		},
+	];
+
+	const items = allItems.filter((item) => role && item.roles.includes(role));
+
 	return (
 		<SidebarProvider defaultOpen={false}>
 			<Sidebar collapsible="icon">
