@@ -1,5 +1,4 @@
 import { supabase } from "@/config/supabase.config";
-import type { UserRow } from "@/types/db/users/user.d";
 
 export type UserRole = "admin" | "planner" | "client";
 
