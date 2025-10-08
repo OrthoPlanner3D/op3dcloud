@@ -361,6 +361,16 @@ export type Database = {
 				};
 				Relationships: [];
 			};
+			view_users: {
+				Row: {
+					id_user: string;
+					id_role: number;
+					role_name: string;
+					email: string;
+					full_name: string;
+				};
+				Relationships: [];
+			};
 		};
 		Functions: {
 			assign_client_role: {
