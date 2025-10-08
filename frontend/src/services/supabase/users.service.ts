@@ -2,7 +2,7 @@ import { supabase } from "@/config/supabase.config";
 
 export type UserRole = "admin" | "planner" | "client";
 
-export async function getUserRole(userId: string): Promise<UserRole | null> {
+export async function getUserRole(userId: string): Promise<UserRole | undefined> {
 	try {
 		const { data, error } = await supabase
 			.schema("op3dcloud")
@@ -13,16 +13,16 @@ export async function getUserRole(userId: string): Promise<UserRole | null> {
 
 		if (error) {
 			console.error("Error getting user role:", error);
-			return null;
+			return undefined;
 		}
 
 		if (data?.role_name) {
 			return data.role_name as UserRole;
 		}
 
-		return null;
+		return undefined;
 	} catch (error) {
 		console.error("Error getting user role:", error);
-		return null;
+		return undefined;
 	}
 }
