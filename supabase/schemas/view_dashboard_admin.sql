@@ -11,7 +11,8 @@ SELECT
 	vc.username AS client_name,
 	p.status_files,
 	p.case_status,
-	p.notes
+	p.notes,
+	p.planning_enabled
 FROM
 	op3dcloud.patients p
 	LEFT JOIN op3dcloud.view_clients vc ON p.id_client = vc.id

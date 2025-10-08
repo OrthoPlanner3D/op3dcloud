@@ -53,6 +53,7 @@ export default function CreatePatient() {
 			observations_or_instructions: "",
 			files: "",
 			sworn_declaration: false,
+			planning_enabled: false,
 		},
 	});
 

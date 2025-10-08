@@ -139,18 +139,20 @@ export default function Patients() {
 										<FileTextIcon className="inline-block w-4 h-4 mr-2" />
 										Detalles del Paciente
 									</button>
-									<button
-										type="button"
-										onClick={() => setActiveTab("form")}
-										className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
-											activeTab === "form"
-												? "bg-background border-b-2 border-primary text-primary"
-												: "text-muted-foreground hover:text-foreground"
-										}`}
-									>
-										<ClipboardListIcon className="inline-block w-4 h-4 mr-2" />
-										Planificación de Tratamiento
-									</button>
+									{selectedPatient.planning_enabled && (
+										<button
+											type="button"
+											onClick={() => setActiveTab("form")}
+											className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+												activeTab === "form"
+													? "bg-background border-b-2 border-primary text-primary"
+													: "text-muted-foreground hover:text-foreground"
+											}`}
+										>
+											<ClipboardListIcon className="inline-block w-4 h-4 mr-2" />
+											Planificación de Tratamiento
+										</button>
+									)}
 								</div>
 							</div>
 

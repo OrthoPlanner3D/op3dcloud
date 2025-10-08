@@ -6,5 +6,5 @@ export type DashboardAdminViewRow =
 // Tipo específico para actualizar un paciente basado en los campos editables
 export type PatientUpdateData = Pick<
 	Database["op3dcloud"]["Tables"]["patients"]["Update"],
-	"id_planner" | "status_files" | "case_status" | "notes"
+	"id_planner" | "status_files" | "case_status" | "notes" | "planning_enabled"
 >;

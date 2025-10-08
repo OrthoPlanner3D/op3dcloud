@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getDashboardAdmin } from "@/services/supabase/dashboard-admin.service";
 import type { DashboardAdminViewRow } from "@/types/db/dashboard-admin/dashboard-admin";
-import { columns } from "./columns";
+import { createColumns } from "./columns";
 import ModalEditClient from "./components/modalEditClient";
 import { DataTable } from "./data-table";
 
@@ -46,7 +46,25 @@ export default function Clients() {
 	return (
 		<div className="w-full min-h-[calc(100vh-2.75rem)] lg:h-full">
 			<div className="container mx-auto">
-				<DataTable columns={columns} data={data} />
+				<DataTable
+					columns={createColumns()}
+					data={data}
+					meta={{
+						updateData: (
+							rowIndex: number,
+							columnId: string,
+							value: unknown,
+						) => {
+							setData((prev) =>
+								prev.map((row, index) =>
+									index === rowIndex
+										? { ...row, [columnId]: value }
+										: row,
+								),
+							);
+						},
+					}}
+				/>
 				<ModalEditClient onClientUpdated={handleClientUpdated} />
 			</div>
 		</div>

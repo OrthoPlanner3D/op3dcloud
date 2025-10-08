@@ -35,3 +35,20 @@ export async function getPatientsByeCLient(
 		throw error;
 	}
 }
+
+export async function updatePatientPlanningEnabled(
+	patientId: number,
+	planningEnabled: boolean,
+): Promise<void> {
+	try {
+		const { error } = await supabase
+			.from("patients")
+			.update({ planning_enabled: planningEnabled })
+			.eq("id", patientId);
+
+		if (error) throw error.message;
+	} catch (error) {
+		console.error(error);
+		throw error;
+	}
+}
