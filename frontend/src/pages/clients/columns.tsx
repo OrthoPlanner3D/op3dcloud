@@ -18,11 +18,25 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Switch } from "@/components/ui/switch";
+import { useUserRole } from "@/hooks/useUserRole";
 import { confirm, formatDate } from "@/lib/utils";
+import { updatePatientPlanningEnabled } from "@/services/supabase/patients.service";
 import type { DashboardAdminViewRow } from "@/types/db/dashboard-admin/dashboard-admin";
 import useEditClientModalStore from "./state/stores/useEditClientModalStore";
 
-export const columns: ColumnDef<DashboardAdminViewRow>[] = [
+// Extender el tipo TableMeta para incluir updateData
+declare module "@tanstack/react-table" {
+	interface TableMeta<_TData> {
+		updateData?: (
+			rowIndex: number,
+			columnId: string,
+			value: unknown,
+		) => void;
+	}
+}
+
+export const createColumns = (): ColumnDef<DashboardAdminViewRow>[] => [
 	{
 		accessorKey: "id",
 		header: ({ column }) => {
@@ -124,6 +138,75 @@ export const columns: ColumnDef<DashboardAdminViewRow>[] = [
 		header: "Notas",
 	},
 	{
+		id: "planning_enabled",
+		header: "Planificación",
+		cell: ({ row, table }) => {
+			const { role } = useUserRole();
+			const canModify = role === "admin" || role === "planner";
+
+			if (!canModify) {
+				return (
+					<Badge
+						variant={
+							row.original.planning_enabled
+								? "default"
+								: "secondary"
+						}
+					>
+						{row.original.planning_enabled
+							? "Habilitada"
+							: "Deshabilitada"}
+					</Badge>
+				);
+			}
+
+			const handleToggle = async (checked: boolean) => {
+				if (!row.original.id) return;
+
+				// Optimistic update - actualizar inmediatamente la UI usando el método de la tabla
+				const originalValue = row.original.planning_enabled;
+
+				// Actualizar el estado de la tabla para que React detecte el cambio
+				table.options.meta?.updateData?.(
+					row.index,
+					"planning_enabled",
+					checked,
+				);
+
+				try {
+					await updatePatientPlanningEnabled(
+						row.original.id,
+						checked,
+					);
+				} catch (error) {
+					// Revertir en caso de error
+					table.options.meta?.updateData?.(
+						row.index,
+						"planning_enabled",
+						originalValue,
+					);
+					console.error("Error updating planning enabled:", error);
+					// Opcional: mostrar notificación de error al usuario
+				}
+			};
+
+			return (
+				<div className="flex items-center space-x-2">
+					<Switch
+						checked={row.original.planning_enabled ?? false}
+						onCheckedChange={handleToggle}
+						aria-label="Toggle planning enabled"
+					/>
+					<span className="text-sm text-muted-foreground">
+						{row.original.planning_enabled
+							? "Habilitada"
+							: "Deshabilitada"}
+					</span>
+				</div>
+			);
+		},
+	},
+	{
 		id: "actions",
 		cell: ({ row }) => {
 			const open = useEditClientModalStore((state) => state.open);
@@ -169,3 +252,5 @@ export const columns: ColumnDef<DashboardAdminViewRow>[] = [
 		},
 	},
 ];
+
+export const columns = createColumns();

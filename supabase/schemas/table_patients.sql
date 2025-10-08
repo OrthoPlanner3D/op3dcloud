@@ -8,6 +8,7 @@ create table op3dcloud.patients (
   treatment_objective text not null,
   dental_restrictions text not null,
   declared_limitations text not null,
+  planning_enabled boolean not null default false,
   suggested_adminations_and_actions text not null,
   observations_or_instructions text not null,
   files text not null,

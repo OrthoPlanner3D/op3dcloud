@@ -25,11 +25,19 @@ import {
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
+	meta?: {
+		updateData?: (
+			rowIndex: number,
+			columnId: string,
+			value: unknown,
+		) => void;
+	};
 }
 
 export function DataTable<TData, TValue>({
 	columns,
 	data,
+	meta,
 }: DataTableProps<TData, TValue>) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] =
@@ -44,6 +52,7 @@ export function DataTable<TData, TValue>({
 		getPaginationRowModel: getPaginationRowModel(),
 		onSortingChange: setSorting,
 		getSortedRowModel: getSortedRowModel(),
+		meta,
 		state: {
 			columnFilters,
 			sorting,

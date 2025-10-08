@@ -25,6 +25,7 @@ export type Database = {
 					notes: string | null;
 					observations: string | null;
 					observations_or_instructions: string;
+					planning_enabled: boolean;
 					status: string | null;
 					status_files: string | null;
 					suggested_adminations_and_actions: string;
@@ -48,6 +49,7 @@ export type Database = {
 					notes?: string | null;
 					observations?: string | null;
 					observations_or_instructions: string;
+					planning_enabled?: boolean;
 					status?: string | null;
 					status_files?: string | null;
 					suggested_adminations_and_actions: string;
@@ -71,6 +73,7 @@ export type Database = {
 					notes?: string | null;
 					observations?: string | null;
 					observations_or_instructions?: string;
+					planning_enabled?: boolean;
 					status?: string | null;
 					status_files?: string | null;
 					suggested_adminations_and_actions?: string;
@@ -327,6 +330,7 @@ export type Database = {
 					patient_name: string | null;
 					planner_id: string | null;
 					planner_name: string | null;
+					planning_enabled: boolean | null;
 					status: string | null;
 					status_files: string | null;
 				};
