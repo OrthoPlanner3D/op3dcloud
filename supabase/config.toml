@@ -62,6 +62,7 @@ schema_paths = [
     "./schemas/view_clients.sql",
     "./schemas/view_planners.sql",
     "./schemas/view_dashboard_admin.sql",
+    "./schemas/view_users.sql",
     # functions
     "./schemas/function_*.sql",
 ]
