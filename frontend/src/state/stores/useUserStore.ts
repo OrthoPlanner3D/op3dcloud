@@ -1,12 +1,13 @@
 // import type { IUser } from "@/types/user/user";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import type { UserRole } from "@/types/db/users/roles";
 
 interface IUser {
 	id: string;
 	email: string;
 	username: string;
-	role?: "admin" | "planner" | "client";
+	role: UserRole | null;
 	user_metadata?: {
 		has_seen_welcome?: boolean;
 	};

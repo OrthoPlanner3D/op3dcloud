@@ -17,7 +17,7 @@ import {
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useUserRole } from "@/hooks/useUserRole";
-import type { UserRole } from "@/services/supabase/users.service";
+import type { UserRole } from "@/types/db/users/roles";
 
 interface Props {
 	children: React.ReactNode;

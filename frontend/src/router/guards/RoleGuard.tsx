@@ -1,7 +1,6 @@
 import { Navigate } from "react-router";
 import { useUserStore } from "@/state/stores/useUserStore";
-
-type UserRole = "admin" | "planner" | "client";
+import type { UserRole } from "@/types/db/users/roles";
 
 interface RoleGuardProps {
 	children: React.ReactNode;
