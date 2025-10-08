@@ -53,7 +53,7 @@ export default function Clients() {
 						updateData: (
 							rowIndex: number,
 							columnId: string,
-							value: any,
+							value: unknown,
 						) => {
 							setData((prev) =>
 								prev.map((row, index) =>
