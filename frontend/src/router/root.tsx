@@ -9,6 +9,7 @@ import PrivacyPolicy from "@/pages/privacy";
 import Register from "@/pages/register";
 import SignIn from "@/pages/sign-in";
 import TermsAndConditions from "@/pages/terms";
+import TreatmentPlanning from "@/pages/treatment-planning";
 import PrivateGuard from "./guards/PrivateGuard";
 import PublicGuard from "./guards/PublicGuard";
 import RoleGuard from "./guards/RoleGuard";
@@ -114,6 +115,14 @@ const router = createBrowserRouter([
 				element: (
 					<RoleGuard allowedRoles={["admin"]}>
 						<Accesses />
+					</RoleGuard>
+				),
+			},
+			{
+				path: "planificacion-tratamiento",
+				element: (
+					<RoleGuard allowedRoles={["admin", "planner"]}>
+						<TreatmentPlanning />
 					</RoleGuard>
 				),
 			},

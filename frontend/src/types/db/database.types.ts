@@ -112,6 +112,13 @@ export type Database = {
 						referencedColumns: ["id"];
 					},
 					{
+						foreignKeyName: "patients_id_client_fkey";
+						columns: ["id_client"];
+						isOneToOne: false;
+						referencedRelation: "view_users";
+						referencedColumns: ["id_user"];
+					},
+					{
 						foreignKeyName: "patients_id_planner_fkey";
 						columns: ["id_planner"];
 						isOneToOne: false;
@@ -138,6 +145,13 @@ export type Database = {
 						isOneToOne: false;
 						referencedRelation: "view_planners";
 						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "patients_id_planner_fkey";
+						columns: ["id_planner"];
+						isOneToOne: false;
+						referencedRelation: "view_users";
+						referencedColumns: ["id_user"];
 					},
 				];
 			};
@@ -173,6 +187,7 @@ export type Database = {
 					lower_quantity: number;
 					manufacturing: string[];
 					maxillaries: string;
+					patient_id: number | null;
 					prognosis: string;
 					referrals: string[] | null;
 					sales_potential: string[] | null;
@@ -189,6 +204,7 @@ export type Database = {
 					lower_quantity: number;
 					manufacturing?: string[];
 					maxillaries: string;
+					patient_id?: number | null;
 					prognosis: string;
 					referrals?: string[] | null;
 					sales_potential?: string[] | null;
@@ -205,13 +221,29 @@ export type Database = {
 					lower_quantity?: number;
 					manufacturing?: string[];
 					maxillaries?: string;
+					patient_id?: number | null;
 					prognosis?: string;
 					referrals?: string[] | null;
 					sales_potential?: string[] | null;
 					simulation_render?: string | null;
 					upper_quantity?: number;
 				};
-				Relationships: [];
+				Relationships: [
+					{
+						foreignKeyName: "treatment_planning_patient_id_fkey";
+						columns: ["patient_id"];
+						isOneToOne: false;
+						referencedRelation: "patients";
+						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "treatment_planning_patient_id_fkey";
+						columns: ["patient_id"];
+						isOneToOne: false;
+						referencedRelation: "view_dashboard_admin";
+						referencedColumns: ["id"];
+					},
+				];
 			};
 			user_has_role: {
 				Row: {
@@ -258,6 +290,13 @@ export type Database = {
 						referencedColumns: ["id_role"];
 					},
 					{
+						foreignKeyName: "team_user_roles_id_role_fkey";
+						columns: ["id_role"];
+						isOneToOne: false;
+						referencedRelation: "view_users";
+						referencedColumns: ["id_role"];
+					},
+					{
 						foreignKeyName: "team_user_roles_id_user_fkey";
 						columns: ["id_user"];
 						isOneToOne: false;
@@ -284,6 +323,13 @@ export type Database = {
 						isOneToOne: false;
 						referencedRelation: "view_planners";
 						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "team_user_roles_id_user_fkey";
+						columns: ["id_user"];
+						isOneToOne: false;
+						referencedRelation: "view_users";
+						referencedColumns: ["id_user"];
 					},
 				];
 			};
@@ -367,11 +413,11 @@ export type Database = {
 			};
 			view_users: {
 				Row: {
-					id_user: string;
-					id_role: number;
-					role_name: string;
-					email: string;
-					full_name: string;
+					email: string | null;
+					full_name: string | null;
+					id_role: number | null;
+					id_user: string | null;
+					role_name: string | null;
 				};
 				Relationships: [];
 			};

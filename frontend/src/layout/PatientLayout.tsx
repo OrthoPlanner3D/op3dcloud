@@ -1,4 +1,4 @@
-import { Inbox, LayoutDashboard } from "lucide-react";
+import { ClipboardList, Inbox, LayoutDashboard } from "lucide-react";
 import { Link } from "react-router";
 import logo from "@/assets/images/logos/logo-black.png";
 import { NavUser } from "@/components/nav.user";
@@ -38,6 +38,12 @@ export default function PatientLayout({ children }: Props) {
 			url: "/pacientes",
 			icon: Inbox,
 			roles: ["admin", "planner", "client"] as UserRole[],
+		},
+		{
+			title: "Planificación de Tratamiento",
+			url: "/planificacion-tratamiento",
+			icon: ClipboardList,
+			roles: ["admin", "planner"] as UserRole[],
 		},
 	];
 

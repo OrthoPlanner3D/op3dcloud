@@ -10,15 +10,18 @@ import { Link } from "react-router";
 import SearchInput from "@/components/search-input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useUserRole } from "@/hooks/useUserRole";
 import { formatDate } from "@/lib/utils";
 import { getPatientsByeCLient } from "@/services/supabase/patients.service";
 import { useUserStore } from "@/state/stores/useUserStore";
 import type { PatientsRow } from "@/types/db/patients/patients";
 import TreatmentPlanningForm from "../clients/components/display-form";
 import PatientDetail from "./components/patientDetails";
+import TreatmentPlanningView from "./components/TreatmentPlanningView";
 
 export default function Patients() {
 	const user = useUserStore((state) => state.user);
+	const { role } = useUserRole();
 	const [patients, setPatients] = useState<PatientsRow[]>([]);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [selectedPatient, setSelectedPatient] = useState<PatientsRow | null>(
@@ -163,7 +166,15 @@ export default function Patients() {
 								</div>
 							) : (
 								<div className="h-[calc(100vh-4.5rem)] overflow-auto">
-									<TreatmentPlanningForm />
+									{role === "client" ? (
+										<TreatmentPlanningView
+											patientId={selectedPatient.id}
+										/>
+									) : (
+										<TreatmentPlanningForm
+											patientId={selectedPatient.id}
+										/>
+									)}
 								</div>
 							)}
 						</div>

@@ -56,6 +56,27 @@ export async function getTreatmentPlanningById(
 	}
 }
 
+export async function getTreatmentPlanningByPatientId(
+	patientId: number,
+): Promise<TreatmentPlanningRow | null> {
+	try {
+		const { data, error } = await supabase
+			.from("treatment_planning")
+			.select("*")
+			.eq("patient_id", patientId)
+			.order("created_at", { ascending: false })
+			.limit(1)
+			.maybeSingle();
+
+		if (error) throw error;
+
+		return data;
+	} catch (error) {
+		console.error("Error getting treatment planning by patient:", error);
+		throw error;
+	}
+}
+
 export async function getAllTreatmentPlanning(): Promise<
 	TreatmentPlanningRow[]
 > {
