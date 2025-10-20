@@ -1,4 +1,4 @@
-import useSWR from "swr";
+import useSWR, { type SWRConfiguration } from "swr";
 import { getPatients } from "@/services/supabase/patients.service";
 import type { PatientsRow } from "@/types/db/patients/patients";
 
@@ -17,11 +17,11 @@ export function usePatients(options?: {
 	/** Only fetch patients with planning enabled */
 	planningEnabledOnly?: boolean;
 	/** Custom SWR configuration */
-	config?: Parameters<typeof useSWR>[2];
+	config?: SWRConfiguration<PatientsRow[], Error>;
 }) {
 	const { planningEnabledOnly = false, config } = options || {};
 
-	const { data, error, isLoading, mutate } = useSWR<PatientsRow[]>(
+	const { data, error, isLoading, mutate } = useSWR<PatientsRow[], Error>(
 		"patients",
 		getPatients,
 		{

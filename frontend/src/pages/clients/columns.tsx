@@ -27,7 +27,7 @@ import useEditClientModalStore from "./state/stores/useEditClientModalStore";
 
 // Extender el tipo TableMeta para incluir updateData
 declare module "@tanstack/react-table" {
-	interface TableMeta<_TData> {
+	interface TableMeta<TData extends unknown> {
 		updateData?: (
 			rowIndex: number,
 			columnId: string,
