@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -24,7 +24,12 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { usePatients } from "@/hooks/swr/usePatients";
-import { createTreatmentPlanning } from "@/services/supabase/treatment-planning.service";
+import {
+	createTreatmentPlanning,
+	getTreatmentPlanningByPatientId,
+	updateTreatmentPlanning,
+} from "@/services/supabase/treatment-planning.service";
+import type { Tables } from "@/types/db/database.types";
 
 const formSchemaBase = z.object({
 	maxilares: z.string().min(1, "Debe seleccionar un maxilar"),
@@ -79,15 +84,26 @@ const defaultValuesWithPatient: FormDataWithPatient = {
 	paciente: "",
 };
 
+type TreatmentPlanningRow = Tables<
+	{ schema: "op3dcloud" },
+	"treatment_planning"
+>;
+
 interface TreatmentPlanningFormProps {
 	patientId?: number;
+	treatmentPlanningId?: number;
+	onSuccess?: () => void;
 }
 
 export default function TreatmentPlanningForm({
 	patientId,
+	treatmentPlanningId,
+	onSuccess,
 }: TreatmentPlanningFormProps = {}) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [resetKey, setResetKey] = useState(0);
+	const [existingData, setExistingData] =
+		useState<TreatmentPlanningRow | null>(null);
 
 	const needsPatientSelector = !patientId;
 
@@ -112,6 +128,64 @@ export default function TreatmentPlanningForm({
 			? defaultValuesWithPatient
 			: defaultValuesBase,
 	});
+
+	// Load existing treatment planning data if treatmentPlanningId is provided
+	useEffect(() => {
+		const loadExistingData = async () => {
+			if (!treatmentPlanningId && !patientId) return;
+
+			try {
+				setIsLoading(true);
+				let data: TreatmentPlanningRow | null = null;
+
+				if (treatmentPlanningId) {
+					// Load by ID - not implemented yet but keeping for future
+					// data = await getTreatmentPlanningById(treatmentPlanningId);
+				} else if (patientId) {
+					data = await getTreatmentPlanningByPatientId(patientId);
+				}
+
+				if (data) {
+					setExistingData(data);
+
+					// Map database fields to form fields
+					const formData: FormData = {
+						maxilares: data.maxillaries || "",
+						cantidadSuperior: data.upper_quantity?.toString() || "",
+						cantidadInferior: data.lower_quantity?.toString() || "",
+						renderSimulacion: data.simulation_render || "",
+						complejidad: data.complexity || "",
+						pronostico: data.prognosis || "",
+						manufactura: (data.manufacturing as string[]) || [],
+						consideracionesDiagnosticas:
+							(data.diagnostic_considerations as string[]) || [],
+						criterioAccionClinica:
+							(data.clinical_action_criteria as string[]) || [],
+						derivaciones: (data.referrals as string[]) || [],
+						potencialVenta:
+							(data.sales_potential as string[]) || [],
+						observacionesAdicionales:
+							data.additional_observations || "",
+					};
+
+					// Si necesita selector de paciente, agregarlo
+					if (needsPatientSelector) {
+						(formData as FormDataWithPatient).paciente =
+							data.patient_id?.toString() || "";
+					}
+
+					form.reset(formData);
+				}
+			} catch (error) {
+				console.error("Error loading treatment planning:", error);
+				toast.error("Error al cargar los datos de la planificación");
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		loadExistingData();
+	}, [treatmentPlanningId, patientId, needsPatientSelector, form]);
 
 	// Show error toast if patients failed to load
 	if (patientsError && needsPatientSelector) {
@@ -173,13 +247,36 @@ export default function TreatmentPlanningForm({
 				treatmentPlanningData,
 			);
 
-			// Guardar en la base de datos
-			const result = await createTreatmentPlanning(treatmentPlanningData);
+			// Check if we are updating or creating
+			if (existingData?.id) {
+				// Update existing
+				const result = await updateTreatmentPlanning(
+					existingData.id,
+					treatmentPlanningData,
+				);
+				console.log(
+					"Planificación de tratamiento actualizada:",
+					result,
+				);
+				toast.success("Planificación actualizada correctamente");
+			} else {
+				// Create new
+				const result = await createTreatmentPlanning(
+					treatmentPlanningData,
+				);
+				console.log("Planificación de tratamiento guardada:", result);
+				toast.success("Formulario enviado correctamente");
+			}
 
-			console.log("Planificación de tratamiento guardada:", result);
-			toast.success("Formulario enviado correctamente");
+			// Call onSuccess callback if provided
+			if (onSuccess) {
+				onSuccess();
+			}
 
-			resetForm();
+			// Only reset form if creating new (not editing)
+			if (!existingData?.id) {
+				resetForm();
+			}
 		} catch (error) {
 			console.error("Error al enviar el formulario:", error);
 			toast.error(
@@ -227,11 +324,13 @@ export default function TreatmentPlanningForm({
 		<div className="max-w-4xl mx-auto p-6">
 			<div className="mb-8">
 				<h1 className="text-3xl font-bold text-gray-900 mb-2">
-					Planificación de Tratamiento
+					{existingData?.id ? "Editar" : ""} Planificación de
+					Tratamiento
 				</h1>
 				<p className="text-gray-600">
-					Complete el formulario para la planificación del caso
-					ortodóntico
+					{existingData?.id
+						? "Modifique los datos de la planificación del caso ortodóntico"
+						: "Complete el formulario para la planificación del caso ortodóntico"}
 				</p>
 			</div>
 
@@ -809,7 +908,13 @@ export default function TreatmentPlanningForm({
 							Limpiar Formulario
 						</Button>
 						<Button type="submit" disabled={isLoading}>
-							{isLoading ? "Enviando..." : "Enviar Planificación"}
+							{isLoading
+								? existingData?.id
+									? "Actualizando..."
+									: "Enviando..."
+								: existingData?.id
+									? "Actualizar Planificación"
+									: "Enviar Planificación"}
 						</Button>
 					</div>
 				</form>

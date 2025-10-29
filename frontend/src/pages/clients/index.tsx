@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import ModalEditTreatmentPlanning from "@/pages/treatment-planning/components/ModalEditTreatmentPlanning";
 import { getDashboardAdmin } from "@/services/supabase/dashboard-admin.service";
 import type { DashboardAdminViewRow } from "@/types/db/dashboard-admin/dashboard-admin";
 import { createColumns } from "./columns";
@@ -66,6 +67,7 @@ export default function Clients() {
 					}}
 				/>
 				<ModalEditClient onClientUpdated={handleClientUpdated} />
+				<ModalEditTreatmentPlanning onPlanningUpdated={fetchData} />
 			</div>
 		</div>
 	);
