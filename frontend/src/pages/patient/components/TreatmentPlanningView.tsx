@@ -1,5 +1,9 @@
+import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
+import { Download, Eye } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { TreatmentPlanningDocument } from "@/pages/formPlanificadorPdf";
 import { getTreatmentPlanningByPatientId } from "@/services/supabase/treatment-planning.service";
 import type { Tables } from "@/types/db/database.types";
 
@@ -8,16 +12,21 @@ type TreatmentPlanningRow = Tables<
 	"treatment_planning"
 >;
 
+type PatientRow = Tables<{ schema: "op3dcloud" }, "patients">;
+
 interface TreatmentPlanningViewProps {
 	patientId: number;
+	patient?: PatientRow;
 }
 
 export default function TreatmentPlanningView({
 	patientId,
+	patient,
 }: TreatmentPlanningViewProps) {
 	const [treatmentPlanning, setTreatmentPlanning] =
 		useState<TreatmentPlanningRow | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
+	const [showPDFPreview, setShowPDFPreview] = useState(false);
 
 	useEffect(() => {
 		const fetchTreatmentPlanning = async () => {
@@ -110,13 +119,70 @@ export default function TreatmentPlanningView({
 	return (
 		<div className="max-w-4xl mx-auto p-6 pb-12">
 			<div className="mb-8">
-				<h1 className="text-3xl font-bold text-gray-900 mb-2">
-					Planificación de Tratamiento
-				</h1>
-				<p className="text-gray-600">
-					Información detallada del plan de tratamiento ortodóntico
-				</p>
+				<div className="flex items-start justify-between mb-4">
+					<div>
+						<h1 className="text-3xl font-bold text-gray-900 mb-2">
+							Planificación de Tratamiento
+						</h1>
+						<p className="text-gray-600">
+							Información detallada del plan de tratamiento
+							ortodóntico
+						</p>
+					</div>
+					{patient && (
+						<div className="flex gap-2">
+							<Button
+								onClick={() =>
+									setShowPDFPreview(!showPDFPreview)
+								}
+								variant="outline"
+								size="sm"
+							>
+								<Eye className="w-4 h-4 mr-2" />
+								{showPDFPreview ? "Ocultar PDF" : "Ver PDF"}
+							</Button>
+							<PDFDownloadLink
+								document={
+									<TreatmentPlanningDocument
+										treatmentPlanning={treatmentPlanning}
+										patient={patient}
+									/>
+								}
+								fileName={`planificacion-${patient.name}-${patient.last_name}.pdf`}
+							>
+								{({ loading }) => (
+									<Button
+										variant="default"
+										size="sm"
+										disabled={loading}
+									>
+										<Download className="w-4 h-4 mr-2" />
+										{loading
+											? "Generando..."
+											: "Descargar PDF"}
+									</Button>
+								)}
+							</PDFDownloadLink>
+						</div>
+					)}
+				</div>
 			</div>
+
+			{showPDFPreview && patient && (
+				<div className="mb-8 bg-white rounded-lg shadow-md p-4">
+					<h3 className="text-lg font-semibold mb-4">
+						Vista Previa del PDF
+					</h3>
+					<div className="w-full border border-gray-200 rounded overflow-hidden">
+						<PDFViewer width="100%" height="600px">
+							<TreatmentPlanningDocument
+								treatmentPlanning={treatmentPlanning}
+								patient={patient}
+							/>
+						</PDFViewer>
+					</div>
+				</div>
+			)}
 
 			<div className="space-y-6 pb-8">
 				{/* Maxilares y Cantidades */}

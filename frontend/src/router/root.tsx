@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate, Outlet } from "react-router";
 import PublicLayout from "@/layout/PublicLayout";
 import Accesses from "@/pages/accesses";
+import FormPlanificadorPdf from "@/pages/formPlanificadorPdf";
 import Patients from "@/pages/patient";
 import CreatePatient from "@/pages/patient/create";
 import Planners from "@/pages/planners";
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
 			{
 				path: "politica-de-privacidad",
 				element: <PrivacyPolicy />,
+			},
+			{
+				path: "form-planificador-pdf",
+				element: <FormPlanificadorPdf />,
 			},
 		],
 	},

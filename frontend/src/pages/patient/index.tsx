@@ -18,6 +18,7 @@ import type { PatientsRow } from "@/types/db/patients/patients";
 import TreatmentPlanningForm from "../clients/components/display-form";
 import PatientDetail from "./components/patientDetails";
 import TreatmentPlanningView from "./components/TreatmentPlanningView";
+import { Badge } from "@/components/ui/badge";
 
 export default function Patients() {
 	const user = useUserStore((state) => state.user);
@@ -103,7 +104,9 @@ export default function Patients() {
 										{patient.type_of_plan}
 									</span>
 									<span className="line-clamp-2 w-[260px] text-xs whitespace-break-spaces text-left">
-										{patient.treatment_approach}
+										{
+											patient.status ? <Badge variant="outline">{patient.status}</Badge> : <Badge variant="outline">No hay status</Badge>
+										}
 									</span>
 								</button>
 							))
@@ -169,6 +172,7 @@ export default function Patients() {
 									{role === "client" ? (
 										<TreatmentPlanningView
 											patientId={selectedPatient.id}
+											patient={selectedPatient}
 										/>
 									) : (
 										<TreatmentPlanningForm
