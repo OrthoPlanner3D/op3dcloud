@@ -72,6 +72,7 @@ schema_paths = [
 enabled = true
 # Specifies an ordered list of seed files to load during db reset.
 # Supports glob patterns relative to supabase directory: "./seeds/*.sql"
+# Luego cambiar esto, generar el mock fake
 sql_paths = ["./seed.sql"]
 
 [realtime]
