@@ -1,0 +1,125 @@
+import { useForm } from "react-hook-form";
+import { Link } from "react-router";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { supabase } from "@/config/supabase.config";
+import { cn } from "@/lib/utils";
+import { getUserRole } from "@/services/supabase/users.service";
+import { useUserStore } from "@/state/stores/useUserStore";
+import BrandLogo from "./ui/brandLogo";
+
+interface ILoginForm {
+	email: string;
+	password: string;
+}
+
+export function LoginForm({
+	className,
+	...props
+}: React.ComponentProps<"div">) {
+	const { register, handleSubmit } = useForm<ILoginForm>();
+	const setUser = useUserStore((state) => state.setUser);
+
+	async function onSubmit(data: ILoginForm) {
+		const { data: userData, error } =
+			await supabase.auth.signInWithPassword({
+				email: data.email,
+				password: data.password,
+			});
+
+		if (error) {
+			console.error("Error al iniciar sesión", error.message);
+			return;
+		}
+
+		if (userData?.user?.id) {
+			// Obtener el rol del usuario
+			const userRole = await getUserRole(userData.user.id);
+
+			setUser({
+				id: userData.user.id,
+				email: userData.user.email ?? "",
+				username: `${userData.user.user_metadata?.name ?? ""} ${userData.user.user_metadata?.last_name ?? ""}`,
+				role: userRole,
+			});
+		}
+	}
+
+	return (
+		<div className={cn("flex flex-col gap-6", className)} {...props}>
+			<form onSubmit={handleSubmit(onSubmit)}>
+				<div className="flex flex-col gap-6">
+					<div className="flex flex-col items-center gap-2">
+						<Link
+							to="/"
+							className="flex flex-col items-center gap-2 font-medium"
+							target="_blank"
+							rel="noreferrer"
+						>
+							<div className="flex items-center justify-center">
+								<BrandLogo className="size-26" />
+							</div>
+							<span className="sr-only">OP3DCloud.</span>
+						</Link>
+						<h1 className="text-xl font-bold">
+							Bienvenido a OP3D&trade;.
+						</h1>
+						<div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
+							No tenés una cuenta? Todo empieza con una buena
+							planificación.{" "}
+							<Link
+								to="/registro"
+								className="underline underline-offset-4"
+							>
+								Registrate
+							</Link>
+						</div>
+					</div>
+					<div className="flex flex-col gap-6">
+						<div className="grid gap-3">
+							<Label htmlFor="email">Email</Label>
+							<Input
+								id="email"
+								type="email"
+								{...register("email")}
+								placeholder="m@example.com"
+								required
+							/>
+						</div>
+						<div className="grid gap-3">
+							<Label htmlFor="password">Password</Label>
+							<Input
+								id="password"
+								type="password"
+								{...register("password")}
+								placeholder="********"
+								required
+							/>
+						</div>
+						<Button type="submit" className="w-full">
+							Iniciar sesión
+						</Button>
+					</div>
+				</div>
+			</form>
+			<div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
+				Al hacer clic en Continuar, usted acepta nuestros{" "}
+				<Link
+					to="/terminos-y-condiciones"
+					className="underline underline-offset-4"
+				>
+					Términos y condiciones
+				</Link>{" "}
+				y nuestra{" "}
+				<Link
+					to="/politica-de-privacidad"
+					className="underline underline-offset-4"
+				>
+					Política de privacidad
+				</Link>
+				.
+			</div>
+		</div>
+	);
+}
