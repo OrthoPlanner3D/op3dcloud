@@ -271,10 +271,7 @@ function Step1({ form }: { form: FieldValues }) {
 							<FormItem className="animate-in fade-in duration-1000">
 								<FormLabel>Nombre</FormLabel>
 								<FormControl>
-									<Input
-										type="text"
-										{...field}
-									/>
+									<Input type="text" {...field} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -291,10 +288,7 @@ function Step1({ form }: { form: FieldValues }) {
 							<FormItem className="animate-in fade-in duration-1000">
 								<FormLabel>Apellido</FormLabel>
 								<FormControl>
-									<Input
-										type="text"
-										{...field}
-									/>
+									<Input type="text" {...field} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -832,10 +826,7 @@ function Step4({ form }: { form: FieldValues }) {
 					<FormItem className="animate-in fade-in duration-1000">
 						<FormLabel>Observaciones o Instrucciones</FormLabel>
 						<FormControl>
-							<Textarea
-								className="min-h-[120px]"
-								{...field}
-							/>
+							<Textarea className="min-h-[120px]" {...field} />
 						</FormControl>
 						<FormDescription>
 							Agregue cualquier observación o instrucción
@@ -907,7 +898,14 @@ function Step5({ form }: { form: FieldValues }) {
 								información complementaria en función de lo
 								declarado.
 								<br />
-								<a href="/politica-de-privacidad" target="_blank" rel="noopener noreferrer" className="underline text-xs">Ver política de privacidad</a>
+								<a
+									href="/politica-de-privacidad"
+									target="_blank"
+									rel="noopener noreferrer"
+									className="underline text-xs"
+								>
+									Ver política de privacidad
+								</a>
 							</FormDescription>
 						</div>
 						<FormMessage />

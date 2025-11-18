@@ -1,7 +1,14 @@
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 import { type FieldValues, useForm } from "react-hook-form";
+import {
+	type CountryIso2,
+	defaultCountries,
+	PhoneInput,
+	parseCountry,
+} from "react-international-phone";
 import { useNavigate } from "react-router";
+import "react-international-phone/style.css";
 import BrandLogo from "@/components/ui/brandLogo";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,6 +38,33 @@ import {
 import { supabase } from "@/config/supabase.config";
 
 const steps = [1, 2, 3, 4];
+
+// Lista de países de LATAM
+const latinAmericaCountries: CountryIso2[] = [
+	"ar", // Argentina
+	"bo", // Bolivia
+	"br", // Brazil
+	"cl", // Chile
+	"co", // Colombia
+	"cr", // Costa Rica
+	"cu", // Cuba
+	"do", // Dominican Republic
+	"ec", // Ecuador
+	"sv", // El Salvador
+	"gt", // Guatemala
+	"hn", // Honduras
+	"mx", // Mexico
+	"ni", // Nicaragua
+	"pa", // Panama
+	"py", // Paraguay
+	"pe", // Peru
+	"uy", // Uruguay
+	"ve", // Venezuela
+];
+
+const latinAmericaCountryData = defaultCountries.filter((country) =>
+	latinAmericaCountries.includes(parseCountry(country).iso2),
+);
 
 interface IUser {
 	email: string;
@@ -483,7 +517,16 @@ function Step1({
 							<FormItem className="animate-in fade-in duration-1000">
 								<FormLabel>Teléfono</FormLabel>
 								<FormControl>
-									<Input type="tel" {...field} />
+									<PhoneInput
+										defaultCountry="ar"
+										countries={latinAmericaCountryData}
+										value={field.value}
+										onChange={field.onChange}
+										inputClassName="w-full"
+										countrySelectorStyleProps={{
+											style: { width: "55px" },
+										}}
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
