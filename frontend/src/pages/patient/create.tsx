@@ -272,7 +272,6 @@ function Step1({ form }: { form: FieldValues }) {
 								<FormLabel>Nombre</FormLabel>
 								<FormControl>
 									<Input
-										placeholder="Ingrese el nombre"
 										type="text"
 										{...field}
 									/>
@@ -293,7 +292,6 @@ function Step1({ form }: { form: FieldValues }) {
 								<FormLabel>Apellido</FormLabel>
 								<FormControl>
 									<Input
-										placeholder="Ingrese el apellido"
 										type="text"
 										{...field}
 									/>
@@ -318,7 +316,7 @@ function Step1({ form }: { form: FieldValues }) {
 						>
 							<FormControl>
 								<SelectTrigger className="w-full">
-									<SelectValue placeholder="Seleccione el tipo de plan" />
+									<SelectValue placeholder="Seleccionar" />
 								</SelectTrigger>
 							</FormControl>
 							<SelectContent>
@@ -351,7 +349,7 @@ function Step1({ form }: { form: FieldValues }) {
 						>
 							<FormControl>
 								<SelectTrigger className="w-full">
-									<SelectValue placeholder="Seleccione el enfoque" />
+									<SelectValue placeholder="Seleccionar" />
 								</SelectTrigger>
 							</FormControl>
 							<SelectContent>
@@ -405,7 +403,7 @@ function Step2({ form }: { form: FieldValues }) {
 							>
 								<FormControl>
 									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Seleccione el objetivo del tratamiento" />
+										<SelectValue placeholder="Seleccionar" />
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
@@ -490,7 +488,6 @@ function Step2({ form }: { form: FieldValues }) {
 							<div className="space-y-2">
 								<FormControl>
 									<Textarea
-										placeholder="Describa el objetivo del tratamiento..."
 										className="min-h-[120px]"
 										{...field}
 									/>
@@ -555,7 +552,7 @@ function Step3({ form }: { form: FieldValues }) {
 							>
 								<FormControl>
 									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Seleccione las restricciones dentales" />
+										<SelectValue placeholder="Seleccionar" />
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
@@ -587,7 +584,6 @@ function Step3({ form }: { form: FieldValues }) {
 							<div className="space-y-2">
 								<FormControl>
 									<Textarea
-										placeholder="Describa las restricciones dentales..."
 										className="min-h-[120px]"
 										{...field}
 									/>
@@ -638,7 +634,7 @@ function Step3({ form }: { form: FieldValues }) {
 							>
 								<FormControl>
 									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Seleccione las limitaciones declaradas" />
+										<SelectValue placeholder="Seleccionar" />
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
@@ -702,7 +698,6 @@ function Step3({ form }: { form: FieldValues }) {
 							<div className="space-y-2">
 								<FormControl>
 									<Textarea
-										placeholder="Describa las limitaciones declaradas..."
 										className="min-h-[120px]"
 										{...field}
 									/>
@@ -765,7 +760,7 @@ function Step4({ form }: { form: FieldValues }) {
 							>
 								<FormControl>
 									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Seleccione las recomendaciones y acciones" />
+										<SelectValue placeholder="Seleccionar" />
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
@@ -803,7 +798,6 @@ function Step4({ form }: { form: FieldValues }) {
 							<div className="space-y-2">
 								<FormControl>
 									<Textarea
-										placeholder="Describa las recomendaciones y acciones sugeridas..."
 										className="min-h-[120px]"
 										{...field}
 									/>
@@ -839,7 +833,6 @@ function Step4({ form }: { form: FieldValues }) {
 						<FormLabel>Observaciones o Instrucciones</FormLabel>
 						<FormControl>
 							<Textarea
-								placeholder="Agregue observaciones o instrucciones adicionales..."
 								className="min-h-[120px]"
 								{...field}
 							/>
