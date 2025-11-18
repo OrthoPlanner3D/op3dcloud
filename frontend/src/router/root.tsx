@@ -38,14 +38,6 @@ const router = createBrowserRouter([
 				element: <SignIn />,
 			},
 			{
-				path: "terminos-y-condiciones",
-				element: <TermsAndConditions />,
-			},
-			{
-				path: "politica-de-privacidad",
-				element: <PrivacyPolicy />,
-			},
-			{
 				path: "form-planificador-pdf",
 				element: <FormPlanificadorPdf />,
 			},
@@ -157,6 +149,14 @@ const router = createBrowserRouter([
 				</div>
 			</PublicGuard>
 		),
+	},
+	{
+		path: "/terminos-y-condiciones",
+		element: <TermsAndConditions />,
+	},
+	{
+		path: "/politica-de-privacidad",
+		element: <PrivacyPolicy />,
 	},
 	{
 		path: "*",

@@ -906,6 +906,8 @@ function Step5({ form }: { form: FieldValues }) {
 								sanciones. OrthoPlanner3D™ podrá solicitar
 								información complementaria en función de lo
 								declarado.
+								<br />
+								<a href="/politica-de-privacidad" target="_blank" rel="noopener noreferrer" className="underline text-xs">Ver política de privacidad</a>
 							</FormDescription>
 						</div>
 						<FormMessage />
