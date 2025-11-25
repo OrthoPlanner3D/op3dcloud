@@ -79,6 +79,12 @@ export function NavUser() {
 							</div>
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
+						<DropdownMenuItem asChild>
+							<Link to="/perfil">
+								<User2 />
+								Mi Perfil
+							</Link>
+						</DropdownMenuItem>
 						<DropdownMenuItem onClick={handleLogout}>
 							<LogOut />
 							Log out

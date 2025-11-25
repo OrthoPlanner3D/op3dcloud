@@ -7,6 +7,7 @@ import CreatePatient from "@/pages/patient/create";
 import Planners from "@/pages/planners";
 import PlannersStore from "@/pages/planners/store";
 import PrivacyPolicy from "@/pages/privacy";
+import Profile from "@/pages/profile";
 import Register from "@/pages/register";
 import SignIn from "@/pages/sign-in";
 import TermsAndConditions from "@/pages/terms";
@@ -120,6 +121,14 @@ const router = createBrowserRouter([
 				element: (
 					<RoleGuard allowedRoles={["admin", "planner"]}>
 						<TreatmentPlanning />
+					</RoleGuard>
+				),
+			},
+			{
+				path: "perfil",
+				element: (
+					<RoleGuard allowedRoles={["admin", "planner", "client"]}>
+						<Profile />
 					</RoleGuard>
 				),
 			},
