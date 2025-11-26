@@ -16,6 +16,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radiogroup";
 import {
+	SearchableMultiSelect,
+	SearchableSelect,
+} from "@/components/ui/searchable-select";
+import {
 	Select,
 	SelectContent,
 	SelectItem,
@@ -83,6 +87,53 @@ const defaultValuesWithPatient: FormDataWithPatient = {
 	...defaultValuesBase,
 	paciente: "",
 };
+
+// Options for searchable selects
+const maxilaresOptions = [
+	{ value: "ambos", label: "Ambos" },
+	{ value: "superior", label: "Superior" },
+	{ value: "inferior", label: "Inferior" },
+];
+
+const manufacturaOptions = [
+	{ value: "calidad-alta", label: "Calidad Alta" },
+	{ value: "material-premium", label: "Material Premium" },
+	{ value: "acabado-especial", label: "Acabado Especial" },
+	{ value: "control-calidad", label: "Control de Calidad" },
+];
+
+const consideracionesDiagnosticasOptions = [
+	{ value: "apiñamiento", label: "Apiñamiento" },
+	{ value: "mordida-abierta", label: "Mordida Abierta" },
+	{ value: "mordida-cruzada", label: "Mordida Cruzada" },
+	{ value: "sobre-mordida", label: "Sobre Mordida" },
+	{ value: "dientes-incluidos", label: "Dientes Incluidos" },
+];
+
+const criterioAccionClinicaOptions = [
+	{ value: "expansión-palatal", label: "Expansión Palatal" },
+	{ value: "intrusión", label: "Intrusión" },
+	{ value: "extrusión", label: "Extrusión" },
+	{ value: "rotación", label: "Rotación" },
+	{ value: "mesialización", label: "Mesialización" },
+	{ value: "distalización", label: "Distalización" },
+];
+
+const derivacionesOptions = [
+	{ value: "cirugia-ortognatica", label: "Cirugía Ortognática" },
+	{ value: "periodoncia", label: "Periodoncia" },
+	{ value: "endodoncia", label: "Endodoncia" },
+	{ value: "implantologia", label: "Implantología" },
+	{ value: "odontopediatria", label: "Odontopediatría" },
+];
+
+const potencialVentaOptions = [
+	{ value: "blanqueamiento", label: "Blanqueamiento" },
+	{ value: "carillas", label: "Carillas" },
+	{ value: "ortodoncia-adultos", label: "Ortodoncia para Adultos" },
+	{ value: "retenedores", label: "Retenedores" },
+	{ value: "seguimiento", label: "Seguimiento Prolongado" },
+];
 
 type TreatmentPlanningRow = Tables<
 	{ schema: "op3dcloud" },
@@ -402,25 +453,13 @@ export default function TreatmentPlanningForm({
 							<FormItem>
 								<FormLabel>Maxilares a Tratar</FormLabel>
 								<FormControl>
-									<Select
-										onValueChange={field.onChange}
+									<SearchableSelect
+										options={maxilaresOptions}
 										value={field.value}
-									>
-										<SelectTrigger>
-											<SelectValue placeholder="Seleccionar Maxilar" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="ambos">
-												Ambos
-											</SelectItem>
-											<SelectItem value="superior">
-												Superior
-											</SelectItem>
-											<SelectItem value="inferior">
-												Inferior
-											</SelectItem>
-										</SelectContent>
-									</Select>
+										onValueChange={field.onChange}
+										placeholder="Seleccionar Maxilar"
+										searchPlaceholder="Buscar maxilar..."
+									/>
 								</FormControl>
 								<FormDescription>
 									Indica qué maxilares serán tratados en la
@@ -597,33 +636,19 @@ export default function TreatmentPlanningForm({
 									Requerimientos
 								</FormLabel>
 								<FormControl>
-									<Select
+									<SearchableMultiSelect
 										key={`manufactura-${resetKey}`}
-										onValueChange={(value) =>
-											handleMultiSelectChange(
-												"manufactura",
-												value,
-											)
+										options={manufacturaOptions}
+										values={watchedManufactura || []}
+										onValuesChange={(values) =>
+											form.setValue("manufactura", values, {
+												shouldValidate: true,
+												shouldDirty: true,
+											})
 										}
-									>
-										<SelectTrigger className="w-full max-w-xs">
-											<SelectValue placeholder="Seleccionar recomendaciones" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="calidad-alta">
-												Calidad Alta
-											</SelectItem>
-											<SelectItem value="material-premium">
-												Material Premium
-											</SelectItem>
-											<SelectItem value="acabado-especial">
-												Acabado Especial
-											</SelectItem>
-											<SelectItem value="control-calidad">
-												Control de Calidad
-											</SelectItem>
-										</SelectContent>
-									</Select>
+										placeholder="Seleccionar recomendaciones"
+										searchPlaceholder="Buscar recomendaciones..."
+									/>
 								</FormControl>
 								{watchedManufactura &&
 									watchedManufactura.length > 0 && (
@@ -652,36 +677,28 @@ export default function TreatmentPlanningForm({
 									Consideraciones Diagnósticas
 								</FormLabel>
 								<FormControl>
-									<Select
+									<SearchableMultiSelect
 										key={`consideracionesDiagnosticas-${resetKey}`}
-										onValueChange={(value) =>
-											handleMultiSelectChange(
+										options={
+											consideracionesDiagnosticasOptions
+										}
+										values={
+											watchedConsideracionesDiagnosticas ||
+											[]
+										}
+										onValuesChange={(values) =>
+											form.setValue(
 												"consideracionesDiagnosticas",
-												value,
+												values,
+												{
+													shouldValidate: true,
+													shouldDirty: true,
+												},
 											)
 										}
-									>
-										<SelectTrigger className="w-full max-w-xs">
-											<SelectValue placeholder="Seleccionar consideraciones" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="apiñamiento">
-												Apiñamiento
-											</SelectItem>
-											<SelectItem value="mordida-abierta">
-												Mordida Abierta
-											</SelectItem>
-											<SelectItem value="mordida-cruzada">
-												Mordida Cruzada
-											</SelectItem>
-											<SelectItem value="sobre-mordida">
-												Sobre Mordida
-											</SelectItem>
-											<SelectItem value="dientes-incluidos">
-												Dientes Incluidos
-											</SelectItem>
-										</SelectContent>
-									</Select>
+										placeholder="Seleccionar consideraciones"
+										searchPlaceholder="Buscar consideraciones..."
+									/>
 								</FormControl>
 								{watchedConsideracionesDiagnosticas &&
 									watchedConsideracionesDiagnosticas.length >
@@ -712,39 +729,25 @@ export default function TreatmentPlanningForm({
 									Criterio de Acción Clínica
 								</FormLabel>
 								<FormControl>
-									<Select
+									<SearchableMultiSelect
 										key={`criterioAccionClinica-${resetKey}`}
-										onValueChange={(value) =>
-											handleMultiSelectChange(
+										options={criterioAccionClinicaOptions}
+										values={
+											watchedCriterioAccionClinica || []
+										}
+										onValuesChange={(values) =>
+											form.setValue(
 												"criterioAccionClinica",
-												value,
+												values,
+												{
+													shouldValidate: true,
+													shouldDirty: true,
+												},
 											)
 										}
-									>
-										<SelectTrigger className="w-full max-w-xs">
-											<SelectValue placeholder="Seleccionar criterios" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="expansión-palatal">
-												Expansión Palatal
-											</SelectItem>
-											<SelectItem value="intrusión">
-												Intrusión
-											</SelectItem>
-											<SelectItem value="extrusión">
-												Extrusión
-											</SelectItem>
-											<SelectItem value="rotación">
-												Rotación
-											</SelectItem>
-											<SelectItem value="mesialización">
-												Mesialización
-											</SelectItem>
-											<SelectItem value="distalización">
-												Distalización
-											</SelectItem>
-										</SelectContent>
-									</Select>
+										placeholder="Seleccionar criterios"
+										searchPlaceholder="Buscar criterios..."
+									/>
 								</FormControl>
 								{watchedCriterioAccionClinica &&
 									watchedCriterioAccionClinica.length > 0 && (
@@ -772,36 +775,23 @@ export default function TreatmentPlanningForm({
 							<FormItem>
 								<FormLabel>Derivaciones</FormLabel>
 								<FormControl>
-									<Select
+									<SearchableMultiSelect
 										key={`derivaciones-${resetKey}`}
-										onValueChange={(value) =>
-											handleMultiSelectChange(
+										options={derivacionesOptions}
+										values={watchedDerivaciones || []}
+										onValuesChange={(values) =>
+											form.setValue(
 												"derivaciones",
-												value,
+												values,
+												{
+													shouldValidate: true,
+													shouldDirty: true,
+												},
 											)
 										}
-									>
-										<SelectTrigger className="w-full max-w-xs">
-											<SelectValue placeholder="Seleccionar especialidades" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="cirugia-ortognatica">
-												Cirugía Ortognática
-											</SelectItem>
-											<SelectItem value="periodoncia">
-												Periodoncia
-											</SelectItem>
-											<SelectItem value="endodoncia">
-												Endodoncia
-											</SelectItem>
-											<SelectItem value="implantologia">
-												Implantología
-											</SelectItem>
-											<SelectItem value="odontopediatria">
-												Odontopediatría
-											</SelectItem>
-										</SelectContent>
-									</Select>
+										placeholder="Seleccionar especialidades"
+										searchPlaceholder="Buscar especialidades..."
+									/>
 								</FormControl>
 								{watchedDerivaciones &&
 									watchedDerivaciones.length > 0 && (
@@ -827,36 +817,23 @@ export default function TreatmentPlanningForm({
 							<FormItem>
 								<FormLabel>Potencial de Venta</FormLabel>
 								<FormControl>
-									<Select
+									<SearchableMultiSelect
 										key={`potencialVenta-${resetKey}`}
-										onValueChange={(value) =>
-											handleMultiSelectChange(
+										options={potencialVentaOptions}
+										values={watchedPotencialVenta || []}
+										onValuesChange={(values) =>
+											form.setValue(
 												"potencialVenta",
-												value,
+												values,
+												{
+													shouldValidate: true,
+													shouldDirty: true,
+												},
 											)
 										}
-									>
-										<SelectTrigger className="w-full max-w-xs">
-											<SelectValue placeholder="Seleccionar tratamientos" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="blanqueamiento">
-												Blanqueamiento
-											</SelectItem>
-											<SelectItem value="carillas">
-												Carillas
-											</SelectItem>
-											<SelectItem value="ortodoncia-adultos">
-												Ortodoncia para Adultos
-											</SelectItem>
-											<SelectItem value="retenedores">
-												Retenedores
-											</SelectItem>
-											<SelectItem value="seguimiento">
-												Seguimiento Prolongado
-											</SelectItem>
-										</SelectContent>
-									</Select>
+										placeholder="Seleccionar tratamientos"
+										searchPlaceholder="Buscar tratamientos..."
+									/>
 								</FormControl>
 								{watchedPotencialVenta &&
 									watchedPotencialVenta.length > 0 && (
