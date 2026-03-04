@@ -239,20 +239,27 @@ export function SearchableMultiSelect({
 							</div>
 						) : (
 							filteredOptions.map((option) => {
-								const isSelected = values.includes(option.value);
+								const isSelected = values.includes(
+									option.value,
+								);
 								return (
 									<div
 										key={option.value}
 										className={cn(
 											"relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground",
-											isSelected && "bg-accent text-accent-foreground",
+											isSelected &&
+												"bg-accent text-accent-foreground",
 										)}
-										onClick={() => toggleOption(option.value)}
+										onClick={() =>
+											toggleOption(option.value)
+										}
 									>
 										<Check
 											className={cn(
 												"mr-2 h-4 w-4",
-												isSelected ? "opacity-100" : "opacity-0",
+												isSelected
+													? "opacity-100"
+													: "opacity-0",
 											)}
 										/>
 										{option.label}

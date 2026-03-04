@@ -1,6 +1,15 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/config/supabase.config";
@@ -20,6 +29,9 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
 	const { register, handleSubmit } = useForm<ILoginForm>();
 	const setUser = useUserStore((state) => state.setUser);
+	const [showResetModal, setShowResetModal] = useState(false);
+	const [resetEmail, setResetEmail] = useState("");
+	const [isResetting, setIsResetting] = useState(false);
 
 	async function onSubmit(data: ILoginForm) {
 		const { data: userData, error } =
@@ -44,6 +56,33 @@ export function LoginForm({
 				role: userRole,
 			});
 		}
+	}
+
+	async function handleResetPassword() {
+		if (!resetEmail) {
+			toast.error("Por favor, ingresa tu email");
+			return;
+		}
+
+		setIsResetting(true);
+		const { error } = await supabase.auth.resetPasswordForEmail(
+			resetEmail,
+			{
+				redirectTo: `${window.location.origin}/reset-password`,
+			},
+		);
+
+		if (error) {
+			toast.error("Error al enviar el email de recuperación");
+			console.error(error);
+		} else {
+			toast.success(
+				"Se ha enviado un email con las instrucciones para recuperar tu contraseña",
+			);
+			setShowResetModal(false);
+			setResetEmail("");
+		}
+		setIsResetting(false);
 	}
 
 	return (
@@ -88,7 +127,16 @@ export function LoginForm({
 							/>
 						</div>
 						<div className="grid gap-3">
-							<Label htmlFor="password">Password</Label>
+							<div className="flex items-center justify-between">
+								<Label htmlFor="password">Password</Label>
+								<button
+									type="button"
+									className="text-xs text-muted-foreground hover:text-primary underline underline-offset-4"
+									onClick={() => setShowResetModal(true)}
+								>
+									¿Olvidaste tu contraseña?
+								</button>
+							</div>
 							<Input
 								id="password"
 								type="password"
@@ -120,6 +168,39 @@ export function LoginForm({
 				</Link>
 				.
 			</div>
+
+			<Dialog open={showResetModal} onOpenChange={setShowResetModal}>
+				<DialogContent className="sm:max-w-md">
+					<DialogHeader>
+						<DialogTitle>Recuperar contraseña</DialogTitle>
+						<DialogDescription>
+							Ingresa tu email y te enviaremos un enlace para
+							restablecer tu contraseña.
+						</DialogDescription>
+					</DialogHeader>
+					<div className="flex flex-col gap-4">
+						<div className="grid gap-2">
+							<Label htmlFor="reset-email">Email</Label>
+							<Input
+								id="reset-email"
+								type="email"
+								placeholder="tu@email.com"
+								value={resetEmail}
+								onChange={(e) => setResetEmail(e.target.value)}
+							/>
+						</div>
+						<Button
+							onClick={handleResetPassword}
+							disabled={isResetting}
+							className="w-full"
+						>
+							{isResetting
+								? "Enviando..."
+								: "Enviar enlace de recuperación"}
+						</Button>
+					</div>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

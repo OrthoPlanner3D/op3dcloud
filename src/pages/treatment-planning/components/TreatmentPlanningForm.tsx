@@ -641,10 +641,14 @@ export default function TreatmentPlanningForm({
 										options={manufacturaOptions}
 										values={watchedManufactura || []}
 										onValuesChange={(values) =>
-											form.setValue("manufactura", values, {
-												shouldValidate: true,
-												shouldDirty: true,
-											})
+											form.setValue(
+												"manufactura",
+												values,
+												{
+													shouldValidate: true,
+													shouldDirty: true,
+												},
+											)
 										}
 										placeholder="Seleccionar recomendaciones"
 										searchPlaceholder="Buscar recomendaciones..."
