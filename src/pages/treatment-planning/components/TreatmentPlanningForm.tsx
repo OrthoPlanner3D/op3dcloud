@@ -481,7 +481,6 @@ export default function TreatmentPlanningForm({
 										<Input
 											placeholder="Cantidad"
 											type="number"
-											min="1"
 											{...field}
 										/>
 									</FormControl>
@@ -504,7 +503,6 @@ export default function TreatmentPlanningForm({
 										<Input
 											placeholder="Cantidad"
 											type="number"
-											min="1"
 											{...field}
 										/>
 									</FormControl>
