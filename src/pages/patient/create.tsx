@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/stepper";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/config/supabase.config";
+import { getPlanners } from "@/services/supabase/planners.service";
 import { useUserStore } from "@/state/stores/useUserStore";
 import type { PatientsInsert } from "@/types/db/patients/patients";
 
@@ -118,15 +119,26 @@ export default function CreatePatient() {
 		return data;
 	}
 
+	// TODO: Mover esta lógica a un trigger en la DB para asignar planner automáticamente al insertar un paciente
+	async function getRandomPlannerId(): Promise<string | null> {
+		const planners = await getPlanners();
+		if (!planners || planners.length === 0) return null;
+		const randomIndex = Math.floor(Math.random() * planners.length);
+		return planners[randomIndex].id;
+	}
+
 	async function onSubmit(values: PatientsInsert) {
 		try {
 			if (!user?.id) {
 				throw new Error("Usuario no autenticado");
 			}
 
+			const plannerId = await getRandomPlannerId();
+
 			await createPatient({
 				...values,
 				id_client: user.id,
+				id_planner: plannerId,
 			});
 
 			navigate("/", {
