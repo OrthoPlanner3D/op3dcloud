@@ -100,14 +100,39 @@ export const createColumns = (): ColumnDef<DashboardAdminViewRow>[] => [
 		accessorKey: "expiration",
 		header: "Vencimiento",
 		cell: ({ row }) => {
+			const expiration = row.original.expiration;
+			const today = new Date();
+			today.setHours(0, 0, 0, 0);
+			const expDate = new Date(expiration ?? "");
+			expDate.setHours(0, 0, 0, 0);
+			const diffDays = Math.ceil(
+				(expDate.getTime() - today.getTime()) /
+					(1000 * 60 * 60 * 24),
+			);
+
+			let badgeClass = "";
+			if (diffDays < 0) {
+				badgeClass =
+					"bg-red-600 text-white hover:bg-red-600 border-red-600";
+			} else if (diffDays === 0) {
+				badgeClass =
+					"bg-red-500 text-white hover:bg-red-500 border-red-500";
+			} else if (diffDays <= 3) {
+				badgeClass =
+					"bg-green-500 text-white hover:bg-green-500 border-green-500";
+			} else if (diffDays <= 6) {
+				badgeClass =
+					"bg-yellow-400 text-black hover:bg-yellow-400 border-yellow-400";
+			}
+
 			return (
-				<Badge variant="secondary">
+				<Badge variant="secondary" className={badgeClass}>
 					<CalendarClockIcon
 						className="-ms-0.5 opacity-60 capitalize"
 						size={12}
 						aria-hidden="true"
 					/>
-					{formatDate(row.original.expiration)}
+					{formatDate(expiration)}
 				</Badge>
 			);
 		},
