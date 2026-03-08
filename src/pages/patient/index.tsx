@@ -104,15 +104,9 @@ export default function Patients() {
 										{patient.type_of_plan}
 									</span>
 									<span className="line-clamp-2 w-[260px] text-xs whitespace-break-spaces text-left">
-										{patient.status ? (
-											<Badge variant="outline">
-												{patient.status}
-											</Badge>
-										) : (
-											<Badge variant="outline">
-												No hay status
-											</Badge>
-										)}
+										<Badge variant="outline">
+											{patient.case_status?.join(", ") || "No hay status"}
+										</Badge>
 									</span>
 								</button>
 							))
