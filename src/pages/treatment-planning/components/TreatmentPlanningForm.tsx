@@ -19,13 +19,6 @@ import {
 	SearchableMultiSelect,
 	SearchableSelect,
 } from "@/components/ui/searchable-select";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { usePatients } from "@/hooks/swr/usePatients";
 import {
@@ -170,6 +163,7 @@ export default function TreatmentPlanningForm({
 			isPaused: () => !needsPatientSelector,
 		},
 	});
+	console.log(patients);
 
 	const form = useForm<FormData>({
 		resolver: zodResolver(
@@ -398,44 +392,25 @@ export default function TreatmentPlanningForm({
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Paciente</FormLabel>
-									<Select
-										onValueChange={field.onChange}
-										value={field.value}
-										disabled={isPatientsLoading}
-									>
-										<FormControl>
-											<SelectTrigger>
-												<SelectValue
-													placeholder={
-														isPatientsLoading
-															? "Cargando pacientes..."
-															: "Seleccionar Paciente"
-													}
-												/>
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											{patients && patients.length > 0 ? (
-												patients.map((patient) => (
-													<SelectItem
-														key={patient.id}
-														value={String(
-															patient.id,
-														)}
-													>
-														{patient.name}{" "}
-														{patient.last_name} -{" "}
-														{patient.type_of_plan}
-													</SelectItem>
-												))
-											) : (
-												<div className="p-2 text-sm text-muted-foreground text-center">
-													No hay pacientes con
-													planificación habilitada
-												</div>
-											)}
-										</SelectContent>
-									</Select>
+									<FormControl>
+										<SearchableSelect
+											options={
+												patients?.map((patient) => ({
+													value: String(patient.id),
+													label: `${patient.name} ${patient.last_name} - ${patient.type_of_plan}`,
+												})) || []
+											}
+											value={field.value}
+											onValueChange={field.onChange}
+											placeholder={
+												isPatientsLoading
+													? "Cargando pacientes..."
+													: "Seleccionar Paciente"
+											}
+											searchPlaceholder="Buscar paciente..."
+											disabled={isPatientsLoading}
+										/>
+									</FormControl>
 									<FormDescription>
 										Selecciona el paciente para el cual se
 										creará la planificación de tratamiento
