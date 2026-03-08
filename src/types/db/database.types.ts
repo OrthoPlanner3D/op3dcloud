@@ -11,10 +11,10 @@ export type Database = {
 		Tables: {
 			patients: {
 				Row: {
-					case_status: string | null;
+					case_status: string[] | null;
 					created_at: string;
-					declared_limitations: string;
-					dental_restrictions: string;
+					declared_limitations: string[];
+					dental_restrictions: string[];
 					expiration: string | null;
 					files: string;
 					id: number;
@@ -27,18 +27,18 @@ export type Database = {
 					observations_or_instructions: string;
 					planning_enabled: boolean;
 					status: string | null;
-					status_files: string | null;
-					suggested_adminations_and_actions: string;
+					status_files: string[] | null;
+					suggested_adminations_and_actions: string[];
 					sworn_declaration: boolean;
 					treatment_approach: string;
-					treatment_objective: string;
+					treatment_objective: string[];
 					type_of_plan: string;
 				};
 				Insert: {
-					case_status?: string | null;
+					case_status?: string[] | null;
 					created_at?: string;
-					declared_limitations: string;
-					dental_restrictions: string;
+					declared_limitations?: string[];
+					dental_restrictions?: string[];
 					expiration?: string | null;
 					files: string;
 					id?: never;
@@ -51,18 +51,18 @@ export type Database = {
 					observations_or_instructions: string;
 					planning_enabled?: boolean;
 					status?: string | null;
-					status_files?: string | null;
-					suggested_adminations_and_actions: string;
+					status_files?: string[] | null;
+					suggested_adminations_and_actions?: string[];
 					sworn_declaration?: boolean;
 					treatment_approach: string;
-					treatment_objective: string;
+					treatment_objective?: string[];
 					type_of_plan: string;
 				};
 				Update: {
-					case_status?: string | null;
+					case_status?: string[] | null;
 					created_at?: string;
-					declared_limitations?: string;
-					dental_restrictions?: string;
+					declared_limitations?: string[];
+					dental_restrictions?: string[];
 					expiration?: string | null;
 					files?: string;
 					id?: never;
@@ -75,11 +75,11 @@ export type Database = {
 					observations_or_instructions?: string;
 					planning_enabled?: boolean;
 					status?: string | null;
-					status_files?: string | null;
-					suggested_adminations_and_actions?: string;
+					status_files?: string[] | null;
+					suggested_adminations_and_actions?: string[];
 					sworn_declaration?: boolean;
 					treatment_approach?: string;
-					treatment_objective?: string;
+					treatment_objective?: string[];
 					type_of_plan?: string;
 				};
 				Relationships: [
@@ -366,7 +366,7 @@ export type Database = {
 			};
 			view_dashboard_admin: {
 				Row: {
-					case_status: string | null;
+					case_status: string[] | null;
 					client_id: string | null;
 					client_name: string | null;
 					created_at: string | null;
@@ -378,7 +378,7 @@ export type Database = {
 					planner_name: string | null;
 					planning_enabled: boolean | null;
 					status: string | null;
-					status_files: string | null;
+					status_files: string[] | null;
 				};
 				Relationships: [];
 			};

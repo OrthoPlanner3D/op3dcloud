@@ -13,18 +13,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 interface Patient {
-	declared_limitations: string;
-	dental_restrictions: string;
+	declared_limitations: string[];
+	dental_restrictions: string[];
 	files: string;
 	id: number;
 	id_client: string;
 	last_name: string;
 	name: string;
 	observations_or_instructions: string;
-	suggested_adminations_and_actions: string;
+	suggested_adminations_and_actions: string[];
 	sworn_declaration: boolean;
 	treatment_approach: string;
-	treatment_objective: string;
+	treatment_objective: string[];
 	type_of_plan: string;
 }
 
@@ -39,20 +39,30 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 		id_client: "PAT-2024-001",
 		name: "María",
 		last_name: "González",
-		declared_limitations:
-			"Limitaciones de movilidad en brazo derecho, dificultad para abrir completamente la boca",
-		dental_restrictions:
-			"Alergia a anestesia local con lidocaína, sensibilidad extrema en molares superiores",
+		declared_limitations: [
+			"Limitaciones de movilidad en brazo derecho",
+			"Dificultad para abrir completamente la boca",
+		],
+		dental_restrictions: [
+			"Alergia a anestesia local con lidocaína",
+			"Sensibilidad extrema en molares superiores",
+		],
 		files: "radiografia_panoramica.pdf, historial_medico.pdf, consentimiento_firmado.pdf",
 		observations_or_instructions:
 			"Paciente requiere sedación consciente para procedimientos largos. Evitar citas muy tempranas por medicación matutina.",
-		suggested_adminations_and_actions:
-			"Realizar profilaxis cada 3 meses, aplicar flúor tópico, evaluar necesidad de férula nocturna",
+		suggested_adminations_and_actions: [
+			"Realizar profilaxis cada 3 meses",
+			"Aplicar flúor tópico",
+			"Evaluar necesidad de férula nocturna",
+		],
 		sworn_declaration: true,
 		treatment_approach:
 			"Enfoque conservador con énfasis en prevención y mantenimiento de piezas naturales",
-		treatment_objective:
-			"Eliminar caries activas, restaurar función masticatoria y mantener salud periodontal óptima",
+		treatment_objective: [
+			"Eliminar caries activas",
+			"Restaurar función masticatoria",
+			"Mantener salud periodontal óptima",
+		],
 		type_of_plan: "Plan Integral Premium",
 	};
 
@@ -96,9 +106,15 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 							<h4 className="font-medium text-sm text-muted-foreground mb-2">
 								Limitaciones Declaradas
 							</h4>
-							<p className="text-sm leading-relaxed">
-								{displayPatient.declared_limitations}
-							</p>
+							<div className="flex flex-wrap gap-1">
+								{displayPatient.declared_limitations.map(
+									(v) => (
+										<Badge key={v} variant="outline">
+											{v}
+										</Badge>
+									),
+								)}
+							</div>
 						</div>
 
 						<Separator />
@@ -107,9 +123,13 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 							<h4 className="font-medium text-sm text-muted-foreground mb-2">
 								Restricciones Dentales
 							</h4>
-							<p className="text-sm leading-relaxed">
-								{displayPatient.dental_restrictions}
-							</p>
+							<div className="flex flex-wrap gap-1">
+								{displayPatient.dental_restrictions.map((v) => (
+									<Badge key={v} variant="outline">
+										{v}
+									</Badge>
+								))}
+							</div>
 						</div>
 
 						<Separator />
@@ -158,9 +178,13 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 							<h4 className="font-medium text-sm text-muted-foreground mb-2">
 								Objetivo del Tratamiento
 							</h4>
-							<p className="text-sm leading-relaxed">
-								{displayPatient.treatment_objective}
-							</p>
+							<div className="flex flex-wrap gap-1">
+								{displayPatient.treatment_objective.map((v) => (
+									<Badge key={v} variant="outline">
+										{v}
+									</Badge>
+								))}
+							</div>
 						</div>
 
 						<Separator />
@@ -201,9 +225,15 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 						</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<p className="text-sm leading-relaxed">
-							{displayPatient.suggested_adminations_and_actions}
-						</p>
+						<div className="flex flex-wrap gap-1">
+							{displayPatient.suggested_adminations_and_actions.map(
+								(v) => (
+									<Badge key={v} variant="outline">
+										{v}
+									</Badge>
+								),
+							)}
+						</div>
 					</CardContent>
 				</Card>
 			</div>

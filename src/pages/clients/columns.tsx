@@ -131,10 +131,36 @@ export const createColumns = (): ColumnDef<DashboardAdminViewRow>[] => [
 	{
 		accessorKey: "status_files",
 		header: "Archivos",
+		cell: ({ row }) => {
+			const values = row.original.status_files;
+			if (!values?.length) return null;
+			return (
+				<div className="flex flex-wrap gap-1">
+					{values.map((v) => (
+						<Badge key={v} variant="secondary">
+							{v}
+						</Badge>
+					))}
+				</div>
+			);
+		},
 	},
 	{
 		accessorKey: "case_status",
 		header: "Estado del Caso",
+		cell: ({ row }) => {
+			const values = row.original.case_status;
+			if (!values?.length) return null;
+			return (
+				<div className="flex flex-wrap gap-1">
+					{values.map((v) => (
+						<Badge key={v} variant="secondary">
+							{v}
+						</Badge>
+					))}
+				</div>
+			);
+		},
 	},
 	{
 		accessorKey: "notes",

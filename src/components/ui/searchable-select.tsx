@@ -1,6 +1,6 @@
 import { Check, ChevronsUpDown, Search, X } from "lucide-react";
 import * as React from "react";
-import { useRef, useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";

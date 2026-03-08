@@ -16,6 +16,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
+	SearchableMultiSelect,
+	type SearchableSelectOption,
+} from "@/components/ui/searchable-select";
+import {
 	Select,
 	SelectContent,
 	SelectItem,
@@ -35,6 +39,181 @@ import { getPlanners } from "@/services/supabase/planners.service";
 import { useUserStore } from "@/state/stores/useUserStore";
 import type { PatientsInsert } from "@/types/db/patients/patients";
 
+const TREATMENT_OBJECTIVE_OPTIONS: SearchableSelectOption[] = [
+	{ value: "Alinear y nivelar", label: "Alinear y nivelar" },
+	{ value: "Centrar línea media", label: "Centrar línea media" },
+	{ value: "Expandir maxilares", label: "Expandir maxilares" },
+	{
+		value: "Mejorar mordida abierta",
+		label: "Mejorar mordida abierta",
+	},
+	{
+		value: "Mejorar mordida profunda",
+		label: "Mejorar mordida profunda",
+	},
+	{
+		value: "Descruzar mordida anterior",
+		label: "Descruzar mordida anterior",
+	},
+	{
+		value: "Descruzar mordida lateral",
+		label: "Descruzar mordida lateral",
+	},
+	{
+		value: "Descruzar mordida posterior (predictibilidad baja – posible necesidad de aditamentos)",
+		label: "Descruzar mordida posterior (predictibilidad baja – posible necesidad de aditamentos)",
+	},
+	{
+		value: "Desrotar caninos en giroversión (predictibilidad baja – posible necesidad de aditamentos)",
+		label: "Desrotar caninos en giroversión (predictibilidad baja – posible necesidad de aditamentos)",
+	},
+	{
+		value: "Desrotar premolares en giroversión (predictibilidad baja – posible necesidad de aditamentos)",
+		label: "Desrotar premolares en giroversión (predictibilidad baja – posible necesidad de aditamentos)",
+	},
+	{
+		value: "Distalizar (hasta 2 mm en etapa inicial – considerar 3ros molares y hueso limitante)",
+		label: "Distalizar (hasta 2 mm en etapa inicial – considerar 3ros molares y hueso limitante)",
+	},
+	{ value: "Mejorar mordida", label: "Mejorar mordida" },
+	{ value: "Lograr clase I canina", label: "Lograr clase I canina" },
+	{
+		value: "Protruir sector anterior",
+		label: "Protruir sector anterior",
+	},
+	{
+		value: "Retruir sector anterior",
+		label: "Retruir sector anterior",
+	},
+	{ value: "Cerrar diastemas", label: "Cerrar diastemas" },
+	{
+		value: "Cerrar espacios (hasta 2 mm – considerar dientes volcados)",
+		label: "Cerrar espacios (hasta 2 mm – considerar dientes volcados)",
+	},
+	{
+		value: "Mantener espacios para implantes",
+		label: "Mantener espacios para implantes",
+	},
+	{
+		value: "Agrandar espacios para implantes",
+		label: "Agrandar espacios para implantes",
+	},
+	{
+		value: "Dejar espacio proximal en laterales por Bolton alterado (para restauración futura)",
+		label: "Dejar espacio proximal en laterales por Bolton alterado (para restauración futura)",
+	},
+	{
+		value: "A criterio de OP3D™",
+		label: "A criterio de OP3D™",
+	},
+];
+
+const DENTAL_RESTRICTIONS_OPTIONS: SearchableSelectOption[] = [
+	{
+		value: "Coronas o carillas protésicas",
+		label: "Coronas o carillas protésicas",
+	},
+	{ value: "Caninos sin espacio", label: "Caninos sin espacio" },
+	{
+		value: "Giroversiones pronunciadas",
+		label: "Giroversiones pronunciadas",
+	},
+	{
+		value: "Volcamiento dentario post-extracción",
+		label: "Volcamiento dentario post-extracción",
+	},
+	{
+		value: "No cerrar el diastema central",
+		label: "No cerrar el diastema central",
+	},
+	{
+		value: "A criterio de OP3D™",
+		label: "A criterio de OP3D™",
+	},
+	{ value: "No aplica", label: "No aplica" },
+];
+
+const DECLARED_LIMITATIONS_OPTIONS: SearchableSelectOption[] = [
+	{
+		value: "Movimiento de línea media no posible",
+		label: "Movimiento de línea media no posible",
+	},
+	{
+		value: "Expansión de molares limitada por retracciones gingivales",
+		label: "Expansión de molares limitada por retracciones gingivales",
+	},
+	{
+		value: "Expansión de molares limitada por falta de desarrollo transversal",
+		label: "Expansión de molares limitada por falta de desarrollo transversal",
+	},
+	{
+		value: "Mordida abierta no cerrable completamente (limitación esquelética)",
+		label: "Mordida abierta no cerrable completamente (limitación esquelética)",
+	},
+	{
+		value: "No se logra mordida ideal (se buscará mordida armónica)",
+		label: "No se logra mordida ideal (se buscará mordida armónica)",
+	},
+	{
+		value: "Descruzamiento limitado por factores esqueléticos",
+		label: "Descruzamiento limitado por factores esqueléticos",
+	},
+	{
+		value: "Caninos no ubicables por distancia de movimiento",
+		label: "Caninos no ubicables por distancia de movimiento",
+	},
+	{
+		value: "Caninos no ubicables por atresia maxilar",
+		label: "Caninos no ubicables por atresia maxilar",
+	},
+	{
+		value: "Giroversiones no desrrotables totalmente",
+		label: "Giroversiones no desrrotables totalmente",
+	},
+	{
+		value: "Clase I canina no lograble (discrepancia de Bolton)",
+		label: "Clase I canina no lograble (discrepancia de Bolton)",
+	},
+	{
+		value: "Espacios desdentados mayores a 2 mm no cerrables",
+		label: "Espacios desdentados mayores a 2 mm no cerrables",
+	},
+	{
+		value: "Dientes volcados no enderezables",
+		label: "Dientes volcados no enderezables",
+	},
+	{
+		value: "Coronas/carillas no movilizables",
+		label: "Coronas/carillas no movilizables",
+	},
+	{
+		value: "A criterio de OP3D™",
+		label: "A criterio de OP3D™",
+	},
+	{ value: "No aplica", label: "No aplica" },
+];
+
+const SUGGESTED_ADMINATIONS_OPTIONS: SearchableSelectOption[] = [
+	{ value: "Sobrecorrección", label: "Sobrecorrección" },
+	{
+		value: "Superficies de presión negativa",
+		label: "Superficies de presión negativa",
+	},
+	{ value: "Gomas de clase", label: "Gomas de clase" },
+	{ value: "Gomas de extrusión", label: "Gomas de extrusión" },
+	{ value: "Gomas de rotación", label: "Gomas de rotación" },
+	{
+		value: "Gomas cruzadas (criss cross)",
+		label: "Gomas cruzadas (criss cross)",
+	},
+	{ value: "Microimplantes", label: "Microimplantes" },
+	{
+		value: "A criterio de OP3D™",
+		label: "A criterio de OP3D™",
+	},
+	{ value: "No aplica", label: "No aplica" },
+];
+
 const steps = [1, 2, 3, 4, 5];
 
 export default function CreatePatient() {
@@ -47,10 +226,10 @@ export default function CreatePatient() {
 			last_name: "",
 			type_of_plan: "",
 			treatment_approach: "",
-			treatment_objective: "",
-			dental_restrictions: "",
-			declared_limitations: "",
-			suggested_adminations_and_actions: "",
+			treatment_objective: [],
+			dental_restrictions: [],
+			declared_limitations: [],
+			suggested_adminations_and_actions: [],
 			observations_or_instructions: "",
 			files: "",
 			sworn_declaration: false,
@@ -379,8 +558,8 @@ function Step1({ form }: { form: FieldValues }) {
 }
 
 function Step2({ form }: { form: FieldValues }) {
-	const [showTreatmentObjectiveOther, setShowTreatmentObjectiveOther] =
-		useState(false);
+	const [showOtherInput, setShowOtherInput] = useState(false);
+	const [otherText, setOtherText] = useState("");
 
 	return (
 		<>
@@ -390,130 +569,74 @@ function Step2({ form }: { form: FieldValues }) {
 			<FormField
 				control={form.control}
 				name="treatment_objective"
-				rules={{ required: "El objetivo del tratamiento es requerido" }}
+				rules={{
+					validate: (value: string[]) =>
+						value.length > 0 ||
+						"El objetivo del tratamiento es requerido",
+				}}
 				render={({ field }) => (
 					<FormItem className="animate-in fade-in duration-1000">
 						<FormLabel>Objetivo del Tratamiento</FormLabel>
-						{!showTreatmentObjectiveOther ? (
-							<Select
-								onValueChange={(value) => {
-									if (value === "Otros") {
-										field.onChange("");
-										setShowTreatmentObjectiveOther(true);
-									} else {
-										field.onChange(value);
-										setShowTreatmentObjectiveOther(false);
-									}
-								}}
-								defaultValue={field.value}
+						<SearchableMultiSelect
+							options={TREATMENT_OBJECTIVE_OPTIONS}
+							values={field.value}
+							onValuesChange={field.onChange}
+							placeholder="Seleccionar objetivos"
+						/>
+						{!showOtherInput ? (
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								onClick={() => setShowOtherInput(true)}
 							>
-								<FormControl>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Seleccionar" />
-									</SelectTrigger>
-								</FormControl>
-								<SelectContent>
-									<SelectItem value="Alinear y nivelar">
-										Alinear y nivelar
-									</SelectItem>
-									<SelectItem value="Centrar línea media">
-										Centrar línea media
-									</SelectItem>
-									<SelectItem value="Expandir maxilares">
-										Expandir maxilares
-									</SelectItem>
-									<SelectItem value="Mejorar mordida abierta">
-										Mejorar mordida abierta
-									</SelectItem>
-									<SelectItem value="Mejorar mordida profunda">
-										Mejorar mordida profunda
-									</SelectItem>
-									<SelectItem value="Descruzar mordida anterior">
-										Descruzar mordida anterior
-									</SelectItem>
-									<SelectItem value="Descruzar mordida lateral">
-										Descruzar mordida lateral
-									</SelectItem>
-									<SelectItem value="Descruzar mordida posterior (predictibilidad baja – posible necesidad de aditamentos)">
-										Descruzar mordida posterior
-										(predictibilidad baja – posible
-										necesidad de aditamentos)
-									</SelectItem>
-									<SelectItem value="Desrotar caninos en giroversión (predictibilidad baja – posible necesidad de aditamentos)">
-										Desrotar caninos en giroversión
-										(predictibilidad baja – posible
-										necesidad de aditamentos)
-									</SelectItem>
-									<SelectItem value="Desrotar premolares en giroversión (predictibilidad baja – posible necesidad de aditamentos)">
-										Desrotar premolares en giroversión
-										(predictibilidad baja – posible
-										necesidad de aditamentos)
-									</SelectItem>
-									<SelectItem value="Distalizar (hasta 2 mm en etapa inicial – considerar 3ros molares y hueso limitante)">
-										Distalizar (hasta 2 mm en etapa inicial
-										– considerar 3ros molares y hueso
-										limitante)
-									</SelectItem>
-									<SelectItem value="Mejorar mordida">
-										Mejorar mordida
-									</SelectItem>
-									<SelectItem value="Lograr clase I canina">
-										Lograr clase I canina
-									</SelectItem>
-									<SelectItem value="Protruir sector anterior">
-										Protruir sector anterior
-									</SelectItem>
-									<SelectItem value="Retruir sector anterior">
-										Retruir sector anterior
-									</SelectItem>
-									<SelectItem value="Cerrar diastemas">
-										Cerrar diastemas
-									</SelectItem>
-									<SelectItem value="Cerrar espacios (hasta 2 mm – considerar dientes volcados)">
-										Cerrar espacios (hasta 2 mm – considerar
-										dientes volcados)
-									</SelectItem>
-									<SelectItem value="Mantener espacios para implantes">
-										Mantener espacios para implantes
-									</SelectItem>
-									<SelectItem value="Agrandar espacios para implantes">
-										Agrandar espacios para implantes
-									</SelectItem>
-									<SelectItem value="Dejar espacio proximal en laterales por Bolton alterado (para restauración futura)">
-										Dejar espacio proximal en laterales por
-										Bolton alterado (para restauración
-										futura)
-									</SelectItem>
-									<SelectItem value="A criterio de OP3D™">
-										A criterio de OP3D™
-									</SelectItem>
-									<SelectItem value="Otros">Otros</SelectItem>
-								</SelectContent>
-							</Select>
+								Agregar otro
+							</Button>
 						) : (
 							<div className="space-y-2">
-								<FormControl>
-									<Textarea
-										className="min-h-[120px]"
-										{...field}
-									/>
-								</FormControl>
-								<Button
-									type="button"
-									variant="outline"
-									size="sm"
-									onClick={() => {
-										setShowTreatmentObjectiveOther(false);
-										field.onChange("");
-									}}
-								>
-									Volver a las opciones
-								</Button>
+								<Textarea
+									className="min-h-[80px]"
+									value={otherText}
+									onChange={(e) =>
+										setOtherText(e.target.value)
+									}
+									placeholder="Escriba el objetivo personalizado"
+								/>
+								<div className="flex gap-2">
+									<Button
+										type="button"
+										variant="default"
+										size="sm"
+										onClick={() => {
+											if (otherText.trim()) {
+												field.onChange([
+													...field.value,
+													otherText.trim(),
+												]);
+												setOtherText("");
+												setShowOtherInput(false);
+											}
+										}}
+									>
+										Confirmar
+									</Button>
+									<Button
+										type="button"
+										variant="outline"
+										size="sm"
+										onClick={() => {
+											setOtherText("");
+											setShowOtherInput(false);
+										}}
+									>
+										Cancelar
+									</Button>
+								</div>
 							</div>
 						)}
 						<FormDescription>
-							Seleccione el objetivo principal del tratamiento
-							para este paciente.
+							Seleccione los objetivos del tratamiento para este
+							paciente.
 						</FormDescription>
 						<FormMessage />
 					</FormItem>
@@ -523,12 +646,85 @@ function Step2({ form }: { form: FieldValues }) {
 	);
 }
 
-function Step3({ form }: { form: FieldValues }) {
-	const [showDentalRestrictionsOther, setShowDentalRestrictionsOther] =
-		useState(false);
-	const [showDeclaredLimitationsOther, setShowDeclaredLimitationsOther] =
-		useState(false);
+function MultiSelectWithOther({
+	field,
+	options,
+	label,
+	description,
+}: {
+	field: FieldValues;
+	options: SearchableSelectOption[];
+	label: string;
+	description: string;
+}) {
+	const [showOtherInput, setShowOtherInput] = useState(false);
+	const [otherText, setOtherText] = useState("");
 
+	return (
+		<FormItem className="animate-in fade-in duration-1000">
+			<FormLabel>{label}</FormLabel>
+			<SearchableMultiSelect
+				options={options}
+				values={field.value}
+				onValuesChange={field.onChange}
+				placeholder="Seleccionar"
+			/>
+			{!showOtherInput ? (
+				<Button
+					type="button"
+					variant="outline"
+					size="sm"
+					onClick={() => setShowOtherInput(true)}
+				>
+					Agregar otro
+				</Button>
+			) : (
+				<div className="space-y-2">
+					<Textarea
+						className="min-h-[80px]"
+						value={otherText}
+						onChange={(e) => setOtherText(e.target.value)}
+						placeholder="Escriba la opción personalizada"
+					/>
+					<div className="flex gap-2">
+						<Button
+							type="button"
+							variant="default"
+							size="sm"
+							onClick={() => {
+								if (otherText.trim()) {
+									field.onChange([
+										...field.value,
+										otherText.trim(),
+									]);
+									setOtherText("");
+									setShowOtherInput(false);
+								}
+							}}
+						>
+							Confirmar
+						</Button>
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							onClick={() => {
+								setOtherText("");
+								setShowOtherInput(false);
+							}}
+						>
+							Cancelar
+						</Button>
+					</div>
+				</div>
+			)}
+			<FormDescription>{description}</FormDescription>
+			<FormMessage />
+		</FormItem>
+	);
+}
+
+function Step3({ form }: { form: FieldValues }) {
 	return (
 		<>
 			<p className="text-center text-xs text-muted-foreground italic">
@@ -538,81 +734,17 @@ function Step3({ form }: { form: FieldValues }) {
 				control={form.control}
 				name="dental_restrictions"
 				rules={{
-					required: "Las restricciones dentales son requeridas",
+					validate: (value: string[]) =>
+						value.length > 0 ||
+						"Las restricciones dentales son requeridas",
 				}}
 				render={({ field }) => (
-					<FormItem className="animate-in fade-in duration-1000">
-						<FormLabel>Restricciones Dentales</FormLabel>
-						{!showDentalRestrictionsOther ? (
-							<Select
-								onValueChange={(value) => {
-									if (value === "Otros") {
-										field.onChange("");
-										setShowDentalRestrictionsOther(true);
-									} else {
-										field.onChange(value);
-										setShowDentalRestrictionsOther(false);
-									}
-								}}
-								defaultValue={field.value}
-							>
-								<FormControl>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Seleccionar" />
-									</SelectTrigger>
-								</FormControl>
-								<SelectContent>
-									<SelectItem value="Coronas o carillas protésicas">
-										Coronas o carillas protésicas
-									</SelectItem>
-									<SelectItem value="Caninos sin espacio">
-										Caninos sin espacio
-									</SelectItem>
-									<SelectItem value="Giroversiones pronunciadas">
-										Giroversiones pronunciadas
-									</SelectItem>
-									<SelectItem value="Volcamiento dentario post-extracción">
-										Volcamiento dentario post-extracción
-									</SelectItem>
-									<SelectItem value="No cerrar el diastema central">
-										No cerrar el diastema central
-									</SelectItem>
-									<SelectItem value="A criterio de OP3D™">
-										A criterio de OP3D™
-									</SelectItem>
-									<SelectItem value="No aplica">
-										No aplica
-									</SelectItem>
-									<SelectItem value="Otros">Otros</SelectItem>
-								</SelectContent>
-							</Select>
-						) : (
-							<div className="space-y-2">
-								<FormControl>
-									<Textarea
-										className="min-h-[120px]"
-										{...field}
-									/>
-								</FormControl>
-								<Button
-									type="button"
-									variant="outline"
-									size="sm"
-									onClick={() => {
-										setShowDentalRestrictionsOther(false);
-										field.onChange("");
-									}}
-								>
-									Volver a las opciones
-								</Button>
-							</div>
-						)}
-						<FormDescription>
-							Seleccione las restricciones dentales que puedan
-							afectar el tratamiento.
-						</FormDescription>
-						<FormMessage />
-					</FormItem>
+					<MultiSelectWithOther
+						field={field}
+						options={DENTAL_RESTRICTIONS_OPTIONS}
+						label="Restricciones Dentales"
+						description="Seleccione las restricciones dentales que puedan afectar el tratamiento."
+					/>
 				)}
 			/>
 
@@ -620,113 +752,17 @@ function Step3({ form }: { form: FieldValues }) {
 				control={form.control}
 				name="declared_limitations"
 				rules={{
-					required: "Las limitaciones declaradas son requeridas",
+					validate: (value: string[]) =>
+						value.length > 0 ||
+						"Las limitaciones declaradas son requeridas",
 				}}
 				render={({ field }) => (
-					<FormItem className="animate-in fade-in duration-1000">
-						<FormLabel>Limitaciones Declaradas</FormLabel>
-						{!showDeclaredLimitationsOther ? (
-							<Select
-								onValueChange={(value) => {
-									if (value === "Otros") {
-										field.onChange("");
-										setShowDeclaredLimitationsOther(true);
-									} else {
-										field.onChange(value);
-										setShowDeclaredLimitationsOther(false);
-									}
-								}}
-								defaultValue={field.value}
-							>
-								<FormControl>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Seleccionar" />
-									</SelectTrigger>
-								</FormControl>
-								<SelectContent>
-									<SelectItem value="Movimiento de línea media no posible">
-										Movimiento de línea media no posible
-									</SelectItem>
-									<SelectItem value="Expansión de molares limitada por retracciones gingivales">
-										Expansión de molares limitada por
-										retracciones gingivales
-									</SelectItem>
-									<SelectItem value="Expansión de molares limitada por falta de desarrollo transversal">
-										Expansión de molares limitada por falta
-										de desarrollo transversal
-									</SelectItem>
-									<SelectItem value="Mordida abierta no cerrable completamente (limitación esquelética)">
-										Mordida abierta no cerrable
-										completamente (limitación esquelética)
-									</SelectItem>
-									<SelectItem value="No se logra mordida ideal (se buscará mordida armónica)">
-										No se logra mordida ideal (se buscará
-										mordida armónica)
-									</SelectItem>
-									<SelectItem value="Descruzamiento limitado por factores esqueléticos">
-										Descruzamiento limitado por factores
-										esqueléticos
-									</SelectItem>
-									<SelectItem value="Caninos no ubicables por distancia de movimiento">
-										Caninos no ubicables por distancia de
-										movimiento
-									</SelectItem>
-									<SelectItem value="Caninos no ubicables por atresia maxilar">
-										Caninos no ubicables por atresia maxilar
-									</SelectItem>
-									<SelectItem value="Giroversiones no desrrotables totalmente">
-										Giroversiones no desrrotables totalmente
-									</SelectItem>
-									<SelectItem value="Clase I canina no lograble (discrepancia de Bolton)">
-										Clase I canina no lograble (discrepancia
-										de Bolton)
-									</SelectItem>
-									<SelectItem value="Espacios desdentados mayores a 2 mm no cerrables">
-										Espacios desdentados mayores a 2 mm no
-										cerrables
-									</SelectItem>
-									<SelectItem value="Dientes volcados no enderezables">
-										Dientes volcados no enderezables
-									</SelectItem>
-									<SelectItem value="Coronas/carillas no movilizables">
-										Coronas/carillas no movilizables
-									</SelectItem>
-									<SelectItem value="A criterio de OP3D™">
-										A criterio de OP3D™
-									</SelectItem>
-									<SelectItem value="No aplica">
-										No aplica
-									</SelectItem>
-									<SelectItem value="Otros">Otros</SelectItem>
-								</SelectContent>
-							</Select>
-						) : (
-							<div className="space-y-2">
-								<FormControl>
-									<Textarea
-										className="min-h-[120px]"
-										{...field}
-									/>
-								</FormControl>
-								<Button
-									type="button"
-									variant="outline"
-									size="sm"
-									onClick={() => {
-										setShowDeclaredLimitationsOther(false);
-										field.onChange("");
-									}}
-								>
-									Volver a las opciones
-								</Button>
-							</div>
-						)}
-						<FormDescription>
-							Seleccione las limitaciones que el paciente ha
-							declarado o que han sido identificadas.
-						</FormDescription>
-						<FormMessage />
-					</FormItem>
+					<MultiSelectWithOther
+						field={field}
+						options={DECLARED_LIMITATIONS_OPTIONS}
+						label="Limitaciones Declaradas"
+						description="Seleccione las limitaciones que el paciente ha declarado o que han sido identificadas."
+					/>
 				)}
 			/>
 		</>
@@ -734,9 +770,6 @@ function Step3({ form }: { form: FieldValues }) {
 }
 
 function Step4({ form }: { form: FieldValues }) {
-	const [showSuggestedAdminationsOther, setShowSuggestedAdminationsOther] =
-		useState(false);
-
 	return (
 		<>
 			<p className="text-center text-xs text-muted-foreground italic">
@@ -745,88 +778,18 @@ function Step4({ form }: { form: FieldValues }) {
 			<FormField
 				control={form.control}
 				name="suggested_adminations_and_actions"
-				rules={{ required: "Las recomendaciones son requeridas" }}
+				rules={{
+					validate: (value: string[]) =>
+						value.length > 0 ||
+						"Las recomendaciones son requeridas",
+				}}
 				render={({ field }) => (
-					<FormItem className="animate-in fade-in duration-1000">
-						<FormLabel>
-							Recomendaciones y Acciones Sugeridas
-						</FormLabel>
-						{!showSuggestedAdminationsOther ? (
-							<Select
-								onValueChange={(value) => {
-									if (value === "Otros") {
-										field.onChange("");
-										setShowSuggestedAdminationsOther(true);
-									} else {
-										field.onChange(value);
-										setShowSuggestedAdminationsOther(false);
-									}
-								}}
-								defaultValue={field.value}
-							>
-								<FormControl>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Seleccionar" />
-									</SelectTrigger>
-								</FormControl>
-								<SelectContent>
-									<SelectItem value="Sobrecorrección">
-										Sobrecorrección
-									</SelectItem>
-									<SelectItem value="Superficies de presión negativa">
-										Superficies de presión negativa
-									</SelectItem>
-									<SelectItem value="Gomas de clase">
-										Gomas de clase
-									</SelectItem>
-									<SelectItem value="Gomas de extrusión">
-										Gomas de extrusión
-									</SelectItem>
-									<SelectItem value="Gomas de rotación">
-										Gomas de rotación
-									</SelectItem>
-									<SelectItem value="Gomas cruzadas (criss cross)">
-										Gomas cruzadas (criss cross)
-									</SelectItem>
-									<SelectItem value="Microimplantes">
-										Microimplantes
-									</SelectItem>
-									<SelectItem value="A criterio de OP3D™">
-										A criterio de OP3D™
-									</SelectItem>
-									<SelectItem value="No aplica">
-										No aplica
-									</SelectItem>
-									<SelectItem value="Otros">Otros</SelectItem>
-								</SelectContent>
-							</Select>
-						) : (
-							<div className="space-y-2">
-								<FormControl>
-									<Textarea
-										className="min-h-[120px]"
-										{...field}
-									/>
-								</FormControl>
-								<Button
-									type="button"
-									variant="outline"
-									size="sm"
-									onClick={() => {
-										setShowSuggestedAdminationsOther(false);
-										field.onChange("");
-									}}
-								>
-									Volver a las opciones
-								</Button>
-							</div>
-						)}
-						<FormDescription>
-							Seleccione las recomendaciones y acciones que se
-							sugieren para el tratamiento.
-						</FormDescription>
-						<FormMessage />
-					</FormItem>
+					<MultiSelectWithOther
+						field={field}
+						options={SUGGESTED_ADMINATIONS_OPTIONS}
+						label="Recomendaciones y Acciones Sugeridas"
+						description="Seleccione las recomendaciones y acciones que se sugieren para el tratamiento."
+					/>
 				)}
 			/>
 

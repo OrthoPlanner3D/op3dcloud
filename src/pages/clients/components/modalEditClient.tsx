@@ -17,6 +17,10 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import {
+	SearchableMultiSelect,
+	type SearchableSelectOption,
+} from "@/components/ui/searchable-select";
+import {
 	Select,
 	SelectContent,
 	SelectItem,
@@ -41,31 +45,31 @@ interface ModalEditClientProps {
 
 interface IFormData {
 	id_planner: string;
-	status_files: string;
-	case_status: string;
+	status_files: string[];
+	case_status: string[];
 	notes: string;
 }
 
 const plannersPromise = getPlanners();
 
 // Constants for select options
-const STATUS_FILES_OPTIONS = [
-	"Escaneo con errores",
-	"Mordida con errores",
-	"Faltan fotos",
-	"Falta rx",
-	"Rx deficiente",
-	"Info insuficiente",
-	"Info erronea",
-	"Reescaneo solicitado",
-] as const;
+const STATUS_FILES_OPTIONS: SearchableSelectOption[] = [
+	{ value: "Escaneo con errores", label: "Escaneo con errores" },
+	{ value: "Mordida con errores", label: "Mordida con errores" },
+	{ value: "Faltan fotos", label: "Faltan fotos" },
+	{ value: "Falta rx", label: "Falta rx" },
+	{ value: "Rx deficiente", label: "Rx deficiente" },
+	{ value: "Info insuficiente", label: "Info insuficiente" },
+	{ value: "Info erronea", label: "Info erronea" },
+	{ value: "Reescaneo solicitado", label: "Reescaneo solicitado" },
+];
 
-const CASE_STATUS_OPTIONS = [
-	"Prioridad",
-	"Interconsulta",
-	"Replanning",
-	"Baja",
-] as const;
+const CASE_STATUS_OPTIONS: SearchableSelectOption[] = [
+	{ value: "Prioridad", label: "Prioridad" },
+	{ value: "Interconsulta", label: "Interconsulta" },
+	{ value: "Replanning", label: "Replanning" },
+	{ value: "Baja", label: "Baja" },
+];
 
 export default function ModalEditClient({
 	onClientUpdated,
@@ -85,8 +89,8 @@ export default function ModalEditClient({
 	const createFormData = useCallback(
 		(patientData: DashboardAdminViewRow): IFormData => ({
 			id_planner: patientData.planner_id || "",
-			status_files: patientData.status_files || "",
-			case_status: patientData.case_status || "",
+			status_files: patientData.status_files || [],
+			case_status: patientData.case_status || [],
 			notes: patientData.notes || "",
 		}),
 		[],
@@ -125,8 +129,10 @@ export default function ModalEditClient({
 
 			const updateData: PatientUpdateData = {
 				id_planner: values.id_planner || null,
-				status_files: values.status_files || null,
-				case_status: values.case_status || null,
+				status_files:
+					values.status_files.length > 0 ? values.status_files : null,
+				case_status:
+					values.case_status.length > 0 ? values.case_status : null,
 				notes: values.notes || null,
 			};
 
@@ -256,31 +262,13 @@ export default function ModalEditClient({
 											<FormLabel>
 												Estado de archivos
 											</FormLabel>
-											<Select
-												onValueChange={field.onChange}
-												defaultValue={field.value}
-												value={field.value}
+											<SearchableMultiSelect
+												options={STATUS_FILES_OPTIONS}
+												values={field.value}
+												onValuesChange={field.onChange}
+												placeholder="Selecciona estados"
 												disabled={isLoadingPatient}
-											>
-												<FormControl className="w-full">
-													<SelectTrigger>
-														<SelectValue placeholder="Selecciona un estado" />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													{STATUS_FILES_OPTIONS.map(
-														(option) => (
-															<SelectItem
-																key={option}
-																value={option}
-															>
-																{option}
-															</SelectItem>
-														),
-													)}
-												</SelectContent>
-											</Select>
-
+											/>
 											<FormMessage />
 										</FormItem>
 									)}
@@ -295,37 +283,17 @@ export default function ModalEditClient({
 											<FormLabel>
 												Estado del caso
 											</FormLabel>
-											<Select
-												onValueChange={field.onChange}
-												defaultValue={field.value}
-												value={field.value}
+											<SearchableMultiSelect
+												options={CASE_STATUS_OPTIONS}
+												values={field.value}
+												onValuesChange={field.onChange}
+												placeholder="Selecciona estados"
 												disabled={isLoadingPatient}
-											>
-												<FormControl className="w-full">
-													<SelectTrigger>
-														<SelectValue placeholder="Selecciona un estado" />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													{CASE_STATUS_OPTIONS.map(
-														(option) => (
-															<SelectItem
-																key={option}
-																value={option}
-															>
-																{option}
-															</SelectItem>
-														),
-													)}
-												</SelectContent>
-											</Select>
-
+											/>
 											<FormMessage />
 										</FormItem>
 									)}
 								/>
-
-								{/* Notes Field */}
 								<FormField
 									control={form.control}
 									name="notes"
