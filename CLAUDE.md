@@ -121,7 +121,7 @@ VITE_SUPABASE_SCHEMA=op3dcloud
 
 - **Schema**: Always work with `op3dcloud` schema, not `public`
 - **Types**: Regenerate database types after schema changes using `supabase gen types typescript --local --schema op3dcloud > frontend/src/types/db/database.types.ts`
-- **Migrations**: Use structured approach with separate files for different DB objects (schema, tables, views, functions)
+- **Migrations**: NUNCA escribir ni editar migraciones manualmente. Siempre usar `supabase db diff -f nombre_migracion` para generarlas automáticamente desde los schemas declarativos. El archivo generado por `db diff` no se toca para nada. Si el diff genera cambios no deseados, el problema está en los schemas declarativos — corregir los schemas y regenerar el diff
 - **RLS**: All database access is controlled by Row Level Security policies
 - **Roles**: Users must have appropriate roles to access different parts of the application
   - Role-based routing implemented via route guards

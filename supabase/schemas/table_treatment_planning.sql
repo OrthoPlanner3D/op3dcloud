@@ -12,10 +12,14 @@ create table op3dcloud.treatment_planning (
   referrals text[] null default '{}',
   sales_potential text[] null default '{}',
   additional_observations text null,
+  patient_id bigint null,
   created_at timestamp with time zone not null default now(),
-  
-  constraint treatment_planning_pkey primary key (id)
+
+  constraint treatment_planning_pkey primary key (id),
+  constraint treatment_planning_patient_id_fkey foreign key (patient_id) references op3dcloud.patients (id) on delete cascade
 );
+
+create index treatment_planning_patient_id_idx on op3dcloud.treatment_planning (patient_id);
 
 alter table op3dcloud.treatment_planning enable row level security;
 

@@ -4,7 +4,10 @@ SELECT
 	p.created_at,
 	CONCAT(p.name, ' ', p.last_name) AS patient_name,
 	p.status,
-    (p.created_at + INTERVAL '7 days')::date AS expiration,
+    CASE
+        WHEN 'Prioridad' = ANY(p.case_status) THEN (now() + INTERVAL '48 hours')::date
+        ELSE (p.created_at + INTERVAL '7 days')::date
+    END AS expiration,
 	vp.id AS planner_id,
 	vp.username AS planner_name,
 	vc.id AS client_id,

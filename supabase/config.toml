@@ -65,6 +65,8 @@ schema_paths = [
     "./schemas/view_users.sql",
     # functions
     "./schemas/function_*.sql",
+    # grants
+    "./schemas/grants_op3dcloud.sql",
 ]
 
 [db.seed]
