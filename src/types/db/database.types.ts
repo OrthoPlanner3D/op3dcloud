@@ -16,7 +16,7 @@ export type Database = {
 					declared_limitations: string[];
 					dental_restrictions: string[];
 					expiration: string | null;
-					files: string;
+					files: string[];
 					id: number;
 					id_client: string;
 					id_planner: string | null;
@@ -25,14 +25,18 @@ export type Database = {
 					notes: string | null;
 					observations: string | null;
 					observations_or_instructions: string;
+					photos: string[];
 					planning_enabled: boolean;
+					scans: string[];
 					status: string | null;
 					status_files: string[] | null;
 					suggested_adminations_and_actions: string[];
+					supplementary_docs: string[] | null;
 					sworn_declaration: boolean;
 					treatment_approach: string;
 					treatment_objective: string[];
 					type_of_plan: string;
+					xrays: string[];
 				};
 				Insert: {
 					case_status?: string[] | null;
@@ -40,7 +44,7 @@ export type Database = {
 					declared_limitations?: string[];
 					dental_restrictions?: string[];
 					expiration?: string | null;
-					files: string;
+					files: string[];
 					id?: never;
 					id_client: string;
 					id_planner?: string | null;
@@ -49,14 +53,18 @@ export type Database = {
 					notes?: string | null;
 					observations?: string | null;
 					observations_or_instructions: string;
+					photos: string[];
 					planning_enabled?: boolean;
+					scans: string[];
 					status?: string | null;
 					status_files?: string[] | null;
 					suggested_adminations_and_actions?: string[];
+					supplementary_docs?: string[] | null;
 					sworn_declaration?: boolean;
 					treatment_approach: string;
 					treatment_objective?: string[];
 					type_of_plan: string;
+					xrays: string[];
 				};
 				Update: {
 					case_status?: string[] | null;
@@ -64,7 +72,7 @@ export type Database = {
 					declared_limitations?: string[];
 					dental_restrictions?: string[];
 					expiration?: string | null;
-					files?: string;
+					files?: string[];
 					id?: never;
 					id_client?: string;
 					id_planner?: string | null;
@@ -73,14 +81,18 @@ export type Database = {
 					notes?: string | null;
 					observations?: string | null;
 					observations_or_instructions?: string;
+					photos?: string[];
 					planning_enabled?: boolean;
+					scans?: string[];
 					status?: string | null;
 					status_files?: string[] | null;
 					suggested_adminations_and_actions?: string[];
+					supplementary_docs?: string[] | null;
 					sworn_declaration?: boolean;
 					treatment_approach?: string;
 					treatment_objective?: string[];
 					type_of_plan?: string;
+					xrays?: string[];
 				};
 				Relationships: [
 					{

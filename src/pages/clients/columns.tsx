@@ -106,8 +106,7 @@ export const createColumns = (): ColumnDef<DashboardAdminViewRow>[] => [
 			const expDate = new Date(expiration ?? "");
 			expDate.setHours(0, 0, 0, 0);
 			const diffDays = Math.ceil(
-				(expDate.getTime() - today.getTime()) /
-					(1000 * 60 * 60 * 24),
+				(expDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
 			);
 
 			let badgeClass = "";

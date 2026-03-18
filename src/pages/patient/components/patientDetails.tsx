@@ -1,21 +1,29 @@
 import {
 	CheckCircle,
 	ClipboardList,
+	ExternalLink,
 	FileText,
 	FolderOpen,
+	Loader2,
 	Stethoscope,
 	Target,
 	User,
 	XCircle,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { getSignedUrl } from "@/services/supabase/storage.service";
 
 interface Patient {
 	declared_limitations: string[];
 	dental_restrictions: string[];
-	files: string;
+	files: string[];
+	photos: string[];
+	xrays: string[];
+	scans: string[];
+	supplementary_docs: string[] | null;
 	id: number;
 	id_client: string;
 	last_name: string;
@@ -47,7 +55,11 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 			"Alergia a anestesia local con lidocaína",
 			"Sensibilidad extrema en molares superiores",
 		],
-		files: "radiografia_panoramica.pdf, historial_medico.pdf, consentimiento_firmado.pdf",
+		files: [],
+		photos: [],
+		xrays: [],
+		scans: [],
+		supplementary_docs: null,
 		observations_or_instructions:
 			"Paciente requiere sedación consciente para procedimientos largos. Evitar citas muy tempranas por medicación matutina.",
 		suggested_adminations_and_actions: [
@@ -246,20 +258,77 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 						<span>Archivos Adjuntos</span>
 					</CardTitle>
 				</CardHeader>
-				{/* <CardContent>
-					<div className="flex flex-wrap gap-2">
-						{displayPatient.files.split(", ").map((file, index) => (
-							<Badge
-								key={index}
-								variant="outline"
-								className="text-xs"
-							>
-								{file}
-							</Badge>
-						))}
-					</div>
-				</CardContent> */}
+				<CardContent className="space-y-4">
+					<FileSection label="Fotos" paths={displayPatient.photos} />
+					<FileSection
+						label="Radiografías"
+						paths={displayPatient.xrays}
+					/>
+					<FileSection
+						label="Escaneos"
+						paths={displayPatient.scans}
+					/>
+					<FileSection
+						label="Documentación Complementaria"
+						paths={displayPatient.supplementary_docs ?? []}
+					/>
+					<FileSection
+						label="Archivos"
+						paths={displayPatient.files}
+					/>
+				</CardContent>
 			</Card>
+		</div>
+	);
+}
+
+function FileSection({ label, paths }: { label: string; paths: string[] }) {
+	const [urls, setUrls] = useState<Record<string, string>>({});
+	const [loading, setLoading] = useState(false);
+
+	useEffect(() => {
+		if (paths.length === 0) return;
+		setLoading(true);
+		Promise.all(
+			paths.map(async (path) => {
+				const url = await getSignedUrl(path);
+				return [path, url] as const;
+			}),
+		)
+			.then((entries) => setUrls(Object.fromEntries(entries)))
+			.catch(console.error)
+			.finally(() => setLoading(false));
+	}, [paths]);
+
+	if (paths.length === 0) return null;
+
+	return (
+		<div>
+			<h4 className="font-medium text-sm text-muted-foreground mb-2">
+				{label}
+			</h4>
+			{loading ? (
+				<Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+			) : (
+				<div className="flex flex-wrap gap-2">
+					{paths.map((path) => {
+						const ext = path.split(".").pop() ?? "";
+						return (
+							<a
+								key={path}
+								href={urls[path]}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs hover:bg-accent transition-colors"
+							>
+								<FileText className="h-3.5 w-3.5" />
+								<span className="uppercase">{ext}</span>
+								<ExternalLink className="h-3 w-3" />
+							</a>
+						);
+					})}
+				</div>
+			)}
 		</div>
 	);
 }

@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router";
 import BrandLogo from "@/components/ui/brandLogo";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FileUpload } from "@/components/ui/file-upload";
 import {
 	Form,
 	FormControl,
@@ -36,8 +37,20 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/config/supabase.config";
 import { getPlanners } from "@/services/supabase/planners.service";
+import { uploadFiles } from "@/services/supabase/storage.service";
 import { useUserStore } from "@/state/stores/useUserStore";
 import type { PatientsInsert } from "@/types/db/patients/patients";
+
+type PatientFormValues = Omit<
+	PatientsInsert,
+	"photos" | "xrays" | "scans" | "supplementary_docs" | "files"
+> & {
+	photos: File[];
+	xrays: File[];
+	scans: File[];
+	supplementary_docs: File[];
+	files: File[];
+};
 
 const TREATMENT_OBJECTIVE_OPTIONS: SearchableSelectOption[] = [
 	{ value: "Alinear y nivelar", label: "Alinear y nivelar" },
@@ -218,9 +231,10 @@ const steps = [1, 2, 3, 4, 5];
 
 export default function CreatePatient() {
 	const [currentStep, setCurrentStep] = useState(1);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 	const navigate = useNavigate();
 	const user = useUserStore((state) => state.user);
-	const form = useForm<PatientsInsert>({
+	const form = useForm<PatientFormValues>({
 		defaultValues: {
 			name: "",
 			last_name: "",
@@ -231,9 +245,13 @@ export default function CreatePatient() {
 			declared_limitations: [],
 			suggested_adminations_and_actions: [],
 			observations_or_instructions: "",
-			files: "",
+			files: [],
 			sworn_declaration: false,
 			planning_enabled: false,
+			photos: [],
+			xrays: [],
+			scans: [],
+			supplementary_docs: [],
 		},
 	});
 
@@ -277,7 +295,13 @@ export default function CreatePatient() {
 	}
 
 	async function validateStep5() {
-		const isValid = await form.trigger(["files", "sworn_declaration"]);
+		const isValid = await form.trigger([
+			"photos",
+			"xrays",
+			"scans",
+			"files",
+			"sworn_declaration",
+		]);
 		if (isValid) {
 			form.handleSubmit(onSubmit)();
 		}
@@ -306,18 +330,43 @@ export default function CreatePatient() {
 		return planners[randomIndex].id;
 	}
 
-	async function onSubmit(values: PatientsInsert) {
+	async function onSubmit(values: PatientFormValues) {
 		try {
 			if (!user?.id) {
 				throw new Error("Usuario no autenticado");
 			}
 
+			setIsSubmitting(true);
+
+			const {
+				photos,
+				xrays,
+				scans,
+				supplementary_docs,
+				files,
+				...restValues
+			} = values;
+
+			const [photoPaths, xrayPaths, scanPaths, docPaths, filePaths] =
+				await Promise.all([
+					uploadFiles(photos),
+					uploadFiles(xrays),
+					uploadFiles(scans),
+					uploadFiles(supplementary_docs),
+					uploadFiles(files),
+				]);
+
 			const plannerId = await getRandomPlannerId();
 
 			await createPatient({
-				...values,
+				...restValues,
 				id_client: user.id,
 				id_planner: plannerId,
+				photos: photoPaths,
+				xrays: xrayPaths,
+				scans: scanPaths,
+				supplementary_docs: docPaths,
+				files: filePaths,
 			});
 
 			navigate("/", {
@@ -327,6 +376,8 @@ export default function CreatePatient() {
 			});
 		} catch (error) {
 			console.error("Form submission error", error);
+		} finally {
+			setIsSubmitting(false);
 		}
 	}
 
@@ -435,8 +486,9 @@ export default function CreatePatient() {
 								variant="default"
 								className="w-32"
 								onClick={validateStep5}
+								disabled={isSubmitting}
 							>
-								Registrar
+								{isSubmitting ? "Subiendo..." : "Registrar"}
 							</Button>
 						)}
 					</div>
@@ -816,29 +868,129 @@ function Step4({ form }: { form: FieldValues }) {
 }
 
 function Step5({ form }: { form: FieldValues }) {
+	const acceptedTypes = ".png,.jpg,.jpeg,.pdf,.stl,.dcm";
+
 	return (
 		<>
 			<p className="text-center text-xs text-muted-foreground italic">
 				Documentación y declaración jurada.
 			</p>
+
+			<FormField
+				control={form.control}
+				name="photos"
+				rules={{
+					validate: (value: File[]) =>
+						value.length > 0 || "Las fotos son requeridas",
+				}}
+				render={({ field }) => (
+					<FormItem className="animate-in fade-in duration-1000">
+						<FormLabel>Fotos</FormLabel>
+						<FormControl>
+							<FileUpload
+								files={field.value}
+								onFilesChange={field.onChange}
+								accept={acceptedTypes}
+							/>
+						</FormControl>
+						<FormDescription>
+							Sube las fotos del paciente.
+						</FormDescription>
+						<FormMessage />
+					</FormItem>
+				)}
+			/>
+
+			<FormField
+				control={form.control}
+				name="xrays"
+				rules={{
+					validate: (value: File[]) =>
+						value.length > 0 || "Las radiografías son requeridas",
+				}}
+				render={({ field }) => (
+					<FormItem className="animate-in fade-in duration-1000">
+						<FormLabel>Radiografías</FormLabel>
+						<FormControl>
+							<FileUpload
+								files={field.value}
+								onFilesChange={field.onChange}
+								accept={acceptedTypes}
+							/>
+						</FormControl>
+						<FormDescription>
+							Sube las radiografías del paciente.
+						</FormDescription>
+						<FormMessage />
+					</FormItem>
+				)}
+			/>
+
+			<FormField
+				control={form.control}
+				name="scans"
+				rules={{
+					validate: (value: File[]) =>
+						value.length > 0 || "Los escaneos son requeridos",
+				}}
+				render={({ field }) => (
+					<FormItem className="animate-in fade-in duration-1000">
+						<FormLabel>Escaneos</FormLabel>
+						<FormControl>
+							<FileUpload
+								files={field.value}
+								onFilesChange={field.onChange}
+								accept={acceptedTypes}
+							/>
+						</FormControl>
+						<FormDescription>
+							Sube los escaneos intraorales del paciente.
+						</FormDescription>
+						<FormMessage />
+					</FormItem>
+				)}
+			/>
+
+			<FormField
+				control={form.control}
+				name="supplementary_docs"
+				render={({ field }) => (
+					<FormItem className="animate-in fade-in duration-1000">
+						<FormLabel>Documentación Complementaria</FormLabel>
+						<FormControl>
+							<FileUpload
+								files={field.value}
+								onFilesChange={field.onChange}
+								accept={acceptedTypes}
+							/>
+						</FormControl>
+						<FormDescription>
+							Documentación adicional (opcional).
+						</FormDescription>
+						<FormMessage />
+					</FormItem>
+				)}
+			/>
+
 			<FormField
 				control={form.control}
 				name="files"
-				rules={{ required: "Los archivos son requeridos" }}
+				rules={{
+					validate: (value: File[]) =>
+						value.length > 0 || "Los archivos son requeridos",
+				}}
 				render={({ field }) => (
 					<FormItem className="animate-in fade-in duration-1000">
 						<FormLabel>Archivos</FormLabel>
 						<FormControl>
-							<Input
-								type="file"
-								multiple
-								accept=".jpg,.jpeg,.png"
-								{...field}
+							<FileUpload
+								files={field.value}
+								onFilesChange={field.onChange}
+								accept={acceptedTypes}
 							/>
 						</FormControl>
 						<FormDescription>
-							Sube los archivos relevantes del paciente (PNG, JPG,
-							JPEG).
+							Sube los archivos relevantes del paciente.
 						</FormDescription>
 						<FormMessage />
 					</FormItem>

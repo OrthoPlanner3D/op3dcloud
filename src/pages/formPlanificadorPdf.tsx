@@ -336,7 +336,7 @@ const samplePatient: PatientRow = {
 	observations_or_instructions: "N/A",
 	suggested_adminations_and_actions: ["N/A"],
 	sworn_declaration: true,
-	files: "[]",
+	files: [],
 	planning_enabled: true,
 	created_at: new Date().toISOString(),
 	case_status: ["En proceso"],
@@ -345,6 +345,10 @@ const samplePatient: PatientRow = {
 	notes: null,
 	observations: null,
 	expiration: null,
+	photos: [],
+	xrays: [],
+	scans: [],
+	supplementary_docs: null,
 };
 
 const sampleTreatmentPlanning: TreatmentPlanningRow = {
