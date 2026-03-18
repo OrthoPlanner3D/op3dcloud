@@ -1,0 +1,44 @@
+import { supabase } from "@/config/supabase.config";
+
+const BUCKET = "patient-files";
+
+export async function uploadFile(file: File): Promise<string> {
+	const ext = file.name.split(".").pop() ?? "";
+	const path = `${crypto.randomUUID()}.${ext}`;
+
+	const { error } = await supabase.storage.from(BUCKET).upload(path, file);
+
+	if (error) {
+		console.error("Error uploading file:", error.message);
+		throw error;
+	}
+
+	return path;
+}
+
+export async function uploadFiles(files: File[]): Promise<string[]> {
+	if (files.length === 0) return [];
+	return Promise.all(files.map(uploadFile));
+}
+
+export async function getSignedUrl(path: string): Promise<string> {
+	const { data, error } = await supabase.storage
+		.from(BUCKET)
+		.createSignedUrl(path, 3600);
+
+	if (error) {
+		console.error("Error getting signed URL:", error.message);
+		throw error;
+	}
+
+	return data.signedUrl;
+}
+
+export async function deleteFile(path: string): Promise<void> {
+	const { error } = await supabase.storage.from(BUCKET).remove([path]);
+
+	if (error) {
+		console.error("Error deleting file:", error.message);
+		throw error;
+	}
+}

@@ -105,7 +105,8 @@ export default function Patients() {
 									</span>
 									<span className="line-clamp-2 w-[260px] text-xs whitespace-break-spaces text-left">
 										<Badge variant="outline">
-											{patient.case_status?.join(", ") || "No hay status"}
+											{patient.case_status?.join(", ") ||
+												"No hay status"}
 										</Badge>
 									</span>
 								</button>
@@ -164,7 +165,7 @@ export default function Patients() {
 
 							{/* Contenido de las pestañas */}
 							{activeTab === "details" ? (
-								<div className="h-[calc(100vh-4.5rem)] overflow-auto">
+								<div className="h-[calc(100vh-6.875rem)] overflow-auto">
 									<PatientDetail patient={selectedPatient} />
 								</div>
 							) : (
