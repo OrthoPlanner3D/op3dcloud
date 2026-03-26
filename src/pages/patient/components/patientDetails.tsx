@@ -4,6 +4,7 @@ import {
 	ExternalLink,
 	FileText,
 	FolderOpen,
+	Link2,
 	Loader2,
 	Stethoscope,
 	Target,
@@ -11,7 +12,9 @@ import {
 	XCircle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { getSignedUrl } from "@/services/supabase/storage.service";
@@ -78,7 +81,32 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 		type_of_plan: "Plan Integral Premium",
 	};
 
-	const displayPatient = patient || samplePatient;
+	const toArray = (v: unknown): string[] => {
+		if (Array.isArray(v)) return v;
+		if (typeof v === "string" && v.startsWith("{")) {
+			return v
+				.slice(1, -1)
+				.split(",")
+				.map((s) => s.trim())
+				.filter(Boolean);
+		}
+		return [];
+	};
+
+	const base = patient || samplePatient;
+	const displayPatient = {
+		...base,
+		declared_limitations: toArray(base.declared_limitations),
+		dental_restrictions: toArray(base.dental_restrictions),
+		treatment_objective: toArray(base.treatment_objective),
+		suggested_adminations_and_actions: toArray(
+			base.suggested_adminations_and_actions,
+		),
+		photos: toArray(base.photos),
+		xrays: toArray(base.xrays),
+		scans: toArray(base.scans),
+		files: toArray(base.files),
+	};
 
 	return (
 		<div className="space-y-6 max-w-4xl mx-auto">
@@ -100,6 +128,18 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 								</p>
 							</div>
 						</div>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => {
+								const url = `${window.location.origin}/planificacion/${displayPatient.id}`;
+								navigator.clipboard.writeText(url);
+								toast.success("Link copiado al portapapeles");
+							}}
+						>
+							<Link2 className="h-4 w-4 mr-2" />
+							Copiar link
+						</Button>
 					</div>
 				</CardHeader>
 			</Card>
@@ -119,13 +159,13 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 								Limitaciones Declaradas
 							</h4>
 							<div className="flex flex-wrap gap-1">
-								{displayPatient.declared_limitations.map(
-									(v) => (
-										<Badge key={v} variant="outline">
-											{v}
-										</Badge>
-									),
-								)}
+								{(
+									displayPatient.declared_limitations ?? []
+								).map((v) => (
+									<Badge key={v} variant="outline">
+										{v}
+									</Badge>
+								))}
 							</div>
 						</div>
 
@@ -136,11 +176,13 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 								Restricciones Dentales
 							</h4>
 							<div className="flex flex-wrap gap-1">
-								{displayPatient.dental_restrictions.map((v) => (
-									<Badge key={v} variant="outline">
-										{v}
-									</Badge>
-								))}
+								{(displayPatient.dental_restrictions ?? []).map(
+									(v) => (
+										<Badge key={v} variant="outline">
+											{v}
+										</Badge>
+									),
+								)}
 							</div>
 						</div>
 
@@ -191,11 +233,13 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 								Objetivo del Tratamiento
 							</h4>
 							<div className="flex flex-wrap gap-1">
-								{displayPatient.treatment_objective.map((v) => (
-									<Badge key={v} variant="outline">
-										{v}
-									</Badge>
-								))}
+								{(displayPatient.treatment_objective ?? []).map(
+									(v) => (
+										<Badge key={v} variant="outline">
+											{v}
+										</Badge>
+									),
+								)}
 							</div>
 						</div>
 
@@ -238,13 +282,14 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 					</CardHeader>
 					<CardContent>
 						<div className="flex flex-wrap gap-1">
-							{displayPatient.suggested_adminations_and_actions.map(
-								(v) => (
-									<Badge key={v} variant="outline">
-										{v}
-									</Badge>
-								),
-							)}
+							{(
+								displayPatient.suggested_adminations_and_actions ??
+								[]
+							).map((v) => (
+								<Badge key={v} variant="outline">
+									{v}
+								</Badge>
+							))}
 						</div>
 					</CardContent>
 				</Card>

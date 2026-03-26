@@ -102,7 +102,7 @@ export function SearchableSelect({
 								<div
 									key={option.value}
 									className={cn(
-										"relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground",
+										"relative flex cursor-pointer select-none items-start rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground",
 										value === option.value &&
 											"bg-accent text-accent-foreground",
 									)}
@@ -114,7 +114,7 @@ export function SearchableSelect({
 								>
 									<Check
 										className={cn(
-											"mr-2 h-4 w-4",
+											"mr-2 mt-0.5 h-4 w-4 shrink-0",
 											value === option.value
 												? "opacity-100"
 												: "opacity-0",
@@ -246,7 +246,7 @@ export function SearchableMultiSelect({
 									<div
 										key={option.value}
 										className={cn(
-											"relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground",
+											"relative flex cursor-pointer select-none items-start rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground",
 											isSelected &&
 												"bg-accent text-accent-foreground",
 										)}
@@ -256,7 +256,7 @@ export function SearchableMultiSelect({
 									>
 										<Check
 											className={cn(
-												"mr-2 h-4 w-4",
+												"mr-2 mt-0.5 h-4 w-4 shrink-0",
 												isSelected
 													? "opacity-100"
 													: "opacity-0",

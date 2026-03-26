@@ -19,6 +19,7 @@ import {
 	SearchableMultiSelect,
 	SearchableSelect,
 } from "@/components/ui/searchable-select";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { usePatients } from "@/hooks/swr/usePatients";
 import {
@@ -28,52 +29,261 @@ import {
 } from "@/services/supabase/treatment-planning.service";
 import type { Tables } from "@/types/db/database.types";
 
+// ─── Opciones ───────────────────────────────────────────────────────────────
+
+const complexityOptions = [
+	"Baja",
+	"Moderada",
+	"Alta (necesidad de refinamiento)",
+];
+
+const prognosisOptions = [
+	"Favorable",
+	"Reservada (posible necesidad de refinamiento)",
+];
+
+const diagnosisOptions = [
+	"GINGIVITIS: Se recomienda la técnica de cepillado de Bass y consulta con un odontólogo general o periodoncista.",
+	"RETRACCIONES GINGIVALES: Pueden provocar triángulos negros entre los dientes y progresar con el tiempo. Se recomienda control periódico con un especialista en Periodoncia.",
+	"PERIODONTITIS: Retracciones gingivales y reabsorción ósea. Los alineadores pueden mejorar la situación pero requiere tratamiento a la par con especialista en periodoncia.",
+	"LIMPIEZA PERIODONTAL: Realizarla previo a iniciar el tratamiento.",
+	"CARIES: Pueden tratarse en paralelo, respetando la anatomía del diente.",
+	"RESTAURACIONES DEFICIENTES: Se recomienda reemplazar restauraciones defectuosas al finalizar el tratamiento.",
+	"3° MOLARES: Se recomienda para lograr la armonía bucal, liberar presiones por falta de espacio y para evitar lesiones en dientes contiguos (no es obligatorio para el tratamiento).",
+	"3° MOLARES: Se solicita la extracción inmediata o en un plazo máximo de 2 meses.",
+	"RESTO RADICULAR: Se recomienda consultar con odontólogo de cabecera.",
+	"RESTO RADICULAR: Se solicita su extracción con odontólogo de cabecera, antes de iniciar el tratamiento.",
+	"LESIÓN QUISTICA: Se recomienda consultar con especialista.",
+	"DISCREPANCIA DE BOLTON: Incisivos laterales de menor tamaño del correspondiente, lo que impide la llave canina ideal.",
+	"DISCREPANCIA DE BOLTON: Incisivos laterales de menor tamaño del correspondiente, que requiere dejar espacios proximales para reconstrucción posterior.",
+	"BORDES DENTARIOS IRREGULARES: Puede requerir desgaste estético o reconstrucción (sustracción o adición).",
+	"MORDIDA ABIERTA: Puede requerir reeducación lingual con fonoaudiólogo.",
+	"DISFUNCIÓN DE ATM: Relacionado con malas mordidas o bruxismo. Evaluación con especialista en caso de molestias (no es impedimento para realizar el tratamiento).",
+	"DIENTES DECIDUOS: No se puede aplicar movimientos ni garantizar la estabilidad en boca de los mismos (cuestión biología).",
+	"CORONAS PROTÉSICAS: DIENTES DECIDUOS: No se puede aplicar movimientos. Se recomienda corte socavado en la zona para evitar la desadaptación.",
+	"ELEMENTOS AUXILIARES: Uso de botones y gomas para movimientos complejos.",
+	"TRAT. COMPLEJO: Casos con más de 14 alineadores pueden requerir etapas adicionales (plantearlo por etapas).",
+	"LIMITACIONES ESTRUCTIRALES: El biotipo óseo impide una mordida ideal, pero se trabaja en dejar la mordida lo más armónica posible.",
+	"TRAT. A DISTANCIA: Puede reducir la efectividad.",
+	"FALTA DE ESPACIO: Impide ubicar a las piezas en el arco dentario.",
+	"FRENILLO LABIAL: Realizar diagnostico clínico para corroborar inserción y derivar a cirugía para evitar recidivas.",
+	"MORDIDA CRUZADA POSTERIOR: No se programa el descruce dada la baja predictibilidad del movimiento.",
+	"LÍNEA MEDIA: Movimiento limitado por la complejidad del mismo.",
+	"TRAT. UNIMAXILAR: Sólo se puede planificar el maxilar planteado dada las limitaciones bucales. Se puede optar una ortodoncia híbrida.",
+	"TRAT. BIMAXILAR: Para lograr los objetivos, se requiere realizar ambos maxilares.",
+	"Otros",
+];
+
+const laboratoryOptions = [
+	"NO APLICA.",
+	"CASO COMPLEJO: Imprimir por tandas.",
+	"PERIODONTITIS: Espesor de placas de 0,03 pulgadas.",
+	"EXPANSIONES: Última placa duplicada (2 alineadores: uno en espesor 0,03 pulgadas y otro en 0,04 pulgadas).",
+	"SOCAVADO: Coronas protésicas y/o dientes vecinos.",
+	"DUPLICACIÓN DE ALINEADORES: 0,03' y 0.04' (posible necesidad por bruxismo severo).",
+	"DUPLICACIÓN DE ALINEADORES: Puede indicarse en movimientos de baja predictibilidad o alta resistencia.",
+	"CORTE FESTONEADO: Por gingivitis y/o apiñamiento.",
+	"BOTÓN DE EXTRUSIÓN: Socavar última placa (Requerimiento para movimiento programado).",
+	"BOTÓN DE EXTRUSIÓN: Socavar en número de placa programada (Requerimiento para movimiento programado).",
+	"AJUSTE DE RECAMBIO: La frecuencia de cambio de alineadores puede adaptarse según respuesta clínica.",
+	"VALIDACIÓN CLÍNICA: Se recomienda validación previa con el profesional tratante en casos complejos.",
+	"REFINAMIENTO: Se contempla la necesidad de etapas adicionales según evolución del caso.",
+	"Otro",
+];
+
+const planningOptions = [
+	"ALINEACIÓN Y NIVELACIÓN general.",
+	"Mejora de MORDIDA PROFUNDA.",
+	"Mejora de MORDIDA ABIERTA.",
+	"DESCRUCE DE MORDIDA ANTERIOR.",
+	"DESCRUCE DE MORDIDA LATERAL.",
+	"Mejora de LLAVE CANINA.",
+	"Mejora de LÍNEA MEDIA.",
+	"CIERRE DE ESPACIOS.",
+	"CIERRE DE DIASTEMAS.",
+	"ROTACIONES COMPLEJAS con posible necesidad de Elementos Auxiliares (botones y gomas) o Puntos de Presión interceptivos o finales.",
+	"EXTRUSIONES COMPLEJAS con posible necesidad de elementos auxiliares (botones y gomas).",
+	"MOVIMIENTOS INTRUSIVOS Y COLABORATIVOS con SITUACIÓN PERIODONTAL (requiere observación).",
+	"EXPANSIÓN LATERAL: Se puede reforzar el movimiento con placas duplicadas en 0,03 y 0,04 pulgadas.",
+	"MESIALIZACIONES.",
+	"DISTALIZACIONES.",
+	"INTRUSIONES pronunciadas (se recomienda uso de mordillos 2 veces al día, 5' cada vez).",
+	"RETRUSIONES: Se recomienda Puntos de Presión vestibulo-cervical o placas duplicadas ante la resistencia al movimiento.",
+	"PROTUSIONES: Se recomienda Puntos de Presión ante la resistencia al movimiento.",
+	"CRITERIO DE ACCIÓN CLÍNICA: El plan se define priorizando estabilidad, funcionalidad y predictibilidad por sobre la idealidad teórica, en función de las limitaciones del caso.",
+	"RESOLUCIÓN DE ESPACIO: Se opta por resolución parcial del apiñamiento para preservar salud periodontal y estabilidad.",
+	"MANEJO DE BOLTON: Se preservan espacios para rehabilitación, evitando comprometer la oclusión.",
+	"ENFOQUE POR ETAPAS: Se planifica dentro de límites biomecánicos predecibles, contemplando refinamientos.",
+	"OCLUSIÓN: Dada las limitantes óseas estructurales, se trabaja sobre un enfoque estético, dejando la mordida lo más armónica posible.",
+	"Otros",
+];
+
+const restrictionsOptions = [
+	"LIMITACIONES GENERALES: El caso presenta limitaciones biomecánicas, estructurales y oclusales que condicionan el resultado.",
+	"FALTA DE ESPACIO: Impide la correcta alineación dentaria y puede requerir resolución parcial.",
+	"LÍNEA MEDIA: No se puede corregir completamente por asimetrías estructurales.",
+	"DISCREPANCIA DE BOLTON: Impide oclusión ideal sin rehabilitación; el cierre total puede comprometer la mordida.",
+	"ROTACIONES LIMITADAS: Movimientos rotacionales complejos pueden no lograrse completamente.",
+	"TRASLACIONES LIMITADAS: Mesializaciones/distalizaciones mayores a 2 mm presentan baja predictibilidad.",
+	"EXPANSIÓN EN PERIODONTAL: No se recomiendan expansiones significativas en pacientes con compromiso periodontal.",
+	"MORDIDA CRUZADA POSTERIOR: Baja predictibilidad para descruce con alineadores.",
+	"DIENTES VOLCADOS: Limitan el cierre de espacios sin generar inclinaciones no deseadas.",
+	"DIENTES DECIDUOS: No se pueden mover ni garantizar estabilidad.",
+	"CORONAS PROTÉSICAS: No se pueden programar movimientos.",
+	"BIOTIPO ÓSEO: Puede impedir alcanzar una oclusión ideal.",
+	"ASIMETRÍAS ESTRUCTURALES: Limitan resultados estéticos finales.",
+	"DESGASTE DENTARIO: Puede impedir simetría estética completa.",
+	"TRATAMIENTO POR ETAPAS: Puede requerir refinamientos o fases adicionales.",
+	"TRATAMIENTO UNIMAXILAR: Presenta limitaciones funcionales y oclusales.",
+];
+
+const commercialPotentialOptions = [
+	"Blanqueamiento",
+	"Limpieza periodontal",
+	"Tratamiento periodontal",
+	"Caries / restauraciones",
+	"Reconstrucción estética",
+	"Carillas",
+	"Prótesis",
+	"Endodoncia",
+	"Implantes",
+	"Rehabilitación oral",
+	"Placa de bruxismo",
+	"Otros",
+];
+
+const qualityInformationOptions = [
+	"MUY BUENA",
+	"BUENA",
+	"REGULAR",
+	"INSUFICIENTE",
+	"AUSENTE",
+	"Otros",
+];
+
+const qualityScanOptions = [
+	"MUY BUENA",
+	"BUENA",
+	"REGULAR",
+	"ESCANEO DEFECTUOSO (costuras visibles, distorsiones, superposiciones, roturas)",
+	"MORDIDA MAL TOMADA",
+	"Otros",
+];
+
+const qualityXraysOptions = [
+	"MUY BUENA",
+	"BUENA",
+	"REGULAR",
+	"FALTA PANORÁMICA",
+	"PANORÁMICA de BAJA CALIDAD y/o con ERRORES",
+	"RX con SUPERPOSICIÓN DE OBJETOS (accesorios personales)",
+	"Otros",
+];
+
+const qualityIntraoralOptions = [
+	"MUY BUENA",
+	"BUENA",
+	"REGULAR",
+	"Iluminación insuficiente",
+	"Fotos poco nítidas o borrosas",
+	"Falta de enfoque",
+	"Fotos de encuadre",
+	"Falta de fotos requeridas",
+	"Otros",
+];
+
+const qualityExtraoralOptions = [
+	"MUY BUENAS",
+	"BUENAS",
+	"REGULARES",
+	"Iluminación insuficiente",
+	"Fotos poco nítidas o borrosas",
+	"Falta de enfoque",
+	"Fotos desalineadas",
+	"Falta de fotos requeridas",
+	"Otros",
+];
+
+const toSelectOptions = (arr: string[]) =>
+	arr.map((v) => ({ value: v, label: v }));
+
+// ─── Schema ──────────────────────────────────────────────────────────────────
+
 const formSchemaBase = z.object({
-	maxilares: z.string().min(1, "Debe seleccionar un maxilar"),
-	cantidadSuperior: z.string().min(1, "Cantidad superior es requerida"),
-	cantidadInferior: z.string().min(1, "Cantidad inferior es requerida"),
-	renderSimulacion: z
+	upper_aligners: z.string().min(1, "Requerido"),
+	lower_aligners: z.string().min(1, "Requerido"),
+	complexity: z.string().min(1, "Selecciona la complejidad"),
+	prognosis: z.string().min(1, "Selecciona el pronóstico"),
+	video_url: z
 		.string()
 		.url("Debe ser una URL válida")
 		.optional()
 		.or(z.literal("")),
-	complejidad: z.string().min(1, "Debe seleccionar la complejidad"),
-	pronostico: z.string().min(1, "Debe seleccionar el pronóstico"),
-	manufactura: z
-		.array(z.string())
-		.min(1, "Debe seleccionar al menos una opción"),
-	consideracionesDiagnosticas: z
-		.array(z.string())
-		.min(1, "Debe seleccionar al menos una consideración"),
-	criterioAccionClinica: z
-		.array(z.string())
-		.min(1, "Debe seleccionar al menos un criterio"),
-	derivaciones: z.array(z.string()).optional(),
-	potencialVenta: z.array(z.string()).optional(),
-	observacionesAdicionales: z.string().optional(),
+	technical_report_url: z
+		.string()
+		.url("Debe ser una URL válida")
+		.optional()
+		.or(z.literal("")),
+	diagnosis: z.array(z.string()).min(1, "Selecciona al menos uno"),
+	laboratory: z.array(z.string()).min(1, "Selecciona al menos uno"),
+	planning: z.array(z.string()).min(1, "Selecciona al menos uno"),
+	restrictions: z.array(z.string()),
+	commercial_potential: z.array(z.string()).optional(),
+	tracking_rotations: z.string().optional(),
+	tracking_extrusions: z.string().optional(),
+	tracking_extrusion_buttons: z.string().optional(),
+	tracking_intrusions: z.string().optional(),
+	tracking_torque: z.string().optional(),
+	tracking_angulations: z.string().optional(),
+	tracking_translations: z.string().optional(),
+	tracking_expansion: z.string().optional(),
+	quality_information: z.array(z.string()).min(1, "Requerido"),
+	quality_scan: z.array(z.string()).min(1, "Requerido"),
+	quality_xrays: z.array(z.string()).min(1, "Requerido"),
+	quality_intraoral: z.array(z.string()).min(1, "Requerido"),
+	quality_extraoral: z.array(z.string()).min(1, "Requerido"),
+	additional_observations: z.string().optional(),
 });
 
 const formSchemaWithPatient = formSchemaBase.extend({
-	paciente: z.string().min(1, "Debe seleccionar un paciente"),
+	paciente: z.string().min(1, "Selecciona un paciente"),
 });
 
 type FormDataBase = z.infer<typeof formSchemaBase>;
 type FormDataWithPatient = z.infer<typeof formSchemaWithPatient>;
 type FormData = FormDataBase | FormDataWithPatient;
 
+type TreatmentPlanningRow = Tables<
+	{ schema: "op3dcloud" },
+	"treatment_planning"
+>;
+
 const defaultValuesBase: FormDataBase = {
-	maxilares: "",
-	cantidadSuperior: "",
-	cantidadInferior: "",
-	renderSimulacion: "",
-	complejidad: "",
-	pronostico: "",
-	manufactura: [],
-	consideracionesDiagnosticas: [],
-	criterioAccionClinica: [],
-	derivaciones: [],
-	potencialVenta: [],
-	observacionesAdicionales: "",
+	upper_aligners: "",
+	lower_aligners: "",
+	complexity: "",
+	prognosis: "",
+	video_url: "",
+	technical_report_url: "",
+	diagnosis: [],
+	laboratory: [],
+	planning: [],
+	restrictions: [],
+	commercial_potential: [],
+	tracking_rotations: "",
+	tracking_extrusions: "",
+	tracking_extrusion_buttons: "",
+	tracking_intrusions: "",
+	tracking_torque: "",
+	tracking_angulations: "",
+	tracking_translations: "",
+	tracking_expansion: "",
+	quality_information: [],
+	quality_scan: [],
+	quality_xrays: [],
+	quality_intraoral: [],
+	quality_extraoral: [],
+	additional_observations: "",
 };
 
 const defaultValuesWithPatient: FormDataWithPatient = {
@@ -81,57 +291,7 @@ const defaultValuesWithPatient: FormDataWithPatient = {
 	paciente: "",
 };
 
-// Options for searchable selects
-const maxilaresOptions = [
-	{ value: "ambos", label: "Ambos" },
-	{ value: "superior", label: "Superior" },
-	{ value: "inferior", label: "Inferior" },
-];
-
-const manufacturaOptions = [
-	{ value: "calidad-alta", label: "Calidad Alta" },
-	{ value: "material-premium", label: "Material Premium" },
-	{ value: "acabado-especial", label: "Acabado Especial" },
-	{ value: "control-calidad", label: "Control de Calidad" },
-];
-
-const consideracionesDiagnosticasOptions = [
-	{ value: "apiñamiento", label: "Apiñamiento" },
-	{ value: "mordida-abierta", label: "Mordida Abierta" },
-	{ value: "mordida-cruzada", label: "Mordida Cruzada" },
-	{ value: "sobre-mordida", label: "Sobre Mordida" },
-	{ value: "dientes-incluidos", label: "Dientes Incluidos" },
-];
-
-const criterioAccionClinicaOptions = [
-	{ value: "expansión-palatal", label: "Expansión Palatal" },
-	{ value: "intrusión", label: "Intrusión" },
-	{ value: "extrusión", label: "Extrusión" },
-	{ value: "rotación", label: "Rotación" },
-	{ value: "mesialización", label: "Mesialización" },
-	{ value: "distalización", label: "Distalización" },
-];
-
-const derivacionesOptions = [
-	{ value: "cirugia-ortognatica", label: "Cirugía Ortognática" },
-	{ value: "periodoncia", label: "Periodoncia" },
-	{ value: "endodoncia", label: "Endodoncia" },
-	{ value: "implantologia", label: "Implantología" },
-	{ value: "odontopediatria", label: "Odontopediatría" },
-];
-
-const potencialVentaOptions = [
-	{ value: "blanqueamiento", label: "Blanqueamiento" },
-	{ value: "carillas", label: "Carillas" },
-	{ value: "ortodoncia-adultos", label: "Ortodoncia para Adultos" },
-	{ value: "retenedores", label: "Retenedores" },
-	{ value: "seguimiento", label: "Seguimiento Prolongado" },
-];
-
-type TreatmentPlanningRow = Tables<
-	{ schema: "op3dcloud" },
-	"treatment_planning"
->;
+// ─── Componente ──────────────────────────────────────────────────────────────
 
 interface TreatmentPlanningFormProps {
 	patientId?: number;
@@ -151,19 +311,14 @@ export default function TreatmentPlanningForm({
 
 	const needsPatientSelector = !patientId;
 
-	// Fetch patients with SWR - only when needed
 	const {
 		patients,
 		isLoading: isPatientsLoading,
 		error: patientsError,
 	} = usePatients({
 		planningEnabledOnly: true,
-		config: {
-			// Only fetch if we need the patient selector
-			isPaused: () => !needsPatientSelector,
-		},
+		config: { isPaused: () => !needsPatientSelector },
 	});
-	console.log(patients);
 
 	const form = useForm<FormData>({
 		resolver: zodResolver(
@@ -174,51 +329,54 @@ export default function TreatmentPlanningForm({
 			: defaultValuesBase,
 	});
 
-	// Load existing treatment planning data if treatmentPlanningId is provided
 	useEffect(() => {
 		const loadExistingData = async () => {
 			if (!treatmentPlanningId && !patientId) return;
-
 			try {
 				setIsLoading(true);
 				let data: TreatmentPlanningRow | null = null;
-
-				if (treatmentPlanningId) {
-					// Load by ID - not implemented yet but keeping for future
-					// data = await getTreatmentPlanningById(treatmentPlanningId);
-				} else if (patientId) {
+				if (patientId) {
 					data = await getTreatmentPlanningByPatientId(patientId);
 				}
-
 				if (data) {
 					setExistingData(data);
-
-					// Map database fields to form fields
 					const formData: FormData = {
-						maxilares: data.maxillaries || "",
-						cantidadSuperior: data.upper_quantity?.toString() || "",
-						cantidadInferior: data.lower_quantity?.toString() || "",
-						renderSimulacion: data.simulation_render || "",
-						complejidad: data.complexity || "",
-						pronostico: data.prognosis || "",
-						manufactura: (data.manufacturing as string[]) || [],
-						consideracionesDiagnosticas:
-							(data.diagnostic_considerations as string[]) || [],
-						criterioAccionClinica:
-							(data.clinical_action_criteria as string[]) || [],
-						derivaciones: (data.referrals as string[]) || [],
-						potencialVenta:
-							(data.sales_potential as string[]) || [],
-						observacionesAdicionales:
-							data.additional_observations || "",
+						upper_aligners: data.upper_aligners?.toString() ?? "",
+						lower_aligners: data.lower_aligners?.toString() ?? "",
+						complexity: data.complexity ?? "",
+						prognosis: data.prognosis ?? "",
+						video_url: data.video_url ?? "",
+						technical_report_url: data.technical_report_url ?? "",
+						diagnosis: (data.diagnosis as string[]) ?? [],
+						laboratory: (data.laboratory as string[]) ?? [],
+						planning: (data.planning as string[]) ?? [],
+						restrictions: (data.restrictions as string[]) ?? [],
+						commercial_potential:
+							(data.commercial_potential as string[]) ?? [],
+						tracking_rotations: data.tracking_rotations ?? "",
+						tracking_extrusions: data.tracking_extrusions ?? "",
+						tracking_extrusion_buttons:
+							data.tracking_extrusion_buttons ?? "",
+						tracking_intrusions: data.tracking_intrusions ?? "",
+						tracking_torque: data.tracking_torque ?? "",
+						tracking_angulations: data.tracking_angulations ?? "",
+						tracking_translations: data.tracking_translations ?? "",
+						tracking_expansion: data.tracking_expansion ?? "",
+						quality_information:
+							(data.quality_information as string[]) ?? [],
+						quality_scan: (data.quality_scan as string[]) ?? [],
+						quality_xrays: (data.quality_xrays as string[]) ?? [],
+						quality_intraoral:
+							(data.quality_intraoral as string[]) ?? [],
+						quality_extraoral:
+							(data.quality_extraoral as string[]) ?? [],
+						additional_observations:
+							data.additional_observations ?? "",
 					};
-
-					// Si necesita selector de paciente, agregarlo
 					if (needsPatientSelector) {
 						(formData as FormDataWithPatient).paciente =
-							data.patient_id?.toString() || "";
+							data.patient_id?.toString() ?? "";
 					}
-
 					form.reset(formData);
 				}
 			} catch (error) {
@@ -228,30 +386,12 @@ export default function TreatmentPlanningForm({
 				setIsLoading(false);
 			}
 		};
-
 		loadExistingData();
 	}, [treatmentPlanningId, patientId, needsPatientSelector, form]);
 
-	// Show error toast if patients failed to load
 	if (patientsError && needsPatientSelector) {
 		toast.error("Error al cargar los pacientes");
 	}
-
-	const watchedManufactura = form.watch("manufactura");
-	const watchedConsideracionesDiagnosticas = form.watch(
-		"consideracionesDiagnosticas",
-	);
-	const watchedCriterioAccionClinica = form.watch("criterioAccionClinica");
-	const watchedDerivaciones = form.watch("derivaciones");
-	const watchedPotencialVenta = form.watch("potencialVenta");
-
-	const handleMultiSelectChange = (field: keyof FormData, value: string) => {
-		const currentValues = (form.getValues(field) as string[]) || [];
-		const newValues = currentValues.includes(value)
-			? currentValues.filter((v: string) => v !== value)
-			: [...currentValues, value];
-		form.setValue(field, newValues);
-	};
 
 	const resetForm = () => {
 		form.reset(
@@ -263,80 +403,60 @@ export default function TreatmentPlanningForm({
 	const onSubmit = async (data: FormData) => {
 		try {
 			setIsLoading(true);
-
-			// Determine patient_id from prop or form
 			let selectedPatientId = patientId;
 			if (needsPatientSelector && "paciente" in data) {
 				selectedPatientId = Number.parseInt(data.paciente);
 			}
 
-			// Mapear los datos del formulario a la estructura de la base de datos
-			const treatmentPlanningData = {
-				patient_id: selectedPatientId || null,
-				maxillaries: data.maxilares,
-				upper_quantity: Number.parseInt(data.cantidadSuperior),
-				lower_quantity: Number.parseInt(data.cantidadInferior),
-				simulation_render: data.renderSimulacion || null,
-				complexity: data.complejidad,
-				prognosis: data.pronostico,
-				manufacturing: data.manufactura,
-				diagnostic_considerations: data.consideracionesDiagnosticas,
-				clinical_action_criteria: data.criterioAccionClinica,
-				referrals: data.derivaciones || [],
-				sales_potential: data.potencialVenta || [],
-				additional_observations: data.observacionesAdicionales || null,
+			const payload = {
+				patient_id: selectedPatientId ?? null,
+				upper_aligners: Number.parseInt(data.upper_aligners as string),
+				lower_aligners: Number.parseInt(data.lower_aligners as string),
+				complexity: data.complexity,
+				prognosis: data.prognosis,
+				video_url: data.video_url || null,
+				technical_report_url: data.technical_report_url || null,
+				diagnosis: data.diagnosis,
+				laboratory: data.laboratory,
+				planning: data.planning,
+				restrictions: data.restrictions,
+				commercial_potential: data.commercial_potential ?? [],
+				tracking_rotations: data.tracking_rotations || null,
+				tracking_extrusions: data.tracking_extrusions || null,
+				tracking_extrusion_buttons:
+					data.tracking_extrusion_buttons || null,
+				tracking_intrusions: data.tracking_intrusions || null,
+				tracking_torque: data.tracking_torque || null,
+				tracking_angulations: data.tracking_angulations || null,
+				tracking_translations: data.tracking_translations || null,
+				tracking_expansion: data.tracking_expansion || null,
+				quality_information: data.quality_information,
+				quality_scan: data.quality_scan,
+				quality_xrays: data.quality_xrays,
+				quality_intraoral: data.quality_intraoral,
+				quality_extraoral: data.quality_extraoral,
+				additional_observations: data.additional_observations || null,
 			};
 
-			console.log(
-				"Datos del formulario de planificación:",
-				treatmentPlanningData,
-			);
-
-			// Check if we are updating or creating
 			if (existingData?.id) {
-				// Update existing
-				const result = await updateTreatmentPlanning(
-					existingData.id,
-					treatmentPlanningData,
-				);
-				console.log(
-					"Planificación de tratamiento actualizada:",
-					result,
-				);
+				await updateTreatmentPlanning(existingData.id, payload);
 				toast.success("Planificación actualizada correctamente");
 			} else {
-				// Create new
-				const result = await createTreatmentPlanning(
-					treatmentPlanningData,
-				);
-				console.log("Planificación de tratamiento guardada:", result);
-				toast.success("Formulario enviado correctamente");
+				await createTreatmentPlanning(payload);
+				toast.success("Planificación guardada correctamente");
 			}
 
-			// Call onSuccess callback if provided
-			if (onSuccess) {
-				onSuccess();
-			}
-
-			// Only reset form if creating new (not editing)
-			if (!existingData?.id) {
-				resetForm();
-			}
+			if (onSuccess) onSuccess();
+			if (!existingData?.id) resetForm();
 		} catch (error) {
 			console.error("Error al enviar el formulario:", error);
-			toast.error(
-				"Error al enviar el formulario. Por favor, inténtalo de nuevo.",
-			);
+			toast.error("Error al guardar. Por favor, inténtalo de nuevo.");
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
-	const handleReset = () => {
-		resetForm();
-		toast.info("Formulario limpiado");
-	};
-
+	// Helper: badge con opción de remover
 	const SelectedValues = ({
 		values,
 		field,
@@ -356,7 +476,14 @@ export default function TreatmentPlanningForm({
 					<button
 						type="button"
 						className="ml-1 hover:opacity-70"
-						onClick={() => handleMultiSelectChange(field, value)}
+						onClick={() => {
+							const current =
+								(form.getValues(field) as string[]) || [];
+							form.setValue(
+								field,
+								current.filter((v) => v !== value),
+							);
+						}}
 					>
 						×
 					</button>
@@ -364,6 +491,87 @@ export default function TreatmentPlanningForm({
 			))}
 		</div>
 	);
+
+	// Helper: sección con título y separador
+	const Section = ({
+		title,
+		children,
+	}: {
+		title?: string;
+		children: React.ReactNode;
+	}) => (
+		<div className="space-y-6">
+			{title && (
+				<div>
+					<h2 className="text-lg font-semibold text-gray-800">
+						{title}
+					</h2>
+					<Separator className="mt-2" />
+				</div>
+			)}
+			{children}
+		</div>
+	);
+
+	// Helper: multi-select field
+	const MultiSelectField = ({
+		name,
+		label,
+		description,
+		options,
+		colorClass,
+		placeholder,
+	}: {
+		name: keyof FormDataBase;
+		label: string;
+		description?: string;
+		options: string[];
+		colorClass: string;
+		placeholder: string;
+	}) => {
+		const watched = form.watch(name as keyof FormData) as string[];
+		return (
+			<FormField
+				control={form.control}
+				name={name as keyof FormData}
+				render={() => (
+					<FormItem>
+						<FormLabel>{label}</FormLabel>
+						<FormControl>
+							<SearchableMultiSelect
+								key={`${name}-${resetKey}`}
+								options={toSelectOptions(options)}
+								values={watched || []}
+								onValuesChange={(values) =>
+									form.setValue(
+										name as keyof FormData,
+										values,
+										{
+											shouldValidate: true,
+											shouldDirty: true,
+										},
+									)
+								}
+								placeholder={placeholder}
+								searchPlaceholder={`Buscar...`}
+							/>
+						</FormControl>
+						{watched && watched.length > 0 && (
+							<SelectedValues
+								values={watched}
+								field={name as keyof FormData}
+								colorClass={colorClass}
+							/>
+						)}
+						{description && (
+							<FormDescription>{description}</FormDescription>
+						)}
+						<FormMessage />
+					</FormItem>
+				)}
+			/>
+		);
+	};
 
 	return (
 		<div className="max-w-4xl mx-auto p-6">
@@ -382,87 +590,165 @@ export default function TreatmentPlanningForm({
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
-					className="space-y-8"
+					className="space-y-10"
 				>
-					{/* Patient Selector - Only show if no patientId prop */}
+					{/* ── Paciente ── */}
 					{needsPatientSelector && (
-						<FormField
-							control={form.control}
-							name="paciente"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Paciente</FormLabel>
-									<FormControl>
-										<SearchableSelect
-											options={
-												patients?.map((patient) => ({
-													value: String(patient.id),
-													label: `${patient.name} ${patient.last_name} - ${patient.type_of_plan}`,
-												})) || []
-											}
-											value={field.value}
-											onValueChange={field.onChange}
-											placeholder={
-												isPatientsLoading
-													? "Cargando pacientes..."
-													: "Seleccionar Paciente"
-											}
-											searchPlaceholder="Buscar paciente..."
-											disabled={isPatientsLoading}
-										/>
-									</FormControl>
-									<FormDescription>
-										Selecciona el paciente para el cual se
-										creará la planificación de tratamiento
-									</FormDescription>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
+						<Section>
+							<FormField
+								control={form.control}
+								name="paciente"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Paciente</FormLabel>
+										<FormControl>
+											<SearchableSelect
+												options={
+													patients?.map((p) => ({
+														value: String(p.id),
+														label: `${p.name} ${p.last_name} - ${p.type_of_plan}`,
+													})) || []
+												}
+												value={field.value}
+												onValueChange={field.onChange}
+												placeholder={
+													isPatientsLoading
+														? "Cargando pacientes..."
+														: "Seleccionar Paciente"
+												}
+												searchPlaceholder="Buscar paciente..."
+												disabled={isPatientsLoading}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</Section>
 					)}
 
-					<FormField
-						control={form.control}
-						name="maxilares"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Maxilares a Tratar</FormLabel>
-								<FormControl>
-									<SearchableSelect
-										options={maxilaresOptions}
-										value={field.value}
-										onValueChange={field.onChange}
-										placeholder="Seleccionar Maxilar"
-										searchPlaceholder="Buscar maxilar..."
-									/>
-								</FormControl>
-								<FormDescription>
-									Indica qué maxilares serán tratados en la
-									planificación
-								</FormDescription>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+					{/* ── Assets ── */}
+					<Section>
 						<FormField
 							control={form.control}
-							name="cantidadSuperior"
+							name="video_url"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Cantidad en Superior</FormLabel>
+									<FormLabel>Video</FormLabel>
 									<FormControl>
 										<Input
-											placeholder="Cantidad"
-											type="number"
+											placeholder="https://..."
+											type="url"
 											{...field}
 										/>
 									</FormControl>
 									<FormDescription>
-										Cantidad de alineadores para el maxilar
-										superior
+										URL del video de simulación del
+										tratamiento
 									</FormDescription>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="technical_report_url"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>
+										URL del Informe Técnico
+									</FormLabel>
+									<FormControl>
+										<Input
+											placeholder="https://..."
+											type="url"
+											{...field}
+										/>
+									</FormControl>
+									<FormDescription>
+										URL del PDF con el informe técnico del
+										plan 3D
+									</FormDescription>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</Section>
+
+					{/* ── Datos Clínicos ── */}
+					<Section>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<FormField
+								control={form.control}
+								name="upper_aligners"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>
+											N Alineadores Max. Superior
+										</FormLabel>
+										<FormControl>
+											<Input
+												placeholder="Cantidad"
+												type="number"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="lower_aligners"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>
+											N Alineadores Max. Inferior
+										</FormLabel>
+										<FormControl>
+											<Input
+												placeholder="Cantidad"
+												type="number"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+
+						<FormField
+							control={form.control}
+							name="complexity"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Complejidad</FormLabel>
+									<FormControl>
+										<RadioGroup
+											onValueChange={field.onChange}
+											value={field.value}
+											className="flex flex-col space-y-1"
+										>
+											{complexityOptions.map((opt) => (
+												<div
+													key={opt}
+													className="flex items-center space-x-3"
+												>
+													<RadioGroupItem
+														value={opt}
+														id={`complexity-${opt}`}
+													/>
+													<label
+														htmlFor={`complexity-${opt}`}
+														className="font-normal text-sm"
+													>
+														{opt}
+													</label>
+												</div>
+											))}
+										</RadioGroup>
+									</FormControl>
 									<FormMessage />
 								</FormItem>
 							)}
@@ -470,405 +756,250 @@ export default function TreatmentPlanningForm({
 
 						<FormField
 							control={form.control}
-							name="cantidadInferior"
+							name="prognosis"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Cantidad en Inferior</FormLabel>
+									<FormLabel>Pronóstico</FormLabel>
 									<FormControl>
-										<Input
-											placeholder="Cantidad"
-											type="number"
-											{...field}
-										/>
+										<RadioGroup
+											onValueChange={field.onChange}
+											value={field.value}
+											className="flex flex-col space-y-1"
+										>
+											{prognosisOptions.map((opt) => (
+												<div
+													key={opt}
+													className="flex items-center space-x-3"
+												>
+													<RadioGroupItem
+														value={opt}
+														id={`prognosis-${opt}`}
+													/>
+													<label
+														htmlFor={`prognosis-${opt}`}
+														className="font-normal text-sm"
+													>
+														{opt}
+													</label>
+												</div>
+											))}
+										</RadioGroup>
 									</FormControl>
-									<FormDescription>
-										Cantidad de alineadores para el maxilar
-										inferior
-									</FormDescription>
 									<FormMessage />
 								</FormItem>
 							)}
 						/>
-					</div>
+					</Section>
 
-					<FormField
-						control={form.control}
-						name="renderSimulacion"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Render Simulación</FormLabel>
-								<FormControl>
-									<Input
-										placeholder="https://ejemplo.com/simulacion"
-										type="url"
-										{...field}
-									/>
-								</FormControl>
-								<FormDescription>
-									Enlace externo (ej: video de Youtube) que
-									muestre la simulación del caso
-								</FormDescription>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
+					{/* ── Diagnóstico ── */}
+					<Section title="EVALUACIÓN CLÍNICA">
+						<MultiSelectField
+							name="diagnosis"
+							label="Diagnóstico Presuntivo General"
+							options={diagnosisOptions}
+							colorClass="bg-red-100 text-red-800"
+							placeholder="Seleccionar diagnóstico"
+						/>
+					</Section>
 
-					<FormField
-						control={form.control}
-						name="complejidad"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Complejidad</FormLabel>
-								<FormControl>
-									<RadioGroup
-										onValueChange={field.onChange}
-										value={field.value}
-										className="flex flex-col space-y-1"
-									>
-										{[
-											["Baja", "baja"],
-											["Moderada", "moderada"],
-											["Alta", "alta"],
-										].map((option) => (
-											<div
-												className="flex items-center space-x-3 space-y-0"
-												key={option[1]}
-											>
-												<RadioGroupItem
-													value={option[1]}
-													id={`complejidad-${option[1]}`}
-												/>
-												<label
-													htmlFor={`complejidad-${option[1]}`}
-													className="font-normal"
-												>
-													{option[0]}
-												</label>
-											</div>
-										))}
-									</RadioGroup>
-								</FormControl>
-								<FormDescription>
-									Nivel de dificultad del caso
-								</FormDescription>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
+					{/* ── Laboratorio ── */}
+					<Section title="MANUFACTURA">
+						<MultiSelectField
+							name="laboratory"
+							label="Laboratorio"
+							options={laboratoryOptions}
+							colorClass="bg-blue-100 text-blue-800"
+							placeholder="Seleccionar recomendaciones"
+						/>
+					</Section>
 
-					<FormField
-						control={form.control}
-						name="pronostico"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Pronóstico</FormLabel>
-								<FormControl>
-									<RadioGroup
-										onValueChange={field.onChange}
-										value={field.value}
-										className="flex flex-col space-y-1"
-									>
-										{[
-											["Favorable", "favorable"],
-											["Reservado", "reservado"],
-										].map((option) => (
-											<div
-												className="flex items-center space-x-3 space-y-0"
-												key={option[1]}
-											>
-												<RadioGroupItem
-													value={option[1]}
-													id={`pronostico-${option[1]}`}
-												/>
-												<label
-													htmlFor={`pronostico-${option[1]}`}
-													className="font-normal"
-												>
-													{option[0]}
-												</label>
-											</div>
-										))}
-									</RadioGroup>
-								</FormControl>
-								<FormDescription>
-									Evaluación general de la previsibilidad del
-									tratamiento
-								</FormDescription>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
+					{/* ── Planificación ── */}
+					<Section title="PLAN DE ACCIÓN">
+						<MultiSelectField
+							name="planning"
+							label="Criterio de Planificación y Accionar Clínico"
+							options={planningOptions}
+							colorClass="bg-green-100 text-green-800"
+							placeholder="Seleccionar criterios"
+						/>
+					</Section>
 
-					<FormField
-						control={form.control}
-						name="manufactura"
-						render={() => (
-							<FormItem>
-								<FormLabel>
-									Manufactura - Recomendaciones y
-									Requerimientos
-								</FormLabel>
-								<FormControl>
-									<SearchableMultiSelect
-										key={`manufactura-${resetKey}`}
-										options={manufacturaOptions}
-										values={watchedManufactura || []}
-										onValuesChange={(values) =>
-											form.setValue(
-												"manufactura",
-												values,
-												{
-													shouldValidate: true,
-													shouldDirty: true,
-												},
-											)
-										}
-										placeholder="Seleccionar recomendaciones"
-										searchPlaceholder="Buscar recomendaciones..."
-									/>
-								</FormControl>
-								{watchedManufactura &&
-									watchedManufactura.length > 0 && (
-										<SelectedValues
-											values={watchedManufactura}
-											field="manufactura"
-											colorClass="bg-blue-100 text-blue-800"
+					{/* ── Restricciones ── */}
+					<Section>
+						<MultiSelectField
+							name="restrictions"
+							label="Restricciones Biomecánicas"
+							options={restrictionsOptions}
+							colorClass="bg-orange-100 text-orange-800"
+							placeholder="Seleccionar restricciones"
+						/>
+					</Section>
+
+					{/* ── Tracking ── */}
+					<Section title="Control de Tracking para Movimientos Complejos">
+						{(
+							[
+								[
+									"tracking_rotations",
+									"Rotaciones",
+									"Piezas con rotaciones que requieren control frecuente y posible uso de puntos de presión o auxiliares.",
+								],
+								[
+									"tracking_extrusions",
+									"Extrusiones (controles clínicos)",
+									"Piezas con extrusiones que requieren controles frecuentes y posible uso de auxiliares.",
+								],
+								[
+									"tracking_extrusion_buttons",
+									"Extrusiones (botones programados)",
+									"Piezas con botones de extrusión programados para predictibilidad del movimiento.",
+								],
+								[
+									"tracking_intrusions",
+									"Intrusiones",
+									"Se recomienda uso de mordillos y control periodontal continuo.",
+								],
+								[
+									"tracking_torque",
+									"Torque / Inclinaciones",
+									"Requiere evaluación clínica continua y posible refinamiento.",
+								],
+								[
+									"tracking_angulations",
+									"Angulaciones",
+									"Angulaciones complejas que requieren especial control de tracking.",
+								],
+								[
+									"tracking_translations",
+									"Traslaciones",
+									"Requieren control de anclaje y seguimiento de desvíos progresivos.",
+								],
+								[
+									"tracking_expansion",
+									"Expansión / Compresión",
+									"Riesgo de tipping. Se recomienda control del eje dentario.",
+								],
+							] as [keyof FormDataBase, string, string][]
+						).map(([name, label, description]) => (
+							<FormField
+								key={name}
+								control={form.control}
+								name={name as keyof FormData}
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>{label}</FormLabel>
+										<FormControl>
+											<Input
+												placeholder="Especificar piezas dentarias afectadas (ej: 13, 23)"
+												{...field}
+											/>
+										</FormControl>
+										<FormDescription>
+											{description}
+										</FormDescription>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						))}
+					</Section>
+
+					{/* ── Observaciones ── */}
+					<Section>
+						<FormField
+							control={form.control}
+							name="additional_observations"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>
+										Observaciones Adicionales
+									</FormLabel>
+									<FormControl>
+										<Textarea
+											placeholder="Observaciones adicionales del caso..."
+											className="min-h-[120px]"
+											{...field}
 										/>
-									)}
-								<FormDescription>
-									Selección de instrucciones técnicas y
-									clínicas predefinidas para la fabricación de
-									los alineadores
-								</FormDescription>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</Section>
 
-					<FormField
-						control={form.control}
-						name="consideracionesDiagnosticas"
-						render={() => (
-							<FormItem>
-								<FormLabel>
-									Consideraciones Diagnósticas
-								</FormLabel>
-								<FormControl>
-									<SearchableMultiSelect
-										key={`consideracionesDiagnosticas-${resetKey}`}
-										options={
-											consideracionesDiagnosticasOptions
-										}
-										values={
-											watchedConsideracionesDiagnosticas ||
-											[]
-										}
-										onValuesChange={(values) =>
-											form.setValue(
-												"consideracionesDiagnosticas",
-												values,
-												{
-													shouldValidate: true,
-													shouldDirty: true,
-												},
-											)
-										}
-										placeholder="Seleccionar consideraciones"
-										searchPlaceholder="Buscar consideraciones..."
-									/>
-								</FormControl>
-								{watchedConsideracionesDiagnosticas &&
-									watchedConsideracionesDiagnosticas.length >
-										0 && (
-										<SelectedValues
-											values={
-												watchedConsideracionesDiagnosticas
-											}
-											field="consideracionesDiagnosticas"
-											colorClass="bg-green-100 text-green-800"
-										/>
-									)}
-								<FormDescription>
-									Selección de hallazgos clínicos relevantes
-									que pueden influir en el tratamiento
-								</FormDescription>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
+					{/* ── Potencial Comercial ── */}
+					<Section title="ANÁLISIS COMERCIAL">
+						<MultiSelectField
+							name="commercial_potential"
+							label="Potencial Clínico-Comercial"
+							options={commercialPotentialOptions}
+							colorClass="bg-pink-100 text-pink-800"
+							placeholder="Seleccionar tratamientos complementarios"
+						/>
+					</Section>
 
-					<FormField
-						control={form.control}
-						name="criterioAccionClinica"
-						render={() => (
-							<FormItem>
-								<FormLabel>
-									Criterio de Acción Clínica
-								</FormLabel>
-								<FormControl>
-									<SearchableMultiSelect
-										key={`criterioAccionClinica-${resetKey}`}
-										options={criterioAccionClinicaOptions}
-										values={
-											watchedCriterioAccionClinica || []
-										}
-										onValuesChange={(values) =>
-											form.setValue(
-												"criterioAccionClinica",
-												values,
-												{
-													shouldValidate: true,
-													shouldDirty: true,
-												},
-											)
-										}
-										placeholder="Seleccionar criterios"
-										searchPlaceholder="Buscar criterios..."
-									/>
-								</FormControl>
-								{watchedCriterioAccionClinica &&
-									watchedCriterioAccionClinica.length > 0 && (
-										<SelectedValues
-											values={
-												watchedCriterioAccionClinica
-											}
-											field="criterioAccionClinica"
-											colorClass="bg-purple-100 text-purple-800"
-										/>
-									)}
-								<FormDescription>
-									Selección de movimientos y estrategias que
-									se aplicarán en la planificación
-								</FormDescription>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
+					{/* ── Calidad ── */}
+					<Section title="ESPACIO DE MEJORA CONTINUA">
+						<MultiSelectField
+							name="quality_information"
+							label="Calidad de la Información"
+							options={qualityInformationOptions}
+							colorClass="bg-purple-100 text-purple-800"
+							placeholder="Seleccionar calidad"
+						/>
+						<MultiSelectField
+							name="quality_scan"
+							label="Calidad de Escaneo"
+							options={qualityScanOptions}
+							colorClass="bg-purple-100 text-purple-800"
+							placeholder="Seleccionar calidad"
+						/>
+						<MultiSelectField
+							name="quality_xrays"
+							label="Calidad de Radiografías"
+							options={qualityXraysOptions}
+							colorClass="bg-purple-100 text-purple-800"
+							placeholder="Seleccionar calidad"
+						/>
+						<MultiSelectField
+							name="quality_intraoral"
+							label="Calidad de Fotos Intraorales"
+							options={qualityIntraoralOptions}
+							colorClass="bg-purple-100 text-purple-800"
+							placeholder="Seleccionar calidad"
+						/>
+						<MultiSelectField
+							name="quality_extraoral"
+							label="Calidad de Fotos Extraorales"
+							options={qualityExtraoralOptions}
+							colorClass="bg-purple-100 text-purple-800"
+							placeholder="Seleccionar calidad"
+						/>
+					</Section>
 
-					<FormField
-						control={form.control}
-						name="derivaciones"
-						render={() => (
-							<FormItem>
-								<FormLabel>Derivaciones</FormLabel>
-								<FormControl>
-									<SearchableMultiSelect
-										key={`derivaciones-${resetKey}`}
-										options={derivacionesOptions}
-										values={watchedDerivaciones || []}
-										onValuesChange={(values) =>
-											form.setValue(
-												"derivaciones",
-												values,
-												{
-													shouldValidate: true,
-													shouldDirty: true,
-												},
-											)
-										}
-										placeholder="Seleccionar especialidades"
-										searchPlaceholder="Buscar especialidades..."
-									/>
-								</FormControl>
-								{watchedDerivaciones &&
-									watchedDerivaciones.length > 0 && (
-										<SelectedValues
-											values={watchedDerivaciones}
-											field="derivaciones"
-											colorClass="bg-orange-100 text-orange-800"
-										/>
-									)}
-								<FormDescription>
-									Especialidades a las que se recomienda
-									derivar al paciente
-								</FormDescription>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-
-					<FormField
-						control={form.control}
-						name="potencialVenta"
-						render={() => (
-							<FormItem>
-								<FormLabel>Potencial de Venta</FormLabel>
-								<FormControl>
-									<SearchableMultiSelect
-										key={`potencialVenta-${resetKey}`}
-										options={potencialVentaOptions}
-										values={watchedPotencialVenta || []}
-										onValuesChange={(values) =>
-											form.setValue(
-												"potencialVenta",
-												values,
-												{
-													shouldValidate: true,
-													shouldDirty: true,
-												},
-											)
-										}
-										placeholder="Seleccionar tratamientos"
-										searchPlaceholder="Buscar tratamientos..."
-									/>
-								</FormControl>
-								{watchedPotencialVenta &&
-									watchedPotencialVenta.length > 0 && (
-										<SelectedValues
-											values={watchedPotencialVenta}
-											field="potencialVenta"
-											colorClass="bg-pink-100 text-pink-800"
-										/>
-									)}
-								<FormDescription>
-									Tratamientos complementarios que pueden
-									ofrecerse al paciente
-								</FormDescription>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-
-					<FormField
-						control={form.control}
-						name="observacionesAdicionales"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Observaciones Adicionales</FormLabel>
-								<FormControl>
-									<Textarea
-										placeholder="Escriba observaciones adicionales..."
-										className="resize-none"
-										rows={4}
-										{...field}
-									/>
-								</FormControl>
-								<FormDescription>
-									Notas complementarias no contempladas en las
-									secciones anteriores
-								</FormDescription>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-
-					<div className="flex justify-end space-x-4">
+					{/* ── Acciones ── */}
+					<div className="flex gap-3 pt-4">
+						<Button
+							type="submit"
+							disabled={isLoading}
+							className="flex-1 md:flex-none"
+						>
+							{isLoading
+								? "Guardando..."
+								: existingData?.id
+									? "Actualizar Planificación"
+									: "Guardar Planificación"}
+						</Button>
 						<Button
 							type="button"
 							variant="outline"
-							onClick={handleReset}
+							onClick={() => {
+								resetForm();
+								toast.info("Formulario limpiado");
+							}}
 							disabled={isLoading}
 						>
-							Limpiar Formulario
-						</Button>
-						<Button type="submit" disabled={isLoading}>
-							{isLoading
-								? existingData?.id
-									? "Actualizando..."
-									: "Enviando..."
-								: existingData?.id
-									? "Actualizar Planificación"
-									: "Enviar Planificación"}
+							Limpiar
 						</Button>
 					</div>
 				</form>

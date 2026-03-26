@@ -2,27 +2,26 @@ import {
 	ArrowLeftIcon,
 	ClipboardListIcon,
 	FileTextIcon,
+	LinkIcon,
 	PlusIcon,
 	UsersIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
+import { toast } from "sonner";
 import SearchInput from "@/components/search-input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useUserRole } from "@/hooks/useUserRole";
 import { formatDate } from "@/lib/utils";
 import { getPatientsByeCLient } from "@/services/supabase/patients.service";
 import { useUserStore } from "@/state/stores/useUserStore";
 import type { PatientsRow } from "@/types/db/patients/patients";
-import TreatmentPlanningForm from "../clients/components/display-form";
 import PatientDetail from "./components/patientDetails";
 import TreatmentPlanningView from "./components/TreatmentPlanningView";
 
 export default function Patients() {
 	const user = useUserStore((state) => state.user);
-	const { role } = useUserRole();
 	const [patients, setPatients] = useState<PatientsRow[]>([]);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [selectedPatient, setSelectedPatient] = useState<PatientsRow | null>(
@@ -103,12 +102,31 @@ export default function Patients() {
 									<span className="font-medium">
 										{patient.type_of_plan}
 									</span>
-									<span className="line-clamp-2 w-[260px] text-xs whitespace-break-spaces text-left">
-										<Badge variant="outline">
-											{patient.case_status?.join(", ") ||
-												"No hay status"}
-										</Badge>
-									</span>
+									<div className="flex w-full items-center justify-between">
+										<span className="line-clamp-2 text-xs whitespace-break-spaces text-left">
+											<Badge variant="outline">
+												{patient.case_status?.join(
+													", ",
+												) || "No hay status"}
+											</Badge>
+										</span>
+										<button
+											type="button"
+											className="ml-2 p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+											onClick={(e) => {
+												e.stopPropagation();
+												const url = `${window.location.origin}/planificacion/${patient.id}`;
+												navigator.clipboard.writeText(
+													url,
+												);
+												toast.success(
+													"Link copiado al portapapeles",
+												);
+											}}
+										>
+											<LinkIcon className="h-3.5 w-3.5" />
+										</button>
+									</div>
 								</button>
 							))
 						) : searchQuery.trim() ? (
@@ -170,16 +188,10 @@ export default function Patients() {
 								</div>
 							) : (
 								<div className="h-[calc(100vh-4.5rem)] overflow-auto">
-									{role === "client" ? (
-										<TreatmentPlanningView
-											patientId={selectedPatient.id}
-											patient={selectedPatient}
-										/>
-									) : (
-										<TreatmentPlanningForm
-											patientId={selectedPatient.id}
-										/>
-									)}
+									<TreatmentPlanningView
+										patientId={selectedPatient.id}
+										patient={selectedPatient}
+									/>
 								</div>
 							)}
 						</div>

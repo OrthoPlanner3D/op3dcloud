@@ -11,12 +11,12 @@ export type Database = {
     Tables: {
       patients: {
         Row: {
-          case_status: string | null
+          case_status: string[] | null
           created_at: string
-          declared_limitations: string
-          dental_restrictions: string
+          declared_limitations: string[]
+          dental_restrictions: string[]
           expiration: string | null
-          files: string
+          files: string[]
           id: number
           id_client: string
           id_planner: string | null
@@ -25,21 +25,26 @@ export type Database = {
           notes: string | null
           observations: string | null
           observations_or_instructions: string
+          photos: string[]
+          planning_enabled: boolean
+          scans: string[]
           status: string | null
-          status_files: string | null
-          suggested_adminations_and_actions: string
+          status_files: string[] | null
+          suggested_adminations_and_actions: string[]
+          supplementary_docs: string[] | null
           sworn_declaration: boolean
           treatment_approach: string
-          treatment_objective: string
+          treatment_objective: string[]
           type_of_plan: string
+          xrays: string[]
         }
         Insert: {
-          case_status?: string | null
+          case_status?: string[] | null
           created_at?: string
-          declared_limitations: string
-          dental_restrictions: string
+          declared_limitations?: string[]
+          dental_restrictions?: string[]
           expiration?: string | null
-          files: string
+          files: string[]
           id?: never
           id_client: string
           id_planner?: string | null
@@ -48,21 +53,26 @@ export type Database = {
           notes?: string | null
           observations?: string | null
           observations_or_instructions: string
+          photos: string[]
+          planning_enabled?: boolean
+          scans: string[]
           status?: string | null
-          status_files?: string | null
-          suggested_adminations_and_actions: string
+          status_files?: string[] | null
+          suggested_adminations_and_actions?: string[]
+          supplementary_docs?: string[] | null
           sworn_declaration?: boolean
           treatment_approach: string
-          treatment_objective: string
+          treatment_objective?: string[]
           type_of_plan: string
+          xrays: string[]
         }
         Update: {
-          case_status?: string | null
+          case_status?: string[] | null
           created_at?: string
-          declared_limitations?: string
-          dental_restrictions?: string
+          declared_limitations?: string[]
+          dental_restrictions?: string[]
           expiration?: string | null
-          files?: string
+          files?: string[]
           id?: never
           id_client?: string
           id_planner?: string | null
@@ -71,13 +81,18 @@ export type Database = {
           notes?: string | null
           observations?: string | null
           observations_or_instructions?: string
+          photos?: string[]
+          planning_enabled?: boolean
+          scans?: string[]
           status?: string | null
-          status_files?: string | null
-          suggested_adminations_and_actions?: string
+          status_files?: string[] | null
+          suggested_adminations_and_actions?: string[]
+          supplementary_docs?: string[] | null
           sworn_declaration?: boolean
           treatment_approach?: string
-          treatment_objective?: string
+          treatment_objective?: string[]
           type_of_plan?: string
+          xrays?: string[]
         }
         Relationships: [
           {
@@ -109,6 +124,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "patients_id_client_fkey"
+            columns: ["id_client"]
+            isOneToOne: false
+            referencedRelation: "view_users"
+            referencedColumns: ["id_user"]
+          },
+          {
             foreignKeyName: "patients_id_planner_fkey"
             columns: ["id_planner"]
             isOneToOne: false
@@ -136,6 +158,13 @@ export type Database = {
             referencedRelation: "view_planners"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "patients_id_planner_fkey"
+            columns: ["id_planner"]
+            isOneToOne: false
+            referencedRelation: "view_users"
+            referencedColumns: ["id_user"]
+          },
         ]
       }
       roles: {
@@ -162,53 +191,110 @@ export type Database = {
       treatment_planning: {
         Row: {
           additional_observations: string | null
-          clinical_action_criteria: string[]
-          complexity: string
+          commercial_potential: string[] | null
+          complexity: string | null
           created_at: string
-          diagnostic_considerations: string[]
+          diagnosis: string[]
           id: number
-          lower_quantity: number
-          manufacturing: string[]
-          maxillaries: string
-          prognosis: string
-          referrals: string[] | null
-          sales_potential: string[] | null
-          simulation_render: string | null
-          upper_quantity: number
+          laboratory: string[]
+          lower_aligners: number | null
+          patient_id: number | null
+          planning: string[]
+          prognosis: string | null
+          quality_extraoral: string[]
+          quality_information: string[]
+          quality_intraoral: string[]
+          quality_scan: string[]
+          quality_xrays: string[]
+          restrictions: string[]
+          technical_report_url: string | null
+          tracking_angulations: string | null
+          tracking_expansion: string | null
+          tracking_extrusion_buttons: string | null
+          tracking_extrusions: string | null
+          tracking_intrusions: string | null
+          tracking_rotations: string | null
+          tracking_torque: string | null
+          tracking_translations: string | null
+          upper_aligners: number | null
+          video_url: string | null
         }
         Insert: {
           additional_observations?: string | null
-          clinical_action_criteria?: string[]
-          complexity: string
+          commercial_potential?: string[] | null
+          complexity?: string | null
           created_at?: string
-          diagnostic_considerations?: string[]
+          diagnosis?: string[]
           id?: never
-          lower_quantity: number
-          manufacturing?: string[]
-          maxillaries: string
-          prognosis: string
-          referrals?: string[] | null
-          sales_potential?: string[] | null
-          simulation_render?: string | null
-          upper_quantity: number
+          laboratory?: string[]
+          lower_aligners?: number | null
+          patient_id?: number | null
+          planning?: string[]
+          prognosis?: string | null
+          quality_extraoral?: string[]
+          quality_information?: string[]
+          quality_intraoral?: string[]
+          quality_scan?: string[]
+          quality_xrays?: string[]
+          restrictions?: string[]
+          technical_report_url?: string | null
+          tracking_angulations?: string | null
+          tracking_expansion?: string | null
+          tracking_extrusion_buttons?: string | null
+          tracking_extrusions?: string | null
+          tracking_intrusions?: string | null
+          tracking_rotations?: string | null
+          tracking_torque?: string | null
+          tracking_translations?: string | null
+          upper_aligners?: number | null
+          video_url?: string | null
         }
         Update: {
           additional_observations?: string | null
-          clinical_action_criteria?: string[]
-          complexity?: string
+          commercial_potential?: string[] | null
+          complexity?: string | null
           created_at?: string
-          diagnostic_considerations?: string[]
+          diagnosis?: string[]
           id?: never
-          lower_quantity?: number
-          manufacturing?: string[]
-          maxillaries?: string
-          prognosis?: string
-          referrals?: string[] | null
-          sales_potential?: string[] | null
-          simulation_render?: string | null
-          upper_quantity?: number
+          laboratory?: string[]
+          lower_aligners?: number | null
+          patient_id?: number | null
+          planning?: string[]
+          prognosis?: string | null
+          quality_extraoral?: string[]
+          quality_information?: string[]
+          quality_intraoral?: string[]
+          quality_scan?: string[]
+          quality_xrays?: string[]
+          restrictions?: string[]
+          technical_report_url?: string | null
+          tracking_angulations?: string | null
+          tracking_expansion?: string | null
+          tracking_extrusion_buttons?: string | null
+          tracking_extrusions?: string | null
+          tracking_intrusions?: string | null
+          tracking_rotations?: string | null
+          tracking_torque?: string | null
+          tracking_translations?: string | null
+          upper_aligners?: number | null
+          video_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "treatment_planning_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "treatment_planning_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "view_dashboard_admin"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_has_role: {
         Row: {
@@ -255,6 +341,13 @@ export type Database = {
             referencedColumns: ["id_role"]
           },
           {
+            foreignKeyName: "team_user_roles_id_role_fkey"
+            columns: ["id_role"]
+            isOneToOne: false
+            referencedRelation: "view_users"
+            referencedColumns: ["id_role"]
+          },
+          {
             foreignKeyName: "team_user_roles_id_user_fkey"
             columns: ["id_user"]
             isOneToOne: false
@@ -281,6 +374,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "view_planners"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_user_roles_id_user_fkey"
+            columns: ["id_user"]
+            isOneToOne: false
+            referencedRelation: "view_users"
+            referencedColumns: ["id_user"]
           },
         ]
       }
@@ -317,7 +417,7 @@ export type Database = {
       }
       view_dashboard_admin: {
         Row: {
-          case_status: string | null
+          case_status: string[] | null
           client_id: string | null
           client_name: string | null
           created_at: string | null
@@ -327,8 +427,9 @@ export type Database = {
           patient_name: string | null
           planner_id: string | null
           planner_name: string | null
+          planning_enabled: boolean | null
           status: string | null
-          status_files: string | null
+          status_files: string[] | null
         }
         Relationships: []
       }
@@ -361,16 +462,20 @@ export type Database = {
         }
         Relationships: []
       }
+      view_users: {
+        Row: {
+          email: string | null
+          full_name: string | null
+          id_role: number | null
+          id_user: string | null
+          role_name: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      assign_client_role: {
-        Args: { p_id_client: string }
-        Returns: string
-      }
-      assign_planner_role: {
-        Args: { p_id_planner: string }
-        Returns: string
-      }
+      assign_client_role: { Args: { p_id_client: string }; Returns: string }
+      assign_planner_role: { Args: { p_id_planner: string }; Returns: string }
     }
     Enums: {
       status: "Active" | "Inactive"
