@@ -130,8 +130,11 @@ const TreatmentPlanningDocument = ({
 }: TreatmentPlanningDocumentProps) => {
 	const tp = treatmentPlanning;
 
-	const arr = (values: string[] | null | undefined) =>
-		values && values.length > 0 ? values.join(" • ") : "No especificado";
+	const arr = (values: string[] | null | undefined) => {
+		if (!values || values.length === 0) return "No especificado";
+		if (values.length === 1) return values[0];
+		return values.map((v) => `• ${v}`).join("\n");
+	};
 
 	const hasTracking = [
 		tp.tracking_rotations,
@@ -168,7 +171,7 @@ const TreatmentPlanningDocument = ({
 				{/* Datos del Paciente */}
 				<View style={styles.sectionContainer}>
 					<Text style={styles.sectionTitle}>Datos del Paciente</Text>
-					<View style={styles.card}>
+					<View style={styles.card} wrap={false}>
 						<View style={styles.row}>
 							<Text style={styles.rowLabel}>Nombre</Text>
 							<Text style={styles.rowValue}>{patient.name}</Text>
@@ -185,7 +188,7 @@ const TreatmentPlanningDocument = ({
 				{/* Assets */}
 				{(tp.video_url || tp.technical_report_url) && (
 					<View style={styles.sectionContainer}>
-						<View style={styles.card}>
+						<View style={styles.card} wrap={false}>
 							{tp.video_url && (
 								<View
 									style={
@@ -222,7 +225,7 @@ const TreatmentPlanningDocument = ({
 
 				{/* Datos Clínicos */}
 				<View style={styles.sectionContainer}>
-					<View style={styles.card}>
+					<View style={styles.card} wrap={false}>
 						<View style={styles.row}>
 							<Text style={styles.rowLabel}>
 								N Alineadores Max. Superior
@@ -257,7 +260,7 @@ const TreatmentPlanningDocument = ({
 				{/* Evaluación Clínica */}
 				<View style={styles.sectionContainer}>
 					<Text style={styles.sectionTitle}>Evaluación Clínica</Text>
-					<View style={styles.card}>
+					<View style={styles.card} wrap={false}>
 						<View style={styles.rowLast}>
 							<Text style={styles.rowLabel}>
 								Diagnóstico Presuntivo General
@@ -272,7 +275,7 @@ const TreatmentPlanningDocument = ({
 				{/* Manufactura */}
 				<View style={styles.sectionContainer}>
 					<Text style={styles.sectionTitle}>Manufactura</Text>
-					<View style={styles.card}>
+					<View style={styles.card} wrap={false}>
 						<View style={styles.rowLast}>
 							<Text style={styles.rowLabel}>Laboratorio</Text>
 							<Text style={styles.rowValue}>
@@ -285,7 +288,7 @@ const TreatmentPlanningDocument = ({
 				{/* Plan de Acción */}
 				<View style={styles.sectionContainer}>
 					<Text style={styles.sectionTitle}>Plan de Acción</Text>
-					<View style={styles.card}>
+					<View style={styles.card} wrap={false}>
 						<View
 							style={
 								tp.restrictions && tp.restrictions.length > 0
@@ -319,7 +322,7 @@ const TreatmentPlanningDocument = ({
 						<Text style={styles.sectionTitle}>
 							Control de Tracking para Movimientos Complejos
 						</Text>
-						<View style={styles.card}>
+						<View style={styles.card} wrap={false}>
 							{tp.tracking_rotations && (
 								<View style={styles.row}>
 									<Text style={styles.rowLabel}>
@@ -407,7 +410,7 @@ const TreatmentPlanningDocument = ({
 				{/* Observaciones */}
 				{tp.additional_observations && (
 					<View style={styles.sectionContainer}>
-						<View style={styles.card}>
+						<View style={styles.card} wrap={false}>
 							<View style={styles.rowLast}>
 								<Text style={styles.rowLabel}>
 									Observaciones Adicionales
@@ -427,7 +430,7 @@ const TreatmentPlanningDocument = ({
 							<Text style={styles.sectionTitle}>
 								Análisis Comercial
 							</Text>
-							<View style={styles.card}>
+							<View style={styles.card} wrap={false}>
 								<View style={styles.rowLast}>
 									<Text style={styles.rowLabel}>
 										Potencial Clínico-Comercial
@@ -446,7 +449,7 @@ const TreatmentPlanningDocument = ({
 						<Text style={styles.sectionTitle}>
 							Espacio de Mejora Continua
 						</Text>
-						<View style={styles.card}>
+						<View style={styles.card} wrap={false}>
 							{tp.quality_information &&
 								tp.quality_information.length > 0 && (
 									<View style={styles.row}>
