@@ -1,6 +1,7 @@
-import { Download, Eye, Printer } from "lucide-react";
+import { Download, Eye } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { TreatmentPlanningDocument } from "@/pages/formPlanificadorPdf";
@@ -91,23 +92,18 @@ export default function TreatmentPlanningView({
 	const DataArrayField = ({
 		label,
 		values,
-		colorClass,
 	}: {
 		label: string;
 		values: string[];
-		colorClass: string;
 	}) => (
 		<div className="flex flex-col space-y-2">
 			<span className="text-xs text-muted-foreground">{label}</span>
 			{values && values.length > 0 ? (
 				<div className="flex flex-wrap gap-1">
 					{values.map((v) => (
-						<span
-							key={v}
-							className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${colorClass}`}
-						>
+						<Badge key={v} variant="default">
 							{v}
-						</span>
+						</Badge>
 					))}
 				</div>
 			) : (
@@ -150,15 +146,6 @@ export default function TreatmentPlanningView({
 					</p>
 				</div>
 				<div className="flex gap-2">
-					<Button
-						onClick={() => window.print()}
-						variant="outline"
-						size="sm"
-						className="print:hidden"
-					>
-						<Printer className="w-4 h-4 mr-2" />
-						Imprimir
-					</Button>
 					{patient && (
 						<>
 							<Button
@@ -272,7 +259,6 @@ export default function TreatmentPlanningView({
 					<DataArrayField
 						label="Diagnóstico Presuntivo General"
 						values={tp.diagnosis || []}
-						colorClass="bg-red-100 text-red-800"
 					/>
 				</Section>
 
@@ -281,7 +267,6 @@ export default function TreatmentPlanningView({
 					<DataArrayField
 						label="Laboratorio"
 						values={tp.laboratory || []}
-						colorClass="bg-blue-100 text-blue-800"
 					/>
 				</Section>
 
@@ -290,7 +275,6 @@ export default function TreatmentPlanningView({
 					<DataArrayField
 						label="Criterio de Planificación y Accionar Clínico"
 						values={tp.planning || []}
-						colorClass="bg-green-100 text-green-800"
 					/>
 				</Section>
 
@@ -300,7 +284,6 @@ export default function TreatmentPlanningView({
 						<DataArrayField
 							label="Restricciones Biomecánicas"
 							values={tp.restrictions}
-							colorClass="bg-orange-100 text-orange-800"
 						/>
 					</Section>
 				)}
@@ -387,7 +370,6 @@ export default function TreatmentPlanningView({
 							<DataArrayField
 								label="Potencial Clínico-Comercial"
 								values={tp.commercial_potential}
-								colorClass="bg-pink-100 text-pink-800"
 							/>
 						</Section>
 					)}
@@ -407,14 +389,12 @@ export default function TreatmentPlanningView({
 									<DataArrayField
 										label="Calidad de la Información"
 										values={tp.quality_information}
-										colorClass="bg-purple-100 text-purple-800"
 									/>
 								)}
 							{tp.quality_scan && tp.quality_scan.length > 0 && (
 								<DataArrayField
 									label="Calidad de Escaneo"
 									values={tp.quality_scan}
-									colorClass="bg-purple-100 text-purple-800"
 								/>
 							)}
 							{tp.quality_xrays &&
@@ -422,7 +402,6 @@ export default function TreatmentPlanningView({
 									<DataArrayField
 										label="Calidad de Radiografías"
 										values={tp.quality_xrays}
-										colorClass="bg-purple-100 text-purple-800"
 									/>
 								)}
 							{tp.quality_intraoral &&
@@ -430,7 +409,6 @@ export default function TreatmentPlanningView({
 									<DataArrayField
 										label="Calidad de Fotos Intraorales"
 										values={tp.quality_intraoral}
-										colorClass="bg-purple-100 text-purple-800"
 									/>
 								)}
 							{tp.quality_extraoral &&
@@ -438,7 +416,6 @@ export default function TreatmentPlanningView({
 									<DataArrayField
 										label="Calidad de Fotos Extraorales"
 										values={tp.quality_extraoral}
-										colorClass="bg-purple-100 text-purple-800"
 									/>
 								)}
 						</div>
