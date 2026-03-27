@@ -41,7 +41,9 @@ export function LoginForm({
 			});
 
 		if (error) {
-			console.error("Error al iniciar sesión", error.message);
+			toast.error(
+				"Credenciales incorrectas. Verificá tu email y contraseña.",
+			);
 			return;
 		}
 
