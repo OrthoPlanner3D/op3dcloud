@@ -1,23 +1,33 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mkdir:*)",
-      "Bash(pnpm check:*)",
-      "Bash(pnpm build:*)",
-      "Bash(grep -r \"SearchableSelect\\\\|SearchableMultiSelect\" /home/hernanarica/development/orthoplanner/op3dcloud --include=\"*.tsx\" --include=\"*.ts\" 2>/dev/null | head -20)",
-      "Bash(find /home/hernanarica/development/orthoplanner/op3dcloud -name \"*clients*\" -o -name \"*client*\" 2>/dev/null | grep -E \"\\\\.\\(sql|tsx|ts\\)$\")",
+      "Bash(mkdir *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(cat *)",
+      "Bash(ls *)",
+      "Bash(pnpm *)",
+      "Bash(supabase *)",
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git branch *)",
       "WebFetch(domain:supabase.com)",
-      "Bash(supabase db diff -f change_patient_fields_to_arrays 2>&1)",
-      "Bash(supabase gen types typescript --local --schema op3dcloud > ./src/types/db/database.types.ts 2>&1)",
-      "Bash(supabase db diff -f priority_expiration_48h 2>&1 | tail -5)",
-      "Bash(supabase migration up 2>&1)",
-      "Bash(supabase db diff 2>&1)",
-      "Bash(find /home/hernanarica/development/orthoplanner/op3dcloud -name \"*.tsx\" -path \"*/patient/*\" -type f 2>/dev/null | head -20)",
-      "Bash(grep -r \"bucket\\\\|\\\\.storage\\\\|from_bucket\\\\|getPublicUrl\" /home/hernanarica/development/orthoplanner/op3dcloud/src --include=\"*.ts\" --include=\"*.tsx\" 2>/dev/null | head -20)",
       "WebSearch",
-      "Bash(rm supabase/migrations/20260314140302_convert_files_to_array.sql && supabase db diff -f convert_files_to_array --schema op3dcloud 2>/dev/null)"
+      "Bash(sed -i '' 's/<Section title=\"\"Paciente\"\">/<Section>/g' src/pages/treatment-planning/components/TreatmentPlanningForm.tsx)",
+      "Bash(sed -i '' 's/<Section title=\"\"Datos Clínicos\"\">/<Section>/g' src/pages/treatment-planning/components/TreatmentPlanningForm.tsx)",
+      "Bash(sed -i '' 's/<Section title=\"\"Assets\"\">/<Section>/g' src/pages/treatment-planning/components/TreatmentPlanningForm.tsx)",
+      "Bash(sed -i '' 's/<Section title=\"\"Diagnóstico Presuntivo General\"\">/<Section title=\"\"EVALUACIÓN CLÍNICA\"\">/g' src/pages/treatment-planning/components/TreatmentPlanningForm.tsx)",
+      "Bash(sed -i '' 's/<Section title=\"\"Laboratorio\"\">/<Section>/g' src/pages/treatment-planning/components/TreatmentPlanningForm.tsx)",
+      "Bash(python3:*)"
     ],
-    "deny": [],
-    "ask": []
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git push *)",
+      "Bash(git reset --hard *)",
+      "Bash(git merge *)",
+      "Bash(* --force)"
+    ],
+    "defaultMode": "acceptEdits"
   }
 }

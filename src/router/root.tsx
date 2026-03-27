@@ -9,9 +9,11 @@ import PlannersStore from "@/pages/planners/store";
 import PrivacyPolicy from "@/pages/privacy";
 import Profile from "@/pages/profile";
 import Register from "@/pages/register";
+import ResetPassword from "@/pages/reset-password";
 import SignIn from "@/pages/sign-in";
 import TermsAndConditions from "@/pages/terms";
 import TreatmentPlanning from "@/pages/treatment-planning";
+import PublicTreatmentPlanningPage from "@/pages/treatment-planning-public";
 import PrivateGuard from "./guards/PrivateGuard";
 import PublicGuard from "./guards/PublicGuard";
 import RoleGuard from "./guards/RoleGuard";
@@ -158,6 +160,14 @@ const router = createBrowserRouter([
 				</div>
 			</PublicGuard>
 		),
+	},
+	{
+		path: "/planificacion/:patientId",
+		element: <PublicTreatmentPlanningPage />,
+	},
+	{
+		path: "/reset-password",
+		element: <ResetPassword />,
 	},
 	{
 		path: "/terminos-y-condiciones",
