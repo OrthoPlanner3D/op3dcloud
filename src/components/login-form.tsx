@@ -30,6 +30,7 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
 	const { register, handleSubmit } = useForm<ILoginForm>();
 	const setUser = useUserStore((state) => state.setUser);
+	const [loginError, setLoginError] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
 	const [showResetModal, setShowResetModal] = useState(false);
 	const [resetEmail, setResetEmail] = useState("");
@@ -43,6 +44,7 @@ export function LoginForm({
 			});
 
 		if (error) {
+			setLoginError(true);
 			toast.error(
 				"Credenciales incorrectas. Verificá tu email y contraseña.",
 			);
@@ -128,6 +130,8 @@ export function LoginForm({
 								{...register("email")}
 								placeholder="m@example.com"
 								required
+								aria-invalid={loginError}
+								onChange={() => setLoginError(false)}
 							/>
 						</div>
 						<div className="grid gap-3">
@@ -149,6 +153,8 @@ export function LoginForm({
 									placeholder="********"
 									required
 									className="pr-10"
+									aria-invalid={loginError}
+									onChange={() => setLoginError(false)}
 								/>
 								<button
 									type="button"
