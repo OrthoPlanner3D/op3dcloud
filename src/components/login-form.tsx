@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
 	const { register, handleSubmit } = useForm<ILoginForm>();
 	const setUser = useUserStore((state) => state.setUser);
+	const [showPassword, setShowPassword] = useState(false);
 	const [showResetModal, setShowResetModal] = useState(false);
 	const [resetEmail, setResetEmail] = useState("");
 	const [isResetting, setIsResetting] = useState(false);
@@ -139,13 +141,35 @@ export function LoginForm({
 									¿Olvidaste tu contraseña?
 								</button>
 							</div>
-							<Input
-								id="password"
-								type="password"
-								{...register("password")}
-								placeholder="********"
-								required
-							/>
+							<div className="relative">
+								<Input
+									id="password"
+									type={showPassword ? "text" : "password"}
+									{...register("password")}
+									placeholder="********"
+									required
+									className="pr-10"
+								/>
+								<button
+									type="button"
+									className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
+									onClick={() =>
+										setShowPassword((prev) => !prev)
+									}
+									tabIndex={-1}
+									aria-label={
+										showPassword
+											? "Ocultar contraseña"
+											: "Mostrar contraseña"
+									}
+								>
+									{showPassword ? (
+										<EyeOff size={16} />
+									) : (
+										<Eye size={16} />
+									)}
+								</button>
+							</div>
 						</div>
 						<Button type="submit" className="w-full">
 							Iniciar sesión
