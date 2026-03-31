@@ -16,7 +16,6 @@ export type Database = {
 					declared_limitations: string[];
 					dental_restrictions: string[];
 					expiration: string | null;
-					files: string[];
 					id: number;
 					id_client: string;
 					id_planner: string | null;
@@ -44,7 +43,6 @@ export type Database = {
 					declared_limitations?: string[];
 					dental_restrictions?: string[];
 					expiration?: string | null;
-					files: string[];
 					id?: never;
 					id_client: string;
 					id_planner?: string | null;
@@ -72,7 +70,6 @@ export type Database = {
 					declared_limitations?: string[];
 					dental_restrictions?: string[];
 					expiration?: string | null;
-					files?: string[];
 					id?: never;
 					id_client?: string;
 					id_planner?: string | null;

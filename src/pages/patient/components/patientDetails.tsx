@@ -22,7 +22,6 @@ import { getSignedUrl } from "@/services/supabase/storage.service";
 interface Patient {
 	declared_limitations: string[];
 	dental_restrictions: string[];
-	files: string[];
 	photos: string[];
 	xrays: string[];
 	scans: string[];
@@ -58,7 +57,6 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 			"Alergia a anestesia local con lidocaína",
 			"Sensibilidad extrema en molares superiores",
 		],
-		files: [],
 		photos: [],
 		xrays: [],
 		scans: [],
@@ -105,7 +103,6 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 		photos: toArray(base.photos),
 		xrays: toArray(base.xrays),
 		scans: toArray(base.scans),
-		files: toArray(base.files),
 	};
 
 	return (
@@ -316,10 +313,6 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 					<FileSection
 						label="Documentación Complementaria"
 						paths={displayPatient.supplementary_docs ?? []}
-					/>
-					<FileSection
-						label="Archivos"
-						paths={displayPatient.files}
 					/>
 				</CardContent>
 			</Card>
