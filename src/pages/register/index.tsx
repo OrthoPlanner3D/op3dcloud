@@ -626,7 +626,7 @@ function Step2({ form }: { form: FieldValues }) {
 					<FormItem className="animate-in fade-in duration-1000">
 						<FormLabel>Logo de la identidad</FormLabel>
 						<FormControl>
-							<Input type="file" {...field} />
+							<Input type="file" accept=".png" {...field} />
 						</FormControl>
 						<FormDescription>
 							Este es el logo de la identidad.
