@@ -31,6 +31,7 @@ interface DataTableProps<TData, TValue> {
 			columnId: string,
 			value: unknown,
 		) => void;
+		planners?: { id: string | null; username: string | null }[];
 	};
 }
 

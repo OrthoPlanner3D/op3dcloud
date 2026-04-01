@@ -32,6 +32,10 @@ import {
 	updateUserPassword,
 	updateUserProfile,
 } from "@/services/supabase/profile.service";
+import {
+	getClientFilePublicUrl,
+	uploadClientFile,
+} from "@/services/supabase/storage.service";
 import { useUserStore } from "@/state/stores/useUserStore";
 
 // Lista de países de LATAM
@@ -92,6 +96,7 @@ export default function Profile() {
 	const [showNewPassword, setShowNewPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [logoFile, setLogoFile] = useState<File | null>(null);
 
 	const form = useForm<ProfileFormData>({
 		defaultValues: {
@@ -165,6 +170,11 @@ export default function Profile() {
 		setIsLoading(true);
 
 		try {
+			let logoPath = values.logo;
+			if (logoFile) {
+				logoPath = await uploadClientFile(logoFile);
+			}
+
 			// Actualizar perfil
 			const profileData = {
 				name: values.name,
@@ -173,7 +183,7 @@ export default function Profile() {
 				country: values.country,
 				entity: values.entity,
 				user_type: values.user_type,
-				logo: values.logo,
+				logo: logoPath,
 				experience_in_digital_planning:
 					values.experience_in_digital_planning,
 				digital_model_zocalo_height: values.digital_model_zocalo_height,
@@ -580,12 +590,36 @@ export default function Profile() {
 							name="logo"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Logo (URL)</FormLabel>
+									<FormLabel>Logo</FormLabel>
 									<FormControl>
-										<Input
-											{...field}
-											placeholder="URL del logo"
-										/>
+										<div className="space-y-2">
+											{field.value && !logoFile && (
+												<img
+													src={getClientFilePublicUrl(
+														field.value,
+													)}
+													alt="Logo actual"
+													className="h-12 w-auto rounded object-contain"
+												/>
+											)}
+											<input
+												type="file"
+												accept="image/png,image/jpeg,image/webp"
+												className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-secondary file:text-secondary-foreground hover:file:bg-secondary/80"
+												onChange={(e) => {
+													const file =
+														e.target.files?.[0] ??
+														null;
+													setLogoFile(file);
+												}}
+											/>
+											{logoFile && (
+												<p className="text-xs text-muted-foreground">
+													Seleccionado:{" "}
+													{logoFile.name}
+												</p>
+											)}
+										</div>
 									</FormControl>
 									<FormMessage />
 								</FormItem>

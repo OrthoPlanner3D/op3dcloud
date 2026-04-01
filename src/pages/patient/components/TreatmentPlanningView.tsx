@@ -1,13 +1,15 @@
-import { Download, Eye } from "lucide-react";
+import { Download, Eye, LinkIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { TreatmentPlanningDocument } from "@/pages/formPlanificadorPdf";
+import { getTreatmentFilePublicUrl } from "@/services/supabase/storage.service";
 import { getTreatmentPlanningByPatientId } from "@/services/supabase/treatment-planning.service";
 import type { Tables } from "@/types/db/database.types";
-import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
+import type { DocumentProps } from "@react-pdf/renderer";
+import { usePDF } from "@react-pdf/renderer";
 
 type TreatmentPlanningRow = Tables<
 	{ schema: "op3dcloud" },
@@ -19,6 +21,63 @@ interface TreatmentPlanningViewProps {
 	patientId: number;
 	patient?: PatientRow;
 	isPublic?: boolean;
+}
+
+function PDFPreview({
+	document,
+}: {
+	document: React.ReactElement<DocumentProps>;
+}) {
+	const [instance] = usePDF({ document });
+	if (instance.loading)
+		return (
+			<p className="text-sm text-muted-foreground">Generando PDF...</p>
+		);
+	if (instance.error)
+		return <p className="text-sm text-red-500">Error al generar el PDF</p>;
+	return (
+		<object
+			data={instance.url ?? ""}
+			type="application/pdf"
+			width="100%"
+			height="100%"
+		>
+			<p className="text-sm text-muted-foreground">
+				Tu navegador no puede mostrar el PDF.
+			</p>
+		</object>
+	);
+}
+
+function PDFDownloadButton({
+	doc,
+	fileName,
+}: {
+	doc: React.ReactElement<DocumentProps>;
+	fileName: string;
+}) {
+	const [instance] = usePDF({ document: doc });
+
+	const handleDownload = () => {
+		if (!instance.url) return;
+		const a = window.document.createElement("a");
+		a.href = instance.url;
+		a.download = fileName;
+		a.click();
+	};
+
+	return (
+		<Button
+			variant="default"
+			size="sm"
+			disabled={instance.loading || !!instance.error}
+			onClick={handleDownload}
+			className="min-w-[140px]"
+		>
+			<Download className="w-4 h-4 mr-2" />
+			{instance.loading ? "Generando..." : "Descargar PDF"}
+		</Button>
+	);
 }
 
 export default function TreatmentPlanningView({
@@ -158,28 +217,15 @@ export default function TreatmentPlanningView({
 								<Eye className="w-4 h-4 mr-2" />
 								{showPDFPreview ? "Ocultar PDF" : "Ver PDF"}
 							</Button>
-							<PDFDownloadLink
-								document={
+							<PDFDownloadButton
+								doc={
 									<TreatmentPlanningDocument
 										treatmentPlanning={treatmentPlanning}
 										patient={patient}
 									/>
 								}
 								fileName={`planificacion-${patient.name}-${patient.last_name}.pdf`}
-							>
-								{({ loading }) => (
-									<Button
-										variant="default"
-										size="sm"
-										disabled={loading}
-									>
-										<Download className="w-4 h-4 mr-2" />
-										{loading
-											? "Generando..."
-											: "Descargar PDF"}
-									</Button>
-								)}
-							</PDFDownloadLink>
+							/>
 						</>
 					)}
 				</div>
@@ -190,12 +236,16 @@ export default function TreatmentPlanningView({
 					<h3 className="text-lg font-semibold mb-4">
 						Vista Previa del PDF
 					</h3>
-					<PDFViewer width="100%" height="600px">
-						<TreatmentPlanningDocument
-							treatmentPlanning={treatmentPlanning}
-							patient={patient}
+					<div className="w-full h-[600px]">
+						<PDFPreview
+							document={
+								<TreatmentPlanningDocument
+									treatmentPlanning={treatmentPlanning}
+									patient={patient}
+								/>
+							}
 						/>
-					</PDFViewer>
+					</div>
 				</div>
 			)}
 
@@ -208,12 +258,15 @@ export default function TreatmentPlanningView({
 								label="Video"
 								value={
 									<a
-										href={tp.video_url}
+										href={getTreatmentFilePublicUrl(
+											tp.video_url,
+										)}
 										target="_blank"
 										rel="noopener noreferrer"
-										className="text-primary hover:underline"
+										className="inline-flex items-center gap-1 text-primary hover:underline"
 									>
-										{tp.video_url}
+										<LinkIcon className="w-3 h-3" />
+										Ver enlace
 									</a>
 								}
 							/>
@@ -223,12 +276,15 @@ export default function TreatmentPlanningView({
 								label="Informe Técnico"
 								value={
 									<a
-										href={tp.technical_report_url}
+										href={getTreatmentFilePublicUrl(
+											tp.technical_report_url,
+										)}
 										target="_blank"
 										rel="noopener noreferrer"
-										className="text-primary hover:underline"
+										className="inline-flex items-center gap-1 text-primary hover:underline"
 									>
-										{tp.technical_report_url}
+										<LinkIcon className="w-3 h-3" />
+										Ver enlace
 									</a>
 								}
 							/>

@@ -11,7 +11,6 @@ create table op3dcloud.patients (
   planning_enabled boolean not null default false,
   suggested_adminations_and_actions text[] not null default '{}'::text[],
   observations_or_instructions text not null,
-  files text[] not null,
   sworn_declaration boolean not null default false,
   expiration date null,
   id_planner uuid null,

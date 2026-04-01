@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -22,6 +23,10 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { usePatients } from "@/hooks/swr/usePatients";
+import {
+	getTreatmentFilePublicUrl,
+	uploadTreatmentFile,
+} from "@/services/supabase/storage.service";
 import {
 	createTreatmentPlanning,
 	getTreatmentPlanningByPatientId,
@@ -210,20 +215,18 @@ const toSelectOptions = (arr: string[]) =>
 // ─── Schema ──────────────────────────────────────────────────────────────────
 
 const formSchemaBase = z.object({
-	upper_aligners: z.string().min(1, "Requerido"),
-	lower_aligners: z.string().min(1, "Requerido"),
+	upper_aligners: z
+		.string()
+		.min(1, "Requerido")
+		.regex(/^\d+$/, "Debe ser un número entero positivo"),
+	lower_aligners: z
+		.string()
+		.min(1, "Requerido")
+		.regex(/^\d+$/, "Debe ser un número entero positivo"),
 	complexity: z.string().min(1, "Selecciona la complejidad"),
 	prognosis: z.string().min(1, "Selecciona el pronóstico"),
-	video_url: z
-		.string()
-		.url("Debe ser una URL válida")
-		.optional()
-		.or(z.literal("")),
-	technical_report_url: z
-		.string()
-		.url("Debe ser una URL válida")
-		.optional()
-		.or(z.literal("")),
+	video_url: z.string().optional(),
+	technical_report_url: z.string().optional(),
 	diagnosis: z.array(z.string()).min(1, "Selecciona al menos uno"),
 	laboratory: z.array(z.string()).min(1, "Selecciona al menos uno"),
 	planning: z.array(z.string()).min(1, "Selecciona al menos uno"),
@@ -291,6 +294,38 @@ const defaultValuesWithPatient: FormDataWithPatient = {
 	paciente: "",
 };
 
+// ─── Helper ──────────────────────────────────────────────────────────────────
+
+function rowToFormData(data: TreatmentPlanningRow): FormDataBase {
+	return {
+		upper_aligners: data.upper_aligners?.toString() ?? "",
+		lower_aligners: data.lower_aligners?.toString() ?? "",
+		complexity: data.complexity ?? "",
+		prognosis: data.prognosis ?? "",
+		video_url: data.video_url ?? "",
+		technical_report_url: data.technical_report_url ?? "",
+		diagnosis: (data.diagnosis as string[]) ?? [],
+		laboratory: (data.laboratory as string[]) ?? [],
+		planning: (data.planning as string[]) ?? [],
+		restrictions: (data.restrictions as string[]) ?? [],
+		commercial_potential: (data.commercial_potential as string[]) ?? [],
+		tracking_rotations: data.tracking_rotations ?? "",
+		tracking_extrusions: data.tracking_extrusions ?? "",
+		tracking_extrusion_buttons: data.tracking_extrusion_buttons ?? "",
+		tracking_intrusions: data.tracking_intrusions ?? "",
+		tracking_torque: data.tracking_torque ?? "",
+		tracking_angulations: data.tracking_angulations ?? "",
+		tracking_translations: data.tracking_translations ?? "",
+		tracking_expansion: data.tracking_expansion ?? "",
+		quality_information: (data.quality_information as string[]) ?? [],
+		quality_scan: (data.quality_scan as string[]) ?? [],
+		quality_xrays: (data.quality_xrays as string[]) ?? [],
+		quality_intraoral: (data.quality_intraoral as string[]) ?? [],
+		quality_extraoral: (data.quality_extraoral as string[]) ?? [],
+		additional_observations: data.additional_observations ?? "",
+	};
+}
+
 // ─── Componente ──────────────────────────────────────────────────────────────
 
 interface TreatmentPlanningFormProps {
@@ -308,6 +343,8 @@ export default function TreatmentPlanningForm({
 	const [resetKey, setResetKey] = useState(0);
 	const [existingData, setExistingData] =
 		useState<TreatmentPlanningRow | null>(null);
+	const [videoFile, setVideoFile] = useState<File | null>(null);
+	const [reportFile, setReportFile] = useState<File | null>(null);
 
 	const needsPatientSelector = !patientId;
 
@@ -329,6 +366,7 @@ export default function TreatmentPlanningForm({
 			: defaultValuesBase,
 	});
 
+	// Carga datos cuando se pasa patientId como prop (modo edición desde contexto de paciente)
 	useEffect(() => {
 		const loadExistingData = async () => {
 			if (!treatmentPlanningId && !patientId) return;
@@ -340,44 +378,8 @@ export default function TreatmentPlanningForm({
 				}
 				if (data) {
 					setExistingData(data);
-					const formData: FormData = {
-						upper_aligners: data.upper_aligners?.toString() ?? "",
-						lower_aligners: data.lower_aligners?.toString() ?? "",
-						complexity: data.complexity ?? "",
-						prognosis: data.prognosis ?? "",
-						video_url: data.video_url ?? "",
-						technical_report_url: data.technical_report_url ?? "",
-						diagnosis: (data.diagnosis as string[]) ?? [],
-						laboratory: (data.laboratory as string[]) ?? [],
-						planning: (data.planning as string[]) ?? [],
-						restrictions: (data.restrictions as string[]) ?? [],
-						commercial_potential:
-							(data.commercial_potential as string[]) ?? [],
-						tracking_rotations: data.tracking_rotations ?? "",
-						tracking_extrusions: data.tracking_extrusions ?? "",
-						tracking_extrusion_buttons:
-							data.tracking_extrusion_buttons ?? "",
-						tracking_intrusions: data.tracking_intrusions ?? "",
-						tracking_torque: data.tracking_torque ?? "",
-						tracking_angulations: data.tracking_angulations ?? "",
-						tracking_translations: data.tracking_translations ?? "",
-						tracking_expansion: data.tracking_expansion ?? "",
-						quality_information:
-							(data.quality_information as string[]) ?? [],
-						quality_scan: (data.quality_scan as string[]) ?? [],
-						quality_xrays: (data.quality_xrays as string[]) ?? [],
-						quality_intraoral:
-							(data.quality_intraoral as string[]) ?? [],
-						quality_extraoral:
-							(data.quality_extraoral as string[]) ?? [],
-						additional_observations:
-							data.additional_observations ?? "",
-					};
-					if (needsPatientSelector) {
-						(formData as FormDataWithPatient).paciente =
-							data.patient_id?.toString() ?? "";
-					}
-					form.reset(formData);
+					form.reset(rowToFormData(data));
+					setResetKey((prev) => prev + 1);
 				}
 			} catch (error) {
 				console.error("Error loading treatment planning:", error);
@@ -387,7 +389,45 @@ export default function TreatmentPlanningForm({
 			}
 		};
 		loadExistingData();
-	}, [treatmentPlanningId, patientId, needsPatientSelector, form]);
+	}, [treatmentPlanningId, patientId, form]);
+
+	// Autocompleta el formulario al seleccionar un paciente desde el selector
+	const watchedPatiente = needsPatientSelector
+		? (form.watch("paciente" as keyof FormData) as string)
+		: undefined;
+
+	useEffect(() => {
+		if (!needsPatientSelector || !watchedPatiente) return;
+
+		const loadPatientData = async () => {
+			try {
+				setIsLoading(true);
+				const data = await getTreatmentPlanningByPatientId(
+					Number(watchedPatiente),
+				);
+				if (data) {
+					setExistingData(data);
+					form.reset({
+						...rowToFormData(data),
+						paciente: watchedPatiente,
+					});
+				} else {
+					setExistingData(null);
+					form.reset({
+						...defaultValuesWithPatient,
+						paciente: watchedPatiente,
+					});
+				}
+				setResetKey((prev) => prev + 1);
+			} catch (error) {
+				console.error("Error loading patient planning:", error);
+				toast.error("Error al cargar la planificación del paciente");
+			} finally {
+				setIsLoading(false);
+			}
+		};
+		loadPatientData();
+	}, [watchedPatiente, needsPatientSelector, form]);
 
 	if (patientsError && needsPatientSelector) {
 		toast.error("Error al cargar los pacientes");
@@ -408,14 +448,21 @@ export default function TreatmentPlanningForm({
 				selectedPatientId = Number.parseInt(data.paciente);
 			}
 
+			const videoPath = videoFile
+				? await uploadTreatmentFile(videoFile)
+				: data.video_url || null;
+			const reportPath = reportFile
+				? await uploadTreatmentFile(reportFile)
+				: data.technical_report_url || null;
+
 			const payload = {
 				patient_id: selectedPatientId ?? null,
 				upper_aligners: Number.parseInt(data.upper_aligners as string),
 				lower_aligners: Number.parseInt(data.lower_aligners as string),
 				complexity: data.complexity,
 				prognosis: data.prognosis,
-				video_url: data.video_url || null,
-				technical_report_url: data.technical_report_url || null,
+				video_url: videoPath,
+				technical_report_url: reportPath,
 				diagnosis: data.diagnosis,
 				laboratory: data.laboratory,
 				planning: data.planning,
@@ -447,7 +494,8 @@ export default function TreatmentPlanningForm({
 			}
 
 			if (onSuccess) onSuccess();
-			if (!existingData?.id) resetForm();
+			resetForm();
+			setExistingData(null);
 		} catch (error) {
 			console.error("Error al enviar el formulario:", error);
 			toast.error("Error al guardar. Por favor, inténtalo de nuevo.");
@@ -460,18 +508,13 @@ export default function TreatmentPlanningForm({
 	const SelectedValues = ({
 		values,
 		field,
-		colorClass,
 	}: {
 		values: string[];
 		field: keyof FormData;
-		colorClass: string;
 	}) => (
 		<div className="mt-2 flex flex-wrap gap-1">
 			{values.map((value) => (
-				<span
-					key={value}
-					className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${colorClass}`}
-				>
+				<Badge key={value} variant="default">
 					{value}
 					<button
 						type="button"
@@ -487,7 +530,7 @@ export default function TreatmentPlanningForm({
 					>
 						×
 					</button>
-				</span>
+				</Badge>
 			))}
 		</div>
 	);
@@ -519,14 +562,12 @@ export default function TreatmentPlanningForm({
 		label,
 		description,
 		options,
-		colorClass,
 		placeholder,
 	}: {
 		name: keyof FormDataBase;
 		label: string;
 		description?: string;
 		options: string[];
-		colorClass: string;
 		placeholder: string;
 	}) => {
 		const watched = form.watch(name as keyof FormData) as string[];
@@ -560,7 +601,6 @@ export default function TreatmentPlanningForm({
 							<SelectedValues
 								values={watched}
 								field={name as keyof FormData}
-								colorClass={colorClass}
 							/>
 						)}
 						{description && (
@@ -637,14 +677,35 @@ export default function TreatmentPlanningForm({
 									<FormLabel>Video</FormLabel>
 									<FormControl>
 										<Input
-											placeholder="https://..."
-											type="url"
-											{...field}
+											type="file"
+											accept="video/mp4"
+											disabled={isLoading}
+											onChange={(e) => {
+												const file =
+													e.target.files?.[0];
+												if (file) setVideoFile(file);
+											}}
 										/>
 									</FormControl>
+									{videoFile && (
+										<p className="text-xs text-muted-foreground">
+											Seleccionado: {videoFile.name}
+										</p>
+									)}
+									{field.value && !videoFile && (
+										<a
+											href={getTreatmentFilePublicUrl(
+												field.value,
+											)}
+											target="_blank"
+											rel="noreferrer"
+											className="text-xs text-primary underline underline-offset-4"
+										>
+											Ver video actual
+										</a>
+									)}
 									<FormDescription>
-										URL del video de simulación del
-										tratamiento
+										Video de simulación del tratamiento
 									</FormDescription>
 									<FormMessage />
 								</FormItem>
@@ -655,19 +716,38 @@ export default function TreatmentPlanningForm({
 							name="technical_report_url"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>
-										URL del Informe Técnico
-									</FormLabel>
+									<FormLabel>Informe Técnico (PDF)</FormLabel>
 									<FormControl>
 										<Input
-											placeholder="https://..."
-											type="url"
-											{...field}
+											type="file"
+											accept="application/pdf"
+											disabled={isLoading}
+											onChange={(e) => {
+												const file =
+													e.target.files?.[0];
+												if (file) setReportFile(file);
+											}}
 										/>
 									</FormControl>
+									{reportFile && (
+										<p className="text-xs text-muted-foreground">
+											Seleccionado: {reportFile.name}
+										</p>
+									)}
+									{field.value && !reportFile && (
+										<a
+											href={getTreatmentFilePublicUrl(
+												field.value,
+											)}
+											target="_blank"
+											rel="noreferrer"
+											className="text-xs text-primary underline underline-offset-4"
+										>
+											Ver informe actual
+										</a>
+									)}
 									<FormDescription>
-										URL del PDF con el informe técnico del
-										plan 3D
+										PDF con el informe técnico del plan 3D
 									</FormDescription>
 									<FormMessage />
 								</FormItem>
@@ -797,7 +877,6 @@ export default function TreatmentPlanningForm({
 							name="diagnosis"
 							label="Diagnóstico Presuntivo General"
 							options={diagnosisOptions}
-							colorClass="bg-red-100 text-red-800"
 							placeholder="Seleccionar diagnóstico"
 						/>
 					</Section>
@@ -808,7 +887,6 @@ export default function TreatmentPlanningForm({
 							name="laboratory"
 							label="Laboratorio"
 							options={laboratoryOptions}
-							colorClass="bg-blue-100 text-blue-800"
 							placeholder="Seleccionar recomendaciones"
 						/>
 					</Section>
@@ -819,7 +897,6 @@ export default function TreatmentPlanningForm({
 							name="planning"
 							label="Criterio de Planificación y Accionar Clínico"
 							options={planningOptions}
-							colorClass="bg-green-100 text-green-800"
 							placeholder="Seleccionar criterios"
 						/>
 					</Section>
@@ -830,7 +907,6 @@ export default function TreatmentPlanningForm({
 							name="restrictions"
 							label="Restricciones Biomecánicas"
 							options={restrictionsOptions}
-							colorClass="bg-orange-100 text-orange-800"
 							placeholder="Seleccionar restricciones"
 						/>
 					</Section>
@@ -933,7 +1009,6 @@ export default function TreatmentPlanningForm({
 							name="commercial_potential"
 							label="Potencial Clínico-Comercial"
 							options={commercialPotentialOptions}
-							colorClass="bg-pink-100 text-pink-800"
 							placeholder="Seleccionar tratamientos complementarios"
 						/>
 					</Section>
@@ -944,35 +1019,30 @@ export default function TreatmentPlanningForm({
 							name="quality_information"
 							label="Calidad de la Información"
 							options={qualityInformationOptions}
-							colorClass="bg-purple-100 text-purple-800"
 							placeholder="Seleccionar calidad"
 						/>
 						<MultiSelectField
 							name="quality_scan"
 							label="Calidad de Escaneo"
 							options={qualityScanOptions}
-							colorClass="bg-purple-100 text-purple-800"
 							placeholder="Seleccionar calidad"
 						/>
 						<MultiSelectField
 							name="quality_xrays"
 							label="Calidad de Radiografías"
 							options={qualityXraysOptions}
-							colorClass="bg-purple-100 text-purple-800"
 							placeholder="Seleccionar calidad"
 						/>
 						<MultiSelectField
 							name="quality_intraoral"
 							label="Calidad de Fotos Intraorales"
 							options={qualityIntraoralOptions}
-							colorClass="bg-purple-100 text-purple-800"
 							placeholder="Seleccionar calidad"
 						/>
 						<MultiSelectField
 							name="quality_extraoral"
 							label="Calidad de Fotos Extraorales"
 							options={qualityExtraoralOptions}
-							colorClass="bg-purple-100 text-purple-800"
 							placeholder="Seleccionar calidad"
 						/>
 					</Section>

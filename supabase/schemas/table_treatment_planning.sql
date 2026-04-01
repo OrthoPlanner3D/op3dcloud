@@ -6,8 +6,8 @@ CREATE TABLE op3dcloud.treatment_planning (
   video_url                 TEXT NULL,                                    -- URL del video
   technical_report_url      TEXT NULL,                                    -- URL del informe técnico
   -- Datos clínicos
-  upper_aligners            INTEGER NULL,                                 -- Alineadores superior
-  lower_aligners            INTEGER NULL,                                 -- Alineadores inferior
+  upper_aligners            INTEGER NOT NULL DEFAULT 0,                   -- Alineadores superior
+  lower_aligners            INTEGER NOT NULL DEFAULT 0,                   -- Alineadores inferior
   complexity                TEXT NULL,                                    -- Complejidad
   prognosis                 TEXT NULL,                                    -- Pronóstico
   -- Checklists

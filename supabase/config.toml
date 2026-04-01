@@ -67,6 +67,8 @@ schema_paths = [
     "./schemas/function_*.sql",
     # storage
     "./schemas/storage_patient_files.sql",
+    "./schemas/storage_treatment_planning_files.sql",
+    "./schemas/storage_client_files.sql",
     # grants
     "./schemas/grants_op3dcloud.sql",
 ]
@@ -120,6 +122,16 @@ file_size_limit = "50MiB"
 public = false
 file_size_limit = "50MiB"
 allowed_mime_types = ["image/png", "image/jpeg", "application/pdf", "application/octet-stream", "model/stl", "application/dicom"]
+
+[storage.buckets.treatment-files]
+public = true
+file_size_limit = "300MiB"
+allowed_mime_types = ["video/mp4", "application/pdf"]
+
+[storage.buckets.client-files]
+public = true
+file_size_limit = "10MiB"
+allowed_mime_types = ["image/png", "image/jpeg", "image/webp"]
 
 [auth]
 enabled = true

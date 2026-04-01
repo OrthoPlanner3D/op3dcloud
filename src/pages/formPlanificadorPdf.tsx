@@ -11,6 +11,7 @@ import {
 } from "@react-pdf/renderer";
 import { useState } from "react";
 import logo from "@/assets/images/logos/logo-black.png";
+import { getTreatmentFilePublicUrl } from "@/services/supabase/storage.service";
 import type { Tables } from "@/types/db/database.types";
 
 type TreatmentPlanningRow = Tables<
@@ -164,7 +165,7 @@ const TreatmentPlanningDocument = ({
 						PLAN DE TRATAMIENTO DIGITAL
 					</Text>
 					<Text style={styles.subtitle}>
-						OrtoPlanner3D™ | Planificación Ortodóntica Profesional
+						OrthoPlanner3D™ | Planificación Ortodóntica Profesional
 					</Text>
 				</View>
 
@@ -200,7 +201,9 @@ const TreatmentPlanningDocument = ({
 									<Text style={styles.rowLabel}>Video</Text>
 									<Link
 										style={styles.rowValueLink}
-										src={tp.video_url}
+										src={getTreatmentFilePublicUrl(
+											tp.video_url ?? "",
+										)}
 									>
 										Ver enlace
 									</Link>
@@ -213,7 +216,9 @@ const TreatmentPlanningDocument = ({
 									</Text>
 									<Link
 										style={styles.rowValueLink}
-										src={tp.technical_report_url}
+										src={getTreatmentFilePublicUrl(
+											tp.technical_report_url ?? "",
+										)}
 									>
 										Ver enlace
 									</Link>
@@ -513,7 +518,7 @@ const TreatmentPlanningDocument = ({
 
 				{/* Footer */}
 				<Text style={styles.footer}>
-					Documento generado por OrtoPlanner3D™ - Plan de tratamiento
+					Documento generado por OrthoPlanner3D™ - Plan de tratamiento
 					ortodóntico profesional
 				</Text>
 			</Page>
@@ -537,7 +542,6 @@ const samplePatient: PatientRow = {
 	observations_or_instructions: "N/A",
 	suggested_adminations_and_actions: ["N/A"],
 	sworn_declaration: true,
-	files: [],
 	planning_enabled: true,
 	created_at: new Date().toISOString(),
 	case_status: ["En proceso"],
