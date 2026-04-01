@@ -210,8 +210,14 @@ const toSelectOptions = (arr: string[]) =>
 // ─── Schema ──────────────────────────────────────────────────────────────────
 
 const formSchemaBase = z.object({
-	upper_aligners: z.string().min(1, "Requerido"),
-	lower_aligners: z.string().min(1, "Requerido"),
+	upper_aligners: z
+		.string()
+		.min(1, "Requerido")
+		.regex(/^\d+$/, "Debe ser un número entero positivo"),
+	lower_aligners: z
+		.string()
+		.min(1, "Requerido")
+		.regex(/^\d+$/, "Debe ser un número entero positivo"),
 	complexity: z.string().min(1, "Selecciona la complejidad"),
 	prognosis: z.string().min(1, "Selecciona el pronóstico"),
 	video_url: z
