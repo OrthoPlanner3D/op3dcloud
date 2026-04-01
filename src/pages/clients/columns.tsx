@@ -28,7 +28,6 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { useUserRole } from "@/hooks/useUserRole";
 import { confirm, formatDate } from "@/lib/utils";
-import useEditTreatmentPlanningModalStore from "@/pages/treatment-planning/state/stores/useEditTreatmentPlanningModalStore";
 import { updatePatient } from "@/services/supabase/dashboard-admin.service";
 import { updatePatientPlanningEnabled } from "@/services/supabase/patients.service";
 import type { DashboardAdminViewRow } from "@/types/db/dashboard-admin/dashboard-admin";

@@ -8,6 +8,7 @@ import { TreatmentPlanningDocument } from "@/pages/formPlanificadorPdf";
 import { getTreatmentFilePublicUrl } from "@/services/supabase/storage.service";
 import { getTreatmentPlanningByPatientId } from "@/services/supabase/treatment-planning.service";
 import type { Tables } from "@/types/db/database.types";
+import type { DocumentProps } from "@react-pdf/renderer";
 import { usePDF } from "@react-pdf/renderer";
 
 type TreatmentPlanningRow = Tables<
@@ -22,7 +23,11 @@ interface TreatmentPlanningViewProps {
 	isPublic?: boolean;
 }
 
-function PDFPreview({ document }: { document: React.ReactElement }) {
+function PDFPreview({
+	document,
+}: {
+	document: React.ReactElement<DocumentProps>;
+}) {
 	const [instance] = usePDF({ document });
 	if (instance.loading)
 		return (
@@ -48,7 +53,7 @@ function PDFDownloadButton({
 	doc,
 	fileName,
 }: {
-	doc: React.ReactElement;
+	doc: React.ReactElement<DocumentProps>;
 	fileName: string;
 }) {
 	const [instance] = usePDF({ document: doc });

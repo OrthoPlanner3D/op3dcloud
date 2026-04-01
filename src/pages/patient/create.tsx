@@ -356,7 +356,6 @@ export default function CreatePatient() {
 				xrays: xrayPaths,
 				scans: scanPaths,
 				supplementary_docs: docPaths,
-				files: [],
 			});
 
 			navigate("/", {
