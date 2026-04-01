@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -501,18 +502,13 @@ export default function TreatmentPlanningForm({
 	const SelectedValues = ({
 		values,
 		field,
-		colorClass,
 	}: {
 		values: string[];
 		field: keyof FormData;
-		colorClass: string;
 	}) => (
 		<div className="mt-2 flex flex-wrap gap-1">
 			{values.map((value) => (
-				<span
-					key={value}
-					className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${colorClass}`}
-				>
+				<Badge key={value} variant="default">
 					{value}
 					<button
 						type="button"
@@ -528,7 +524,7 @@ export default function TreatmentPlanningForm({
 					>
 						×
 					</button>
-				</span>
+				</Badge>
 			))}
 		</div>
 	);
@@ -560,14 +556,12 @@ export default function TreatmentPlanningForm({
 		label,
 		description,
 		options,
-		colorClass,
 		placeholder,
 	}: {
 		name: keyof FormDataBase;
 		label: string;
 		description?: string;
 		options: string[];
-		colorClass: string;
 		placeholder: string;
 	}) => {
 		const watched = form.watch(name as keyof FormData) as string[];
@@ -601,7 +595,6 @@ export default function TreatmentPlanningForm({
 							<SelectedValues
 								values={watched}
 								field={name as keyof FormData}
-								colorClass={colorClass}
 							/>
 						)}
 						{description && (
@@ -838,7 +831,6 @@ export default function TreatmentPlanningForm({
 							name="diagnosis"
 							label="Diagnóstico Presuntivo General"
 							options={diagnosisOptions}
-							colorClass="bg-red-100 text-red-800"
 							placeholder="Seleccionar diagnóstico"
 						/>
 					</Section>
@@ -849,7 +841,6 @@ export default function TreatmentPlanningForm({
 							name="laboratory"
 							label="Laboratorio"
 							options={laboratoryOptions}
-							colorClass="bg-blue-100 text-blue-800"
 							placeholder="Seleccionar recomendaciones"
 						/>
 					</Section>
@@ -860,7 +851,6 @@ export default function TreatmentPlanningForm({
 							name="planning"
 							label="Criterio de Planificación y Accionar Clínico"
 							options={planningOptions}
-							colorClass="bg-green-100 text-green-800"
 							placeholder="Seleccionar criterios"
 						/>
 					</Section>
@@ -871,7 +861,6 @@ export default function TreatmentPlanningForm({
 							name="restrictions"
 							label="Restricciones Biomecánicas"
 							options={restrictionsOptions}
-							colorClass="bg-orange-100 text-orange-800"
 							placeholder="Seleccionar restricciones"
 						/>
 					</Section>
@@ -974,7 +963,6 @@ export default function TreatmentPlanningForm({
 							name="commercial_potential"
 							label="Potencial Clínico-Comercial"
 							options={commercialPotentialOptions}
-							colorClass="bg-pink-100 text-pink-800"
 							placeholder="Seleccionar tratamientos complementarios"
 						/>
 					</Section>
@@ -985,35 +973,30 @@ export default function TreatmentPlanningForm({
 							name="quality_information"
 							label="Calidad de la Información"
 							options={qualityInformationOptions}
-							colorClass="bg-purple-100 text-purple-800"
 							placeholder="Seleccionar calidad"
 						/>
 						<MultiSelectField
 							name="quality_scan"
 							label="Calidad de Escaneo"
 							options={qualityScanOptions}
-							colorClass="bg-purple-100 text-purple-800"
 							placeholder="Seleccionar calidad"
 						/>
 						<MultiSelectField
 							name="quality_xrays"
 							label="Calidad de Radiografías"
 							options={qualityXraysOptions}
-							colorClass="bg-purple-100 text-purple-800"
 							placeholder="Seleccionar calidad"
 						/>
 						<MultiSelectField
 							name="quality_intraoral"
 							label="Calidad de Fotos Intraorales"
 							options={qualityIntraoralOptions}
-							colorClass="bg-purple-100 text-purple-800"
 							placeholder="Seleccionar calidad"
 						/>
 						<MultiSelectField
 							name="quality_extraoral"
 							label="Calidad de Fotos Extraorales"
 							options={qualityExtraoralOptions}
-							colorClass="bg-purple-100 text-purple-800"
 							placeholder="Seleccionar calidad"
 						/>
 					</Section>
