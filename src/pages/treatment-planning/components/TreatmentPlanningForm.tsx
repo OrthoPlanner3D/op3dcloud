@@ -489,7 +489,8 @@ export default function TreatmentPlanningForm({
 			}
 
 			if (onSuccess) onSuccess();
-			if (!existingData?.id) resetForm();
+			resetForm();
+			setExistingData(null);
 		} catch (error) {
 			console.error("Error al enviar el formulario:", error);
 			toast.error("Error al guardar. Por favor, inténtalo de nuevo.");
