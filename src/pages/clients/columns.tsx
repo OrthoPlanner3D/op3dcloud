@@ -93,7 +93,7 @@ export const createColumns = (): ColumnDef<DashboardAdminViewRow>[] => [
 		header: "Paciente",
 	},
 	{
-		accessorKey: "status",
+		accessorKey: "case_status",
 		header: "Estado",
 	},
 	{
