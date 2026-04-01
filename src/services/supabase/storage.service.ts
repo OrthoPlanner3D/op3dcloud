@@ -42,3 +42,39 @@ export async function deleteFile(path: string): Promise<void> {
 		throw error;
 	}
 }
+
+// ─── Treatment Planning Storage ───────────────────────────────────────────────
+
+const TREATMENT_BUCKET = "treatment-files";
+
+export async function uploadTreatmentFile(file: File): Promise<string> {
+	const ext = file.name.split(".").pop() ?? "";
+	const path = `${crypto.randomUUID()}.${ext}`;
+
+	const { error } = await supabase.storage
+		.from(TREATMENT_BUCKET)
+		.upload(path, file);
+
+	if (error) {
+		console.error("Error uploading treatment file:", error.message);
+		throw error;
+	}
+
+	return path;
+}
+
+export function getTreatmentFilePublicUrl(path: string): string {
+	const { data } = supabase.storage.from(TREATMENT_BUCKET).getPublicUrl(path);
+	return data.publicUrl;
+}
+
+export async function deleteTreatmentFile(path: string): Promise<void> {
+	const { error } = await supabase.storage
+		.from(TREATMENT_BUCKET)
+		.remove([path]);
+
+	if (error) {
+		console.error("Error deleting treatment file:", error.message);
+		throw error;
+	}
+}

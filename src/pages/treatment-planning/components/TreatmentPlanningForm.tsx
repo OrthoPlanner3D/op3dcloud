@@ -24,6 +24,10 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { usePatients } from "@/hooks/swr/usePatients";
 import {
+	getTreatmentFilePublicUrl,
+	uploadTreatmentFile,
+} from "@/services/supabase/storage.service";
+import {
 	createTreatmentPlanning,
 	getTreatmentPlanningByPatientId,
 	updateTreatmentPlanning,
@@ -221,16 +225,8 @@ const formSchemaBase = z.object({
 		.regex(/^\d+$/, "Debe ser un número entero positivo"),
 	complexity: z.string().min(1, "Selecciona la complejidad"),
 	prognosis: z.string().min(1, "Selecciona el pronóstico"),
-	video_url: z
-		.string()
-		.url("Debe ser una URL válida")
-		.optional()
-		.or(z.literal("")),
-	technical_report_url: z
-		.string()
-		.url("Debe ser una URL válida")
-		.optional()
-		.or(z.literal("")),
+	video_url: z.string().optional(),
+	technical_report_url: z.string().optional(),
 	diagnosis: z.array(z.string()).min(1, "Selecciona al menos uno"),
 	laboratory: z.array(z.string()).min(1, "Selecciona al menos uno"),
 	planning: z.array(z.string()).min(1, "Selecciona al menos uno"),
@@ -347,6 +343,8 @@ export default function TreatmentPlanningForm({
 	const [resetKey, setResetKey] = useState(0);
 	const [existingData, setExistingData] =
 		useState<TreatmentPlanningRow | null>(null);
+	const [videoFile, setVideoFile] = useState<File | null>(null);
+	const [reportFile, setReportFile] = useState<File | null>(null);
 
 	const needsPatientSelector = !patientId;
 
@@ -450,14 +448,21 @@ export default function TreatmentPlanningForm({
 				selectedPatientId = Number.parseInt(data.paciente);
 			}
 
+			const videoPath = videoFile
+				? await uploadTreatmentFile(videoFile)
+				: data.video_url || null;
+			const reportPath = reportFile
+				? await uploadTreatmentFile(reportFile)
+				: data.technical_report_url || null;
+
 			const payload = {
 				patient_id: selectedPatientId ?? null,
 				upper_aligners: Number.parseInt(data.upper_aligners as string),
 				lower_aligners: Number.parseInt(data.lower_aligners as string),
 				complexity: data.complexity,
 				prognosis: data.prognosis,
-				video_url: data.video_url || null,
-				technical_report_url: data.technical_report_url || null,
+				video_url: videoPath,
+				technical_report_url: reportPath,
 				diagnosis: data.diagnosis,
 				laboratory: data.laboratory,
 				planning: data.planning,
@@ -672,14 +677,35 @@ export default function TreatmentPlanningForm({
 									<FormLabel>Video</FormLabel>
 									<FormControl>
 										<Input
-											placeholder="https://..."
-											type="url"
-											{...field}
+											type="file"
+											accept="video/mp4"
+											disabled={isLoading}
+											onChange={(e) => {
+												const file =
+													e.target.files?.[0];
+												if (file) setVideoFile(file);
+											}}
 										/>
 									</FormControl>
+									{videoFile && (
+										<p className="text-xs text-muted-foreground">
+											Seleccionado: {videoFile.name}
+										</p>
+									)}
+									{field.value && !videoFile && (
+										<a
+											href={getTreatmentFilePublicUrl(
+												field.value,
+											)}
+											target="_blank"
+											rel="noreferrer"
+											className="text-xs text-primary underline underline-offset-4"
+										>
+											Ver video actual
+										</a>
+									)}
 									<FormDescription>
-										URL del video de simulación del
-										tratamiento
+										Video de simulación del tratamiento
 									</FormDescription>
 									<FormMessage />
 								</FormItem>
@@ -690,19 +716,38 @@ export default function TreatmentPlanningForm({
 							name="technical_report_url"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>
-										URL del Informe Técnico
-									</FormLabel>
+									<FormLabel>Informe Técnico (PDF)</FormLabel>
 									<FormControl>
 										<Input
-											placeholder="https://..."
-											type="url"
-											{...field}
+											type="file"
+											accept="application/pdf"
+											disabled={isLoading}
+											onChange={(e) => {
+												const file =
+													e.target.files?.[0];
+												if (file) setReportFile(file);
+											}}
 										/>
 									</FormControl>
+									{reportFile && (
+										<p className="text-xs text-muted-foreground">
+											Seleccionado: {reportFile.name}
+										</p>
+									)}
+									{field.value && !reportFile && (
+										<a
+											href={getTreatmentFilePublicUrl(
+												field.value,
+											)}
+											target="_blank"
+											rel="noreferrer"
+											className="text-xs text-primary underline underline-offset-4"
+										>
+											Ver informe actual
+										</a>
+									)}
 									<FormDescription>
-										URL del PDF con el informe técnico del
-										plan 3D
+										PDF con el informe técnico del plan 3D
 									</FormDescription>
 									<FormMessage />
 								</FormItem>

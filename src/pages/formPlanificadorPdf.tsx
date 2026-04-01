@@ -11,6 +11,7 @@ import {
 } from "@react-pdf/renderer";
 import { useState } from "react";
 import logo from "@/assets/images/logos/logo-black.png";
+import { getTreatmentFilePublicUrl } from "@/services/supabase/storage.service";
 import type { Tables } from "@/types/db/database.types";
 
 type TreatmentPlanningRow = Tables<
@@ -200,7 +201,9 @@ const TreatmentPlanningDocument = ({
 									<Text style={styles.rowLabel}>Video</Text>
 									<Link
 										style={styles.rowValueLink}
-										src={tp.video_url}
+										src={getTreatmentFilePublicUrl(
+											tp.video_url ?? "",
+										)}
 									>
 										Ver enlace
 									</Link>
@@ -213,7 +216,9 @@ const TreatmentPlanningDocument = ({
 									</Text>
 									<Link
 										style={styles.rowValueLink}
-										src={tp.technical_report_url}
+										src={getTreatmentFilePublicUrl(
+											tp.technical_report_url ?? "",
+										)}
 									>
 										Ver enlace
 									</Link>
