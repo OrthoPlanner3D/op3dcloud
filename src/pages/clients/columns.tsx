@@ -8,7 +8,6 @@ import {
 	TrashIcon,
 	UserIcon,
 } from "lucide-react";
-import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +21,6 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { useUserRole } from "@/hooks/useUserRole";
 import { confirm, formatDate } from "@/lib/utils";
-import useEditTreatmentPlanningModalStore from "@/pages/treatment-planning/state/stores/useEditTreatmentPlanningModalStore";
 import { updatePatientPlanningEnabled } from "@/services/supabase/patients.service";
 import type { DashboardAdminViewRow } from "@/types/db/dashboard-admin/dashboard-admin";
 import useEditClientModalStore from "./state/stores/useEditClientModalStore";
@@ -265,29 +263,7 @@ export const createColumns = (): ColumnDef<DashboardAdminViewRow>[] => [
 			const open = useEditClientModalStore((state) => state.open);
 			const setId = useEditClientModalStore((state) => state.setId);
 
-			const openTreatmentPlanning = useEditTreatmentPlanningModalStore(
-				(state) => state.open,
-			);
-			const setTreatmentPlanningId = useEditTreatmentPlanningModalStore(
-				(state) => state.setId,
-			);
-
 			if (!row.original.id) return null;
-
-			const handlePlanningClick = () => {
-				if (!row.original.id) return;
-
-				// Check if planning is enabled
-				if (!row.original.planning_enabled) {
-					toast.error(
-						"La planificación no está habilitada para este paciente",
-					);
-					return;
-				}
-
-				setTreatmentPlanningId(row.original.id);
-				openTreatmentPlanning();
-			};
 
 			return (
 				<DropdownMenu>
@@ -300,10 +276,6 @@ export const createColumns = (): ColumnDef<DashboardAdminViewRow>[] => [
 					<DropdownMenuContent align="end">
 						<DropdownMenuLabel>Acciones</DropdownMenuLabel>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem onClick={handlePlanningClick}>
-							<PencilIcon className="h-4 w-4 mr-2" />
-							Planificación
-						</DropdownMenuItem>
 						<DropdownMenuItem
 							onClick={() => {
 								if (!row.original.id) return;
