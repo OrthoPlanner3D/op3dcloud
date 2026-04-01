@@ -62,6 +62,8 @@ const STATUS_FILES_OPTIONS: SearchableSelectOption[] = [
 	{ value: "Info insuficiente", label: "Info insuficiente" },
 	{ value: "Info erronea", label: "Info erronea" },
 	{ value: "Reescaneo solicitado", label: "Reescaneo solicitado" },
+	{ value: "Estudios incompletos", label: "Estudios incompletos" },
+	{ value: "Fotos de baja calidad", label: "Fotos de baja calidad" },
 ];
 
 const CASE_STATUS_OPTIONS: SearchableSelectOption[] = [
