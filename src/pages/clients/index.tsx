@@ -1,12 +1,16 @@
-import { useCallback, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 import ModalEditTreatmentPlanning from "@/pages/treatment-planning/components/ModalEditTreatmentPlanning";
 import { getDashboardAdmin } from "@/services/supabase/dashboard-admin.service";
+import { getPlanners } from "@/services/supabase/planners.service";
 import type { DashboardAdminViewRow } from "@/types/db/dashboard-admin/dashboard-admin";
 import { createColumns } from "./columns";
 import ModalEditClient from "./components/modalEditClient";
 import { DataTable } from "./data-table";
 
+const plannersPromise = getPlanners();
+
 export default function Clients() {
+	const planners = use(plannersPromise);
 	const [data, setData] = useState<DashboardAdminViewRow[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -64,6 +68,7 @@ export default function Clients() {
 								),
 							);
 						},
+						planners: planners ?? [],
 					}}
 				/>
 				<ModalEditClient onClientUpdated={handleClientUpdated} />

@@ -6,8 +6,8 @@ import {
 	MoreHorizontal,
 	PencilIcon,
 	TrashIcon,
-	UserIcon,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,14 +18,23 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useUserRole } from "@/hooks/useUserRole";
 import { confirm, formatDate } from "@/lib/utils";
+import useEditTreatmentPlanningModalStore from "@/pages/treatment-planning/state/stores/useEditTreatmentPlanningModalStore";
+import { updatePatient } from "@/services/supabase/dashboard-admin.service";
 import { updatePatientPlanningEnabled } from "@/services/supabase/patients.service";
 import type { DashboardAdminViewRow } from "@/types/db/dashboard-admin/dashboard-admin";
 import useEditClientModalStore from "./state/stores/useEditClientModalStore";
 
-// Extender el tipo TableMeta para incluir updateData
+// Extender el tipo TableMeta para incluir updateData y planners
 declare module "@tanstack/react-table" {
 	// biome-ignore lint/correctness/noUnusedVariables: Required for type augmentation
 	interface TableMeta<TData> {
@@ -34,6 +43,7 @@ declare module "@tanstack/react-table" {
 			columnId: string,
 			value: unknown,
 		) => void;
+		planners?: { id: string | null; username: string | null }[];
 	}
 }
 
@@ -137,16 +147,68 @@ export const createColumns = (): ColumnDef<DashboardAdminViewRow>[] => [
 	{
 		accessorKey: "planner_name",
 		header: "Planificador",
-		cell: ({ row }) => {
+		cell: ({ row, table }) => {
+			const planners = table.options.meta?.planners ?? [];
+
+			const handleChange = async (plannerId: string) => {
+				if (!row.original.id) return;
+
+				const prevPlannerId = row.original.planner_id;
+				const prevPlannerName = row.original.planner_name;
+				const selected = planners.find((p) => p.id === plannerId);
+
+				table.options.meta?.updateData?.(
+					row.index,
+					"planner_id",
+					plannerId,
+				);
+				table.options.meta?.updateData?.(
+					row.index,
+					"planner_name",
+					selected?.username ?? null,
+				);
+
+				try {
+					await updatePatient(String(row.original.id), {
+						id_planner: plannerId || null,
+					});
+					toast.success("Planificador actualizado");
+				} catch (error) {
+					table.options.meta?.updateData?.(
+						row.index,
+						"planner_id",
+						prevPlannerId,
+					);
+					table.options.meta?.updateData?.(
+						row.index,
+						"planner_name",
+						prevPlannerName,
+					);
+					console.error("Error updating planner:", error);
+					toast.error("Error al actualizar el planificador");
+				}
+			};
+
 			return (
-				<Badge variant="secondary">
-					<UserIcon
-						className="-ms-0.5 opacity-60 capitalize"
-						size={12}
-						aria-hidden="true"
-					/>
-					{row.original.planner_name}
-				</Badge>
+				<Select
+					value={row.original.planner_id ?? ""}
+					onValueChange={handleChange}
+				>
+					<SelectTrigger className="w-40 h-7 text-xs">
+						<SelectValue placeholder="Sin asignar" />
+					</SelectTrigger>
+					<SelectContent>
+						{planners.map((planner) => (
+							<SelectItem
+								key={planner.id}
+								value={planner.id ?? ""}
+								className="text-xs"
+							>
+								{planner.username}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
 			);
 		},
 	},
