@@ -78,3 +78,28 @@ export async function deleteTreatmentFile(path: string): Promise<void> {
 		throw error;
 	}
 }
+
+// ─── Client Storage ───────────────────────────────────────────────────────────
+
+const CLIENT_BUCKET = "client-files";
+
+export async function uploadClientFile(file: File): Promise<string> {
+	const ext = file.name.split(".").pop() ?? "";
+	const path = `${crypto.randomUUID()}.${ext}`;
+
+	const { error } = await supabase.storage
+		.from(CLIENT_BUCKET)
+		.upload(path, file);
+
+	if (error) {
+		console.error("Error uploading client file:", error.message);
+		throw error;
+	}
+
+	return path;
+}
+
+export function getClientFilePublicUrl(path: string): string {
+	const { data } = supabase.storage.from(CLIENT_BUCKET).getPublicUrl(path);
+	return data.publicUrl;
+}
