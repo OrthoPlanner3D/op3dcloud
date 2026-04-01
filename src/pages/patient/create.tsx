@@ -49,7 +49,6 @@ type PatientFormValues = Omit<
 	xrays: File[];
 	scans: File[];
 	supplementary_docs: File[];
-	files: File[];
 };
 
 const TREATMENT_OBJECTIVE_OPTIONS: SearchableSelectOption[] = [
@@ -245,7 +244,6 @@ export default function CreatePatient() {
 			declared_limitations: [],
 			suggested_adminations_and_actions: [],
 			observations_or_instructions: "",
-			files: [],
 			sworn_declaration: false,
 			planning_enabled: false,
 			photos: [],
@@ -299,7 +297,6 @@ export default function CreatePatient() {
 			"photos",
 			"xrays",
 			"scans",
-			"files",
 			"sworn_declaration",
 		]);
 		if (isValid) {
@@ -338,22 +335,15 @@ export default function CreatePatient() {
 
 			setIsSubmitting(true);
 
-			const {
-				photos,
-				xrays,
-				scans,
-				supplementary_docs,
-				files,
-				...restValues
-			} = values;
+			const { photos, xrays, scans, supplementary_docs, ...restValues } =
+				values;
 
-			const [photoPaths, xrayPaths, scanPaths, docPaths, filePaths] =
+			const [photoPaths, xrayPaths, scanPaths, docPaths] =
 				await Promise.all([
 					uploadFiles(photos),
 					uploadFiles(xrays),
 					uploadFiles(scans),
 					uploadFiles(supplementary_docs),
-					uploadFiles(files),
 				]);
 
 			const plannerId = await getRandomPlannerId();
@@ -366,7 +356,6 @@ export default function CreatePatient() {
 				xrays: xrayPaths,
 				scans: scanPaths,
 				supplementary_docs: docPaths,
-				files: filePaths,
 			});
 
 			navigate("/", {
@@ -966,31 +955,6 @@ function Step5({ form }: { form: FieldValues }) {
 						</FormControl>
 						<FormDescription>
 							Documentación adicional (opcional).
-						</FormDescription>
-						<FormMessage />
-					</FormItem>
-				)}
-			/>
-
-			<FormField
-				control={form.control}
-				name="files"
-				rules={{
-					validate: (value: File[]) =>
-						value.length > 0 || "Los archivos son requeridos",
-				}}
-				render={({ field }) => (
-					<FormItem className="animate-in fade-in duration-1000">
-						<FormLabel>Archivos</FormLabel>
-						<FormControl>
-							<FileUpload
-								files={field.value}
-								onFilesChange={field.onChange}
-								accept={acceptedTypes}
-							/>
-						</FormControl>
-						<FormDescription>
-							Sube los archivos relevantes del paciente.
 						</FormDescription>
 						<FormMessage />
 					</FormItem>

@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import {
 	Form,
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -36,6 +35,7 @@ import {
 	StepperTrigger,
 } from "@/components/ui/stepper";
 import { supabase } from "@/config/supabase.config";
+import { uploadClientFile } from "@/services/supabase/storage.service";
 
 const steps = [1, 2, 3, 4];
 
@@ -99,6 +99,7 @@ export default function Register() {
 		useState(false);
 	const [showHowDidYouMeetUsOther, setShowHowDidYouMeetUsOther] =
 		useState(false);
+	const [logoFile, setLogoFile] = useState<File | null>(null);
 	const navigate = useNavigate();
 	const form = useForm({
 		defaultValues: {
@@ -223,9 +224,11 @@ export default function Register() {
 
 	async function onSubmit(values: IUser) {
 		try {
-			console.log("Enviando...");
-			console.log(values);
-			await createUser(values);
+			let logoPath = "";
+			if (logoFile) {
+				logoPath = await uploadClientFile(logoFile);
+			}
+			await createUser({ ...values, logo: logoPath });
 
 			navigate("/inicia-sesion", {
 				state: {
@@ -281,7 +284,13 @@ export default function Register() {
 									setShowPassword={setShowPassword}
 								/>
 							)}
-							{currentStep === 2 && <Step2 form={form} />}
+							{currentStep === 2 && (
+								<Step2
+									form={form}
+									logoFile={logoFile}
+									onLogoChange={setLogoFile}
+								/>
+							)}
 							{currentStep === 3 && <Step3 form={form} />}
 							{currentStep === 4 && (
 								<Step4
@@ -613,28 +622,40 @@ function Step1({
 	);
 }
 
-function Step2({ form }: { form: FieldValues }) {
+function Step2({
+	logoFile,
+	onLogoChange,
+}: {
+	form: FieldValues;
+	logoFile: File | null;
+	onLogoChange: (file: File | null) => void;
+}) {
 	return (
 		<>
 			<p className="text-center text-xs text-muted-foreground italic">
 				Tu marca, presente en cada informe.
 			</p>
-			<FormField
-				control={form.control}
-				name="logo"
-				render={({ field }) => (
-					<FormItem className="animate-in fade-in duration-1000">
-						<FormLabel>Logo de la identidad</FormLabel>
-						<FormControl>
-							<Input type="file" {...field} />
-						</FormControl>
-						<FormDescription>
-							Este es el logo de la identidad.
-						</FormDescription>
-						<FormMessage />
-					</FormItem>
+			<div className="animate-in fade-in duration-1000 space-y-2">
+				<p className="text-sm font-medium">Logo de la identidad</p>
+				<input
+					type="file"
+					accept="image/png,image/jpeg,image/webp"
+					className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-secondary file:text-secondary-foreground hover:file:bg-secondary/80"
+					onChange={(e) => {
+						const file = e.target.files?.[0] ?? null;
+						onLogoChange(file);
+					}}
+				/>
+				{logoFile && (
+					<p className="text-xs text-muted-foreground">
+						Seleccionado: {logoFile.name}
+					</p>
 				)}
-			/>
+				<p className="text-xs text-muted-foreground">
+					Este es el logo de la identidad. Formatos admitidos: PNG,
+					JPG, WebP. Máximo 10 MB.
+				</p>
+			</div>
 		</>
 	);
 }

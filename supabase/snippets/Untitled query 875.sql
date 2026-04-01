@@ -1,71 +1,11 @@
-INSERT INTO op3dcloud.treatment_planning (
-    patient_id,
-    video_url,                                                                                                                                                                          
-    technical_report_url,
-    upper_aligners,                                                                                                                                                                     
-    lower_aligners,                                                                                                                                                                   
-    complexity,                                                                                                                                                                         
-    prognosis,                                                                                                                                                                        
-    diagnosis,                                                                                                                                                                        
-    laboratory,
-    planning,
-    restrictions,
-    tracking_rotations,
-    tracking_extrusions,
-    tracking_extrusion_buttons,                                                                                                                                                         
-    tracking_intrusions,
-    tracking_torque,                                                                                                                                                                    
-    tracking_angulations,                                                                                                                                                             
-    tracking_translations,                                                                                                                                                            
-    tracking_expansion,
-    commercial_potential,
-    quality_information,
-    quality_scan,                                                                                                                                                                       
-    quality_xrays,
-    quality_intraoral,                                                                                                                                                                  
-    quality_extraoral,                                                                                                                                                                
-    additional_observations                                                                                                                                                           
-  ) VALUES (
-    1,
-    'https://example.com/video-simulacion',
-    'https://example.com/informe-tecnico.pdf',                                                                                                                                          
-    18,
-    16,                                                                                                                                                                                 
-    'Moderada',                                                                                                                                                                       
-    'Favorable',                                                                                                                                                                        
-    ARRAY[
-      'GINGIVITIS: Se recomienda la técnica de cepillado de Bass y consulta con un odontólogo general o periodoncista.',                                                                
-      'CARIES: Pueden tratarse en paralelo, respetando la anatomía del diente.',                                                                                                        
-      'MORDIDA ABIERTA: Puede requerir reeducación lingual con fonoaudiólogo.'                                                                                                          
-    ],                                                                                                                                                                                  
-    ARRAY[                                                                                                                                                                              
-      'CASO COMPLEJO: Imprimir por tandas.',                                                                                                                                            
-      'CORTE FESTONEADO: Por gingivitis y/o apiñamiento.',                                                                                                                              
-      'AJUSTE DE RECAMBIO: La frecuencia de cambio de alineadores puede adaptarse según respuesta clínica.'                                                                             
-    ],                                                                                                                                                                                  
-    ARRAY[                                                                                                                                                                              
-      'ALINEACIÓN Y NIVELACIÓN general.',                                                                                                                                               
-      'Mejora de MORDIDA PROFUNDA.',                                                                                                                                                  
-      'DESCRUCE DE MORDIDA ANTERIOR.',                                                                                                                                                  
-      'CRITERIO DE ACCIÓN CLÍNICA: El plan se define priorizando estabilidad, funcionalidad y predictibilidad por sobre la idealidad teórica, en función de las limitaciones del caso.' 
-    ],                                                                                                                                                                                  
-    ARRAY[                                                                                                                                                                              
-      'ROTACIONES LIMITADAS: Movimientos rotacionales complejos pueden no lograrse completamente.',                                                                                     
-      'TRASLACIONES LIMITADAS: Mesializaciones/distalizaciones mayores a 2 mm presentan baja predictibilidad.'                                                                          
-    ],                                                                                                                                                                                  
-    '13, 23',                                                                                                                                                                           
-    '21',                                                                                                                                                                               
-    '11',                                                                                                                                                                               
-    null,                                                                                                                                                                             
-    '11, 21',                                                                                                                                                                           
-    '12, 22',                                                                                                                                                                         
-    null,                                                                                                                                                                               
-    '14, 24',
-    ARRAY['Blanqueamiento', 'Limpieza periodontal', 'Carillas'],                                                                                                                        
-    ARRAY['BUENA'],                                                                                                                                                                     
-    ARRAY['MUY BUENA'],                                                                                                                                                                 
-    ARRAY['REGULAR', 'FALTA PANORÁMICA'],                                                                                                                                               
-    ARRAY['BUENA', 'Falta de fotos requeridas'],                                                                                                                                        
-    ARRAY['BUENAS'],                                                                                                                                                                  
-    'Paciente colaborador con buena higiene. Se recomienda control periodontal previo al inicio del tratamiento. Caso de complejidad moderada con buen pronóstico a largo plazo.'       
-  );   
+drop policy "Authenticated users can delete treatment reports" on "storage"."objects";
+
+drop policy "Authenticated users can delete treatment videos" on "storage"."objects";
+
+drop policy "Authenticated users can read treatment reports" on "storage"."objects";
+
+drop policy "Authenticated users can read treatment videos" on "storage"."objects";
+
+drop policy "Authenticated users can upload treatment reports" on "storage"."objects";
+
+drop policy "Authenticated users can upload treatment videos" on "storage"."objects";
