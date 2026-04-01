@@ -125,7 +125,7 @@ allowed_mime_types = ["image/png", "image/jpeg", "application/pdf", "application
 
 [storage.buckets.treatment-files]
 public = true
-file_size_limit = "300MiB"
+file_size_limit = "50MiB"
 allowed_mime_types = ["video/mp4", "application/pdf"]
 
 [storage.buckets.client-files]
