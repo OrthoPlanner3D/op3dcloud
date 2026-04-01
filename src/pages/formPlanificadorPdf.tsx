@@ -164,7 +164,7 @@ const TreatmentPlanningDocument = ({
 						PLAN DE TRATAMIENTO DIGITAL
 					</Text>
 					<Text style={styles.subtitle}>
-						OrtoPlanner3D™ | Planificación Ortodóntica Profesional
+						OrthoPlanner3D™ | Planificación Ortodóntica Profesional
 					</Text>
 				</View>
 
@@ -513,7 +513,7 @@ const TreatmentPlanningDocument = ({
 
 				{/* Footer */}
 				<Text style={styles.footer}>
-					Documento generado por OrtoPlanner3D™ - Plan de tratamiento
+					Documento generado por OrthoPlanner3D™ - Plan de tratamiento
 					ortodóntico profesional
 				</Text>
 			</Page>
