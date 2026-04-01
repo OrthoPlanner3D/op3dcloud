@@ -194,7 +194,7 @@ export type Database = {
 					diagnosis: string[];
 					id: number;
 					laboratory: string[];
-					lower_aligners: number | null;
+					lower_aligners: number;
 					patient_id: number | null;
 					planning: string[];
 					prognosis: string | null;
@@ -213,7 +213,7 @@ export type Database = {
 					tracking_rotations: string | null;
 					tracking_torque: string | null;
 					tracking_translations: string | null;
-					upper_aligners: number | null;
+					upper_aligners: number;
 					video_url: string | null;
 				};
 				Insert: {
@@ -224,7 +224,7 @@ export type Database = {
 					diagnosis?: string[];
 					id?: never;
 					laboratory?: string[];
-					lower_aligners?: number | null;
+					lower_aligners?: number;
 					patient_id?: number | null;
 					planning?: string[];
 					prognosis?: string | null;
@@ -243,7 +243,7 @@ export type Database = {
 					tracking_rotations?: string | null;
 					tracking_torque?: string | null;
 					tracking_translations?: string | null;
-					upper_aligners?: number | null;
+					upper_aligners?: number;
 					video_url?: string | null;
 				};
 				Update: {
@@ -254,7 +254,7 @@ export type Database = {
 					diagnosis?: string[];
 					id?: never;
 					laboratory?: string[];
-					lower_aligners?: number | null;
+					lower_aligners?: number;
 					patient_id?: number | null;
 					planning?: string[];
 					prognosis?: string | null;
@@ -273,7 +273,7 @@ export type Database = {
 					tracking_rotations?: string | null;
 					tracking_torque?: string | null;
 					tracking_translations?: string | null;
-					upper_aligners?: number | null;
+					upper_aligners?: number;
 					video_url?: string | null;
 				};
 				Relationships: [
