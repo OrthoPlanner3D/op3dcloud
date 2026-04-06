@@ -106,10 +106,6 @@ export const createColumns = (): ColumnDef<DashboardAdminViewRow>[] => [
 		header: "Paciente",
 	},
 	{
-		accessorKey: "case_status",
-		header: "Estado",
-	},
-	{
 		accessorKey: "expiration",
 		header: "Vencimiento",
 		cell: ({ row }) => {
@@ -315,6 +311,15 @@ export const createColumns = (): ColumnDef<DashboardAdminViewRow>[] => [
 
 			const handleToggle = async (checked: boolean) => {
 				if (!row.original.id) return;
+
+				if (checked) {
+					// TODO: agregar lógica de envío de mail al habilitar la planificación
+					console.log("Planificación habilitada para paciente:", {
+						id: row.original.id,
+						patient_name: row.original.patient_name,
+						client_name: row.original.client_name,
+					});
+				}
 
 				// Optimistic update - actualizar inmediatamente la UI usando el método de la tabla
 				const originalValue = row.original.planning_enabled;
