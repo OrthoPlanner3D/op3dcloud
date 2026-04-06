@@ -122,18 +122,32 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 								</p>
 							</div>
 						</div>
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => {
-								const url = `${window.location.origin}/planificacion/${displayPatient.id}`;
-								navigator.clipboard.writeText(url);
-								toast.success("Link copiado al portapapeles");
-							}}
-						>
-							<Link2 className="h-4 w-4 mr-2" />
-							Copiar link
-						</Button>
+						<div className="flex items-center gap-2">
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => {
+									const url = `${window.location.origin}/planificacion/${displayPatient.id}`;
+									navigator.clipboard.writeText(url);
+									toast.success("Link copiado al portapapeles");
+								}}
+							>
+								<Link2 className="h-4 w-4 mr-2" />
+								Copiar link
+							</Button>
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => {
+									const url = `${window.location.origin}/pacientes/crear/${displayPatient.id_client}`;
+									navigator.clipboard.writeText(url);
+									toast.success("Link de registro copiado");
+								}}
+							>
+								<Link2 className="h-4 w-4 mr-2" />
+								Link registro paciente
+							</Button>
+						</div>
 					</div>
 				</CardHeader>
 			</Card>
