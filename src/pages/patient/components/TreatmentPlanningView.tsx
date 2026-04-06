@@ -1,3 +1,5 @@
+import type { DocumentProps } from "@react-pdf/renderer";
+import { usePDF } from "@react-pdf/renderer";
 import { Download, Eye, LinkIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -8,8 +10,6 @@ import { TreatmentPlanningDocument } from "@/pages/formPlanificadorPdf";
 import { getTreatmentFilePublicUrl } from "@/services/supabase/storage.service";
 import { getTreatmentPlanningByPatientId } from "@/services/supabase/treatment-planning.service";
 import type { Tables } from "@/types/db/database.types";
-import type { DocumentProps } from "@react-pdf/renderer";
-import { usePDF } from "@react-pdf/renderer";
 
 type TreatmentPlanningRow = Tables<
 	{ schema: "op3dcloud" },

@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
-import { useUserStore } from "@/state/stores/useUserStore";
 import TreatmentPlanningView from "@/pages/patient/components/TreatmentPlanningView";
+import { useUserStore } from "@/state/stores/useUserStore";
 
 export default function PublicTreatmentPlanningPage() {
 	const { patientId } = useParams<{ patientId: string }>();

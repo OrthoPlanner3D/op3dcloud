@@ -594,7 +594,7 @@ export default function TreatmentPlanningForm({
 									)
 								}
 								placeholder={placeholder}
-								searchPlaceholder={`Buscar...`}
+								searchPlaceholder={"Buscar..."}
 							/>
 						</FormControl>
 						{watched && watched.length > 0 && (
