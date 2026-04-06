@@ -114,6 +114,23 @@ export const createColumns = (): ColumnDef<DashboardAdminViewRow>[] => [
 		header: "Vencimiento",
 		cell: ({ row }) => {
 			const expiration = row.original.expiration;
+
+			if (row.original.planning_enabled) {
+				return (
+					<Badge
+						variant="secondary"
+						className="bg-gray-200 text-gray-500 border-gray-200"
+					>
+						<CalendarClockIcon
+							className="-ms-0.5 opacity-60"
+							size={12}
+							aria-hidden="true"
+						/>
+						{formatDate(expiration)}
+					</Badge>
+				);
+			}
+
 			const today = new Date();
 			today.setHours(0, 0, 0, 0);
 			const expDate = new Date(expiration ?? "");
