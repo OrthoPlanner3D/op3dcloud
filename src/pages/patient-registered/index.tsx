@@ -10,8 +10,8 @@ export default function PatientRegisteredPage() {
 						Caso enviado exitosamente
 					</h1>
 					<p className="text-sm text-muted-foreground mt-2">
-						Tu información fue recibida. Nos pondremos en contacto
-						a la brevedad.
+						Tu información fue recibida. Nos pondremos en contacto a
+						la brevedad.
 					</p>
 				</div>
 			</div>

@@ -129,7 +129,9 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 								onClick={() => {
 									const url = `${window.location.origin}/planificacion/${displayPatient.id}`;
 									navigator.clipboard.writeText(url);
-									toast.success("Link copiado al portapapeles");
+									toast.success(
+										"Link copiado al portapapeles",
+									);
 								}}
 							>
 								<Link2 className="h-4 w-4 mr-2" />
