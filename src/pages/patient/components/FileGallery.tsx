@@ -61,7 +61,8 @@ export function FileGallery({ label, paths }: FileGalleryProps) {
 			<div
 				style={{
 					display: "grid",
-					gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+					gridTemplateColumns:
+						"repeat(auto-fill, minmax(160px, 1fr))",
 					gap: "12px",
 				}}
 			>
@@ -95,7 +96,8 @@ export function FileGallery({ label, paths }: FileGalleryProps) {
 										background: "hsl(var(--card))",
 										overflow: "hidden",
 										cursor: "pointer",
-										boxShadow: "0 1px 3px 0 rgb(0 0 0 / 0.1)",
+										boxShadow:
+											"0 1px 3px 0 rgb(0 0 0 / 0.1)",
 										transition:
 											"box-shadow 0.15s, transform 0.15s",
 									}}
@@ -179,7 +181,8 @@ export function FileGallery({ label, paths }: FileGalleryProps) {
 											flex: 1,
 											overflow: "hidden",
 											position: "relative",
-											background: "hsl(var(--muted) / 0.3)",
+											background:
+												"hsl(var(--muted) / 0.3)",
 										}}
 									>
 										{type === "image" && url ? (

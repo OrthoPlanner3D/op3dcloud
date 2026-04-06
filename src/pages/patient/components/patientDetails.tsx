@@ -299,8 +299,14 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 				</CardHeader>
 				<CardContent className="space-y-4">
 					<FileGallery label="Fotos" paths={displayPatient.photos} />
-					<FileGallery label="Radiografías" paths={displayPatient.xrays} />
-					<FileGallery label="Escaneos" paths={displayPatient.scans} />
+					<FileGallery
+						label="Radiografías"
+						paths={displayPatient.xrays}
+					/>
+					<FileGallery
+						label="Escaneos"
+						paths={displayPatient.scans}
+					/>
 					<FileGallery
 						label="Documentación Complementaria"
 						paths={displayPatient.supplementary_docs ?? []}
