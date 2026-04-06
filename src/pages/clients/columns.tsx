@@ -26,6 +26,12 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useUserRole } from "@/hooks/useUserRole";
 import { confirm, formatDate } from "@/lib/utils";
 import { updatePatient } from "@/services/supabase/dashboard-admin.service";
@@ -248,6 +254,24 @@ export const createColumns = (): ColumnDef<DashboardAdminViewRow>[] => [
 	{
 		accessorKey: "notes",
 		header: "Notas",
+		cell: ({ row }) => {
+			const notes = row.original.notes;
+			if (!notes) return null;
+			return (
+				<TooltipProvider>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<span className="block max-w-[180px] truncate cursor-default text-sm">
+								{notes}
+							</span>
+						</TooltipTrigger>
+						<TooltipContent className="max-w-xs whitespace-pre-wrap">
+							{notes}
+						</TooltipContent>
+					</Tooltip>
+				</TooltipProvider>
+			);
+		},
 	},
 	{
 		id: "planning_enabled",
