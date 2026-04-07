@@ -2,8 +2,8 @@ import {
 	ArrowLeftIcon,
 	ClipboardListIcon,
 	FileTextIcon,
-	LinkIcon,
 	PlusIcon,
+	Share2Icon,
 	UsersIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -65,12 +65,24 @@ export default function Patients() {
 
 	return (
 		<div className="patients-container">
-			<div className="py-1">
+			<div className="py-1 flex gap-2">
 				<Link to="/pacientes/crear">
-					<Button variant="outline" size="sm">
-						<PlusIcon /> Crear Paciente
+					<Button size="sm" className="shadow-sm">
+						<PlusIcon className="h-4 w-4" /> Crear Paciente
 					</Button>
 				</Link>
+				<Button
+					variant="outline"
+					size="sm"
+					className="border-dashed text-muted-foreground hover:text-foreground hover:border-solid"
+					onClick={() => {
+						const url = `${window.location.origin}/pacientes/crear/${user?.id}`;
+						navigator.clipboard.writeText(url);
+						toast.success("Link de registro copiado");
+					}}
+				>
+					<Share2Icon className="h-4 w-4" /> Compartir registro
+				</Button>
 			</div>
 
 			<div className="grid grid-cols-1 md:grid-cols-12 lg:gap-2">
@@ -102,31 +114,10 @@ export default function Patients() {
 									<span className="font-medium">
 										{patient.type_of_plan}
 									</span>
-									<div className="flex w-full items-center justify-between">
-										<span className="line-clamp-2 text-xs whitespace-break-spaces text-left">
-											<Badge variant="outline">
-												{patient.case_status?.join(
-													", ",
-												) || "No hay status"}
-											</Badge>
-										</span>
-										<button
-											type="button"
-											className="ml-2 p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-											onClick={(e) => {
-												e.stopPropagation();
-												const url = `${window.location.origin}/planificacion/${patient.id}`;
-												navigator.clipboard.writeText(
-													url,
-												);
-												toast.success(
-													"Link copiado al portapapeles",
-												);
-											}}
-										>
-											<LinkIcon className="h-3.5 w-3.5" />
-										</button>
-									</div>
+									<Badge variant="outline">
+										{patient.case_status?.join(", ") ||
+											"No hay status"}
+									</Badge>
 								</button>
 							))
 						) : searchQuery.trim() ? (

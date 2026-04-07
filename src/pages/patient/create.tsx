@@ -1,7 +1,7 @@
 import { ArrowLeftIcon } from "lucide-react";
 import { useState } from "react";
 import { type FieldValues, useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import BrandLogo from "@/components/ui/brandLogo";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -35,9 +35,12 @@ import {
 	StepperTrigger,
 } from "@/components/ui/stepper";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/config/supabase.config";
+import { supabase, supabaseAdmin } from "@/config/supabase.config";
 import { getPlanners } from "@/services/supabase/planners.service";
-import { uploadFiles } from "@/services/supabase/storage.service";
+import {
+	uploadFiles,
+	uploadFilesAdmin,
+} from "@/services/supabase/storage.service";
 import { useUserStore } from "@/state/stores/useUserStore";
 import type { PatientsInsert } from "@/types/db/patients/patients";
 
@@ -233,6 +236,9 @@ export default function CreatePatient() {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const navigate = useNavigate();
 	const user = useUserStore((state) => state.user);
+	const { clientId: urlClientId } = useParams<{ clientId?: string }>();
+	const isPublicMode = Boolean(urlClientId);
+	const effectiveClientId = urlClientId ?? user?.id;
 	const form = useForm<PatientFormValues>({
 		defaultValues: {
 			name: "",
@@ -304,7 +310,21 @@ export default function CreatePatient() {
 		}
 	}
 
-	async function createPatient(patient: PatientsInsert) {
+	async function createPatient(patient: PatientsInsert, useAdmin = false) {
+		if (useAdmin) {
+			const { data, error } = await supabaseAdmin
+				.schema(import.meta.env.VITE_SUPABASE_SCHEMA)
+				.from("patients")
+				.insert(patient)
+				.select();
+			if (error) {
+				console.error("Error al crear el paciente", error.message);
+				throw error;
+			}
+			console.log("Paciente creado:", data);
+			return data;
+		}
+
 		const { data, error } = await supabase
 			.from("patients")
 			.insert(patient)
@@ -329,8 +349,8 @@ export default function CreatePatient() {
 
 	async function onSubmit(values: PatientFormValues) {
 		try {
-			if (!user?.id) {
-				throw new Error("Usuario no autenticado");
+			if (!effectiveClientId) {
+				throw new Error("No se pudo determinar el cliente");
 			}
 
 			setIsSubmitting(true);
@@ -338,31 +358,39 @@ export default function CreatePatient() {
 			const { photos, xrays, scans, supplementary_docs, ...restValues } =
 				values;
 
+			const uploadFn = isPublicMode ? uploadFilesAdmin : uploadFiles;
 			const [photoPaths, xrayPaths, scanPaths, docPaths] =
 				await Promise.all([
-					uploadFiles(photos),
-					uploadFiles(xrays),
-					uploadFiles(scans),
-					uploadFiles(supplementary_docs),
+					uploadFn(photos),
+					uploadFn(xrays),
+					uploadFn(scans),
+					uploadFn(supplementary_docs),
 				]);
 
 			const plannerId = await getRandomPlannerId();
 
-			await createPatient({
-				...restValues,
-				id_client: user.id,
-				id_planner: plannerId,
-				photos: photoPaths,
-				xrays: xrayPaths,
-				scans: scanPaths,
-				supplementary_docs: docPaths,
-			});
-
-			navigate("/", {
-				state: {
-					message: "Paciente registrado exitosamente",
+			await createPatient(
+				{
+					...restValues,
+					id_client: effectiveClientId,
+					id_planner: plannerId,
+					photos: photoPaths,
+					xrays: xrayPaths,
+					scans: scanPaths,
+					supplementary_docs: docPaths,
 				},
-			});
+				isPublicMode,
+			);
+
+			if (isPublicMode) {
+				navigate("/paciente-registrado", { replace: true });
+			} else {
+				navigate("/", {
+					state: {
+						message: "Paciente registrado exitosamente",
+					},
+				});
+			}
 		} catch (error) {
 			console.error("Form submission error", error);
 		} finally {
@@ -370,11 +398,23 @@ export default function CreatePatient() {
 		}
 	}
 
+	const UUID_REGEX =
+		/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+	if (isPublicMode && (!urlClientId || !UUID_REGEX.test(urlClientId))) {
+		return (
+			<div className="flex items-center justify-center min-h-screen">
+				<p className="text-sm text-muted-foreground">
+					Enlace de registro no válido.
+				</p>
+			</div>
+		);
+	}
+
 	return (
 		<div className="relative min-h-[calc(100vh-32px)]">
 			<div>
 				<Button variant="ghost" asChild>
-					<Link to="/pacientes">
+					<Link to={isPublicMode ? "/" : "/pacientes"}>
 						<ArrowLeftIcon />
 					</Link>
 				</Button>

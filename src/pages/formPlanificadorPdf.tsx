@@ -11,6 +11,7 @@ import {
 } from "@react-pdf/renderer";
 import { useState } from "react";
 import logo from "@/assets/images/logos/logo-black.png";
+import logoWhite from "@/assets/images/logos/logo-white.png";
 import { getTreatmentFilePublicUrl } from "@/services/supabase/storage.service";
 import type { Tables } from "@/types/db/database.types";
 
@@ -47,12 +48,23 @@ const styles = StyleSheet.create({
 		textAlign: "center",
 		marginTop: 4,
 	},
-	logo: {
-		width: 120,
+	watermark: {
 		position: "absolute",
-		bottom: 40,
-		right: 40,
-		opacity: 0.08,
+		top: 0,
+		left: 0,
+		right: 0,
+		bottom: 0,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	watermarkImage: {
+		width: 200,
+		opacity: 0.06,
+	},
+	headerLogo: {
+		width: 80,
+		alignSelf: "center",
+		marginTop: 10,
 	},
 	sectionContainer: {
 		marginBottom: 20,
@@ -167,6 +179,7 @@ const TreatmentPlanningDocument = ({
 					<Text style={styles.subtitle}>
 						OrthoPlanner3D™ | Planificación Ortodóntica Profesional
 					</Text>
+					<Image style={styles.headerLogo} src={logoWhite} />
 				</View>
 
 				{/* Datos del Paciente */}
@@ -514,7 +527,9 @@ const TreatmentPlanningDocument = ({
 				)}
 
 				{/* Watermark Logo */}
-				<Image style={styles.logo} src={logo} />
+				<View style={styles.watermark} fixed>
+					<Image style={styles.watermarkImage} src={logo} />
+				</View>
 
 				{/* Footer */}
 				<Text style={styles.footer}>
