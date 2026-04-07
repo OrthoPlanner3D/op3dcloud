@@ -1,6 +1,6 @@
 import type { DocumentProps } from "@react-pdf/renderer";
 import { usePDF } from "@react-pdf/renderer";
-import { Download, Eye, LinkIcon } from "lucide-react";
+import { Download, LinkIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -21,32 +21,6 @@ interface TreatmentPlanningViewProps {
 	patientId: number;
 	patient?: PatientRow;
 	isPublic?: boolean;
-}
-
-function PDFPreview({
-	document,
-}: {
-	document: React.ReactElement<DocumentProps>;
-}) {
-	const [instance] = usePDF({ document });
-	if (instance.loading)
-		return (
-			<p className="text-sm text-muted-foreground">Generando PDF...</p>
-		);
-	if (instance.error)
-		return <p className="text-sm text-red-500">Error al generar el PDF</p>;
-	return (
-		<object
-			data={instance.url ?? ""}
-			type="application/pdf"
-			width="100%"
-			height="100%"
-		>
-			<p className="text-sm text-muted-foreground">
-				Tu navegador no puede mostrar el PDF.
-			</p>
-		</object>
-	);
 }
 
 function PDFDownloadButton({
@@ -87,7 +61,6 @@ export default function TreatmentPlanningView({
 	const [treatmentPlanning, setTreatmentPlanning] =
 		useState<TreatmentPlanningRow | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
-	const [showPDFPreview, setShowPDFPreview] = useState(false);
 
 	useEffect(() => {
 		const fetch = async () => {
@@ -207,16 +180,6 @@ export default function TreatmentPlanningView({
 				<div className="flex gap-2">
 					{patient && (
 						<>
-							<Button
-								onClick={() =>
-									setShowPDFPreview(!showPDFPreview)
-								}
-								variant="outline"
-								size="sm"
-							>
-								<Eye className="w-4 h-4 mr-2" />
-								{showPDFPreview ? "Ocultar PDF" : "Ver PDF"}
-							</Button>
 							<PDFDownloadButton
 								doc={
 									<TreatmentPlanningDocument
@@ -230,24 +193,6 @@ export default function TreatmentPlanningView({
 					)}
 				</div>
 			</div>
-
-			{showPDFPreview && patient && (
-				<div className="mb-8 bg-white rounded-lg shadow-md p-4">
-					<h3 className="text-lg font-semibold mb-4">
-						Vista Previa del PDF
-					</h3>
-					<div className="w-full h-[600px]">
-						<PDFPreview
-							document={
-								<TreatmentPlanningDocument
-									treatmentPlanning={treatmentPlanning}
-									patient={patient}
-								/>
-							}
-						/>
-					</div>
-				</div>
-			)}
 
 			<div className="space-y-8 pb-8">
 				{/* Assets */}
