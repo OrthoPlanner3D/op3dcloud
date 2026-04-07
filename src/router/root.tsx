@@ -12,6 +12,7 @@ import Register from "@/pages/register";
 import ResetPassword from "@/pages/reset-password";
 import SignIn from "@/pages/sign-in";
 import TermsAndConditions from "@/pages/terms";
+import PatientRegisteredPage from "@/pages/patient-registered";
 import TreatmentPlanning from "@/pages/treatment-planning";
 import PublicTreatmentPlanningPage from "@/pages/treatment-planning-public";
 import PrivateGuard from "./guards/PrivateGuard";
@@ -164,6 +165,14 @@ const router = createBrowserRouter([
 	{
 		path: "/planificacion/:patientId",
 		element: <PublicTreatmentPlanningPage />,
+	},
+	{
+		path: "/pacientes/crear/:clientId",
+		element: <CreatePatient />,
+	},
+	{
+		path: "/paciente-registrado",
+		element: <PatientRegisteredPage />,
 	},
 	{
 		path: "/reset-password",

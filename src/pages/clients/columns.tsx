@@ -26,6 +26,12 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useUserRole } from "@/hooks/useUserRole";
 import { confirm, formatDate } from "@/lib/utils";
 import { updatePatient } from "@/services/supabase/dashboard-admin.service";
@@ -100,14 +106,27 @@ export const createColumns = (): ColumnDef<DashboardAdminViewRow>[] => [
 		header: "Paciente",
 	},
 	{
-		accessorKey: "case_status",
-		header: "Estado",
-	},
-	{
 		accessorKey: "expiration",
 		header: "Vencimiento",
 		cell: ({ row }) => {
 			const expiration = row.original.expiration;
+
+			if (row.original.planning_enabled) {
+				return (
+					<Badge
+						variant="secondary"
+						className="bg-gray-200 text-gray-500 border-gray-200"
+					>
+						<CalendarClockIcon
+							className="-ms-0.5 opacity-60"
+							size={12}
+							aria-hidden="true"
+						/>
+						{formatDate(expiration)}
+					</Badge>
+				);
+			}
+
 			const today = new Date();
 			today.setHours(0, 0, 0, 0);
 			const expDate = new Date(expiration ?? "");
@@ -248,6 +267,24 @@ export const createColumns = (): ColumnDef<DashboardAdminViewRow>[] => [
 	{
 		accessorKey: "notes",
 		header: "Notas",
+		cell: ({ row }) => {
+			const notes = row.original.notes;
+			if (!notes) return null;
+			return (
+				<TooltipProvider>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<span className="block max-w-[180px] truncate cursor-default text-sm">
+								{notes}
+							</span>
+						</TooltipTrigger>
+						<TooltipContent className="max-w-xs whitespace-pre-wrap">
+							{notes}
+						</TooltipContent>
+					</Tooltip>
+				</TooltipProvider>
+			);
+		},
 	},
 	{
 		id: "planning_enabled",
@@ -274,6 +311,15 @@ export const createColumns = (): ColumnDef<DashboardAdminViewRow>[] => [
 
 			const handleToggle = async (checked: boolean) => {
 				if (!row.original.id) return;
+
+				if (checked) {
+					// TODO: agregar lógica de envío de mail al habilitar la planificación
+					console.log("Planificación habilitada para paciente:", {
+						id: row.original.id,
+						patient_name: row.original.patient_name,
+						client_name: row.original.client_name,
+					});
+				}
 
 				// Optimistic update - actualizar inmediatamente la UI usando el método de la tabla
 				const originalValue = row.original.planning_enabled;

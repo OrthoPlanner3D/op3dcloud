@@ -353,7 +353,7 @@ export default function TreatmentPlanningForm({
 		isLoading: isPatientsLoading,
 		error: patientsError,
 	} = usePatients({
-		planningEnabledOnly: true,
+		planningEnabledOnly: false,
 		config: { isPaused: () => !needsPatientSelector },
 	});
 
@@ -594,7 +594,7 @@ export default function TreatmentPlanningForm({
 									)
 								}
 								placeholder={placeholder}
-								searchPlaceholder={`Buscar...`}
+								searchPlaceholder={"Buscar..."}
 							/>
 						</FormControl>
 						{watched && watched.length > 0 && (
@@ -646,7 +646,7 @@ export default function TreatmentPlanningForm({
 												options={
 													patients?.map((p) => ({
 														value: String(p.id),
-														label: `${p.name} ${p.last_name} - ${p.type_of_plan}`,
+														label: `[#${p.id}] ${p.name} ${p.last_name} - ${p.type_of_plan}`,
 													})) || []
 												}
 												value={field.value}
