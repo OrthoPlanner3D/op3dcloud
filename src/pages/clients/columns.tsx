@@ -35,6 +35,7 @@ import {
 import { useUserRole } from "@/hooks/useUserRole";
 import { confirm, formatDate } from "@/lib/utils";
 import { updatePatient } from "@/services/supabase/dashboard-admin.service";
+import { sendPlanningEnabledEmail } from "@/services/supabase/email.service";
 import { updatePatientPlanningEnabled } from "@/services/supabase/patients.service";
 import type { DashboardAdminViewRow } from "@/types/db/dashboard-admin/dashboard-admin";
 import useEditClientModalStore from "./state/stores/useEditClientModalStore";
@@ -310,14 +311,15 @@ export const createColumns = (): ColumnDef<DashboardAdminViewRow>[] => [
 			}
 
 			const handleToggle = async (checked: boolean) => {
-				if (!row.original.id) return;
+				if (row.original.id === null) return;
 
-				if (checked) {
-					// TODO: agregar lógica de envío de mail al habilitar la planificación
-					console.log("Planificación habilitada para paciente:", {
-						id: row.original.id,
-						patient_name: row.original.patient_name,
-						client_name: row.original.client_name,
+				if (checked && row.original.patient_name) {
+					sendPlanningEnabledEmail(
+						row.original.client_id,
+						row.original.patient_name,
+					).catch((error) => {
+						console.error("Error al enviar email:", error);
+						toast.error("No se pudo enviar el email de notificación");
 					});
 				}
 
