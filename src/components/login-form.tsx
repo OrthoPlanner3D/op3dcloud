@@ -37,6 +37,7 @@ export function LoginForm({
 	const [isResetting, setIsResetting] = useState(false);
 
 	async function onSubmit(data: ILoginForm) {
+		setLoginError(false);
 		const { data: userData, error } =
 			await supabase.auth.signInWithPassword({
 				email: data.email,
@@ -131,7 +132,6 @@ export function LoginForm({
 								placeholder="m@example.com"
 								required
 								aria-invalid={loginError}
-								onChange={() => setLoginError(false)}
 							/>
 						</div>
 						<div className="grid gap-3">
@@ -154,7 +154,6 @@ export function LoginForm({
 									required
 									className="pr-10"
 									aria-invalid={loginError}
-									onChange={() => setLoginError(false)}
 								/>
 								<button
 									type="button"
