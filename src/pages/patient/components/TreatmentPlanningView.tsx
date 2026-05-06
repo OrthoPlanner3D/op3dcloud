@@ -1,6 +1,6 @@
 import type { DocumentProps } from "@react-pdf/renderer";
 import { usePDF } from "@react-pdf/renderer";
-import { Download, LinkIcon } from "lucide-react";
+import { CheckCircle, Download, Link2, LinkIcon, PenLine } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -61,6 +61,20 @@ export default function TreatmentPlanningView({
 	const [treatmentPlanning, setTreatmentPlanning] =
 		useState<TreatmentPlanningRow | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
+
+	const handleCopyLink = () => {
+		const url = `${window.location.origin}/planificacion/${patientId}`;
+		navigator.clipboard.writeText(url);
+		toast.success("Link copiado al portapapeles");
+	};
+
+	const handleApprove = () => {
+		console.log("Aprobar planificación", { patientId });
+	};
+
+	const handleRequestModification = () => {
+		console.log("Solicitar modificación", { patientId });
+	};
 
 	useEffect(() => {
 		const fetch = async () => {
@@ -178,18 +192,40 @@ export default function TreatmentPlanningView({
 					</p>
 				</div>
 				<div className="flex gap-2">
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={handleCopyLink}
+					>
+						<Link2 className="w-4 h-4 mr-2" />
+						Copiar link
+					</Button>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={handleRequestModification}
+					>
+						<PenLine className="w-4 h-4 mr-2" />
+						Solicitar modificación
+					</Button>
+					<Button
+						variant="default"
+						size="sm"
+						onClick={handleApprove}
+					>
+						<CheckCircle className="w-4 h-4 mr-2" />
+						Aprobar planificación
+					</Button>
 					{patient && (
-						<>
-							<PDFDownloadButton
-								doc={
-									<TreatmentPlanningDocument
-										treatmentPlanning={treatmentPlanning}
-										patient={patient}
-									/>
-								}
-								fileName={`planificacion-${patient.name}-${patient.last_name}.pdf`}
-							/>
-						</>
+						<PDFDownloadButton
+							doc={
+								<TreatmentPlanningDocument
+									treatmentPlanning={treatmentPlanning}
+									patient={patient}
+								/>
+							}
+							fileName={`planificacion-${patient.name}-${patient.last_name}.pdf`}
+						/>
 					)}
 				</div>
 			</div>
