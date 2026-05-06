@@ -319,7 +319,9 @@ export const createColumns = (): ColumnDef<DashboardAdminViewRow>[] => [
 						row.original.patient_name,
 					).catch((error) => {
 						console.error("Error al enviar email:", error);
-						toast.error("No se pudo enviar el email de notificación");
+						toast.error(
+							"No se pudo enviar el email de notificación",
+						);
 					});
 				}
 
