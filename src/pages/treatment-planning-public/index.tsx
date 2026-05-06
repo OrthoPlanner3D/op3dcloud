@@ -1,11 +1,8 @@
 import { useParams } from "react-router";
 import TreatmentPlanningView from "@/pages/patient/components/TreatmentPlanningView";
-import { useUserStore } from "@/state/stores/useUserStore";
 
 export default function PublicTreatmentPlanningPage() {
 	const { patientId } = useParams<{ patientId: string }>();
-	const user = useUserStore((state) => state.user);
-	const isPublic = !user;
 
 	if (!patientId || Number.isNaN(Number(patientId))) {
 		return (
@@ -21,7 +18,7 @@ export default function PublicTreatmentPlanningPage() {
 		<div className="min-h-screen bg-background">
 			<TreatmentPlanningView
 				patientId={Number(patientId)}
-				isPublic={isPublic}
+				isPublic={true}
 			/>
 		</div>
 	);

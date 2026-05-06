@@ -3,15 +3,12 @@ import {
 	ClipboardList,
 	FileText,
 	FolderOpen,
-	Link2,
 	Stethoscope,
 	Target,
 	User,
 	XCircle,
 } from "lucide-react";
-import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { FileGallery } from "./FileGallery";
@@ -121,22 +118,6 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 									ID: {displayPatient.id}
 								</p>
 							</div>
-						</div>
-						<div className="flex items-center gap-2">
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => {
-									const url = `${window.location.origin}/planificacion/${displayPatient.id}`;
-									navigator.clipboard.writeText(url);
-									toast.success(
-										"Link copiado al portapapeles",
-									);
-								}}
-							>
-								<Link2 className="h-4 w-4 mr-2" />
-								Copiar link
-							</Button>
 						</div>
 					</div>
 				</CardHeader>
