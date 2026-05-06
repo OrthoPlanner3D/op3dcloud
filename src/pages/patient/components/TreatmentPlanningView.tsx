@@ -57,6 +57,7 @@ function PDFDownloadButton({
 export default function TreatmentPlanningView({
 	patientId,
 	patient,
+	isPublic = false,
 }: TreatmentPlanningViewProps) {
 	const [treatmentPlanning, setTreatmentPlanning] =
 		useState<TreatmentPlanningRow | null>(null);
@@ -191,43 +192,45 @@ export default function TreatmentPlanningView({
 						ortodóntico
 					</p>
 				</div>
-				<div className="flex gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={handleCopyLink}
-					>
-						<Link2 className="w-4 h-4 mr-2" />
-						Copiar link
-					</Button>
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={handleRequestModification}
-					>
-						<PenLine className="w-4 h-4 mr-2" />
-						Solicitar modificación
-					</Button>
-					<Button
-						variant="default"
-						size="sm"
-						onClick={handleApprove}
-					>
-						<CheckCircle className="w-4 h-4 mr-2" />
-						Aprobar planificación
-					</Button>
-					{patient && (
-						<PDFDownloadButton
-							doc={
-								<TreatmentPlanningDocument
-									treatmentPlanning={treatmentPlanning}
-									patient={patient}
-								/>
-							}
-							fileName={`planificacion-${patient.name}-${patient.last_name}.pdf`}
-						/>
-					)}
-				</div>
+				{!isPublic && (
+					<div className="flex gap-2">
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={handleCopyLink}
+						>
+							<Link2 className="w-4 h-4 mr-2" />
+							Copiar link
+						</Button>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={handleRequestModification}
+						>
+							<PenLine className="w-4 h-4 mr-2" />
+							Solicitar modificación
+						</Button>
+						<Button
+							variant="default"
+							size="sm"
+							onClick={handleApprove}
+						>
+							<CheckCircle className="w-4 h-4 mr-2" />
+							Aprobar planificación
+						</Button>
+						{patient && (
+							<PDFDownloadButton
+								doc={
+									<TreatmentPlanningDocument
+										treatmentPlanning={treatmentPlanning}
+										patient={patient}
+									/>
+								}
+								fileName={`planificacion-${patient.name}-${patient.last_name}.pdf`}
+							/>
+						)}
+					</div>
+				)}
 			</div>
 
 			<div className="space-y-8 pb-8">
