@@ -161,6 +161,7 @@ export function LoginForm({
 									onClick={() =>
 										setShowPassword((prev) => !prev)
 									}
+									onMouseDown={(e) => e.preventDefault()}
 									tabIndex={-1}
 									aria-label={
 										showPassword
