@@ -70,11 +70,11 @@ export default function TreatmentPlanningView({
 	};
 
 	const handleApprove = () => {
-		console.log("Aprobar planificación", { patientId });
+		console.log("Aprobar planificación", { patientId, patient });
 	};
 
 	const handleRequestModification = () => {
-		console.log("Solicitar modificación", { patientId });
+		console.log("Solicitar modificación", { patientId, patient });
 	};
 
 	useEffect(() => {
