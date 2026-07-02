@@ -111,16 +111,6 @@ export function LoginForm({
 						<h1 className="text-xl font-bold">
 							Bienvenido a OP3D&trade;.
 						</h1>
-						<div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-							No tenés una cuenta? Todo empieza con una buena
-							planificación.{" "}
-							<Link
-								to="/registro"
-								className="underline underline-offset-4"
-							>
-								Registrate
-							</Link>
-						</div>
 					</div>
 					<div className="flex flex-col gap-6">
 						<div className="grid gap-3">
