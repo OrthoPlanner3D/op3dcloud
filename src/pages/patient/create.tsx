@@ -412,13 +412,15 @@ export default function CreatePatient() {
 
 	return (
 		<div className="relative min-h-[calc(100vh-32px)]">
-			<div>
-				<Button variant="ghost" asChild>
-					<Link to={isPublicMode ? "/" : "/pacientes"}>
-						<ArrowLeftIcon />
-					</Link>
-				</Button>
-			</div>
+			{!isPublicMode && (
+				<div>
+					<Button variant="ghost" asChild>
+						<Link to="/pacientes">
+							<ArrowLeftIcon />
+						</Link>
+					</Button>
+				</div>
+			)}
 
 			<div className="flex items-center justify-center">
 				<div className="max-w-xl w-full mx-auto grid grid-rows-12 min-h-[calc(100vh-4.25rem)] px-4">
