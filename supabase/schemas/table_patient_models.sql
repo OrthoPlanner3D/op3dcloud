@@ -4,6 +4,7 @@ CREATE TABLE op3dcloud.patient_models (
   storage_prefix TEXT NOT NULL,                                -- Carpeta/prefijo en el bucket con los GLB de este caso
   created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CONSTRAINT patient_models_pkey PRIMARY KEY (id),
+  CONSTRAINT patient_models_storage_prefix_key UNIQUE (storage_prefix),   -- 1 fila por caso; habilita el upsert idempotente de la Cloud Function
   CONSTRAINT patient_models_patient_id_fkey FOREIGN KEY (patient_id)
     REFERENCES op3dcloud.patients (id) ON DELETE CASCADE
 );
