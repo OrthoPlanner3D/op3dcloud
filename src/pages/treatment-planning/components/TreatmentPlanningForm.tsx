@@ -225,7 +225,7 @@ const formSchemaBase = z.object({
 		.regex(/^\d+$/, "Debe ser un número entero positivo"),
 	complexity: z.string().min(1, "Selecciona la complejidad"),
 	prognosis: z.string().min(1, "Selecciona el pronóstico"),
-	video_url: z.string().optional(),
+	render_3d: z.string().optional(),
 	technical_report_url: z.string().optional(),
 	diagnosis: z.array(z.string()).min(1, "Selecciona al menos uno"),
 	laboratory: z.array(z.string()).min(1, "Selecciona al menos uno"),
@@ -266,7 +266,7 @@ const defaultValuesBase: FormDataBase = {
 	lower_aligners: "",
 	complexity: "",
 	prognosis: "",
-	video_url: "",
+	render_3d: "",
 	technical_report_url: "",
 	diagnosis: [],
 	laboratory: [],
@@ -302,7 +302,7 @@ function rowToFormData(data: TreatmentPlanningRow): FormDataBase {
 		lower_aligners: data.lower_aligners?.toString() ?? "",
 		complexity: data.complexity ?? "",
 		prognosis: data.prognosis ?? "",
-		video_url: data.video_url ?? "",
+		render_3d: data.render_3d ?? "",
 		technical_report_url: data.technical_report_url ?? "",
 		diagnosis: (data.diagnosis as string[]) ?? [],
 		laboratory: (data.laboratory as string[]) ?? [],
@@ -343,7 +343,6 @@ export default function TreatmentPlanningForm({
 	const [resetKey, setResetKey] = useState(0);
 	const [existingData, setExistingData] =
 		useState<TreatmentPlanningRow | null>(null);
-	const [videoFile, setVideoFile] = useState<File | null>(null);
 	const [reportFile, setReportFile] = useState<File | null>(null);
 
 	const needsPatientSelector = !patientId;
@@ -448,9 +447,6 @@ export default function TreatmentPlanningForm({
 				selectedPatientId = Number.parseInt(data.paciente);
 			}
 
-			const videoPath = videoFile
-				? await uploadTreatmentFile(videoFile)
-				: data.video_url || null;
 			const reportPath = reportFile
 				? await uploadTreatmentFile(reportFile)
 				: data.technical_report_url || null;
@@ -461,7 +457,7 @@ export default function TreatmentPlanningForm({
 				lower_aligners: Number.parseInt(data.lower_aligners as string),
 				complexity: data.complexity,
 				prognosis: data.prognosis,
-				video_url: videoPath,
+				render_3d: data.render_3d || null,
 				technical_report_url: reportPath,
 				diagnosis: data.diagnosis,
 				laboratory: data.laboratory,
@@ -671,41 +667,20 @@ export default function TreatmentPlanningForm({
 					<Section>
 						<FormField
 							control={form.control}
-							name="video_url"
+							name="render_3d"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Video</FormLabel>
+									<FormLabel>Render 3D</FormLabel>
 									<FormControl>
 										<Input
-											type="file"
-											accept="video/mp4"
+											type="text"
+											placeholder="https://..."
 											disabled={isLoading}
-											onChange={(e) => {
-												const file =
-													e.target.files?.[0];
-												if (file) setVideoFile(file);
-											}}
+											{...field}
 										/>
 									</FormControl>
-									{videoFile && (
-										<p className="text-xs text-muted-foreground">
-											Seleccionado: {videoFile.name}
-										</p>
-									)}
-									{field.value && !videoFile && (
-										<a
-											href={getTreatmentFilePublicUrl(
-												field.value,
-											)}
-											target="_blank"
-											rel="noreferrer"
-											className="text-xs text-primary underline underline-offset-4"
-										>
-											Ver video actual
-										</a>
-									)}
 									<FormDescription>
-										Video de simulación del tratamiento
+										URL del render 3D del tratamiento
 									</FormDescription>
 									<FormMessage />
 								</FormItem>

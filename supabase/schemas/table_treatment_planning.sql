@@ -3,7 +3,7 @@ CREATE TABLE op3dcloud.treatment_planning (
   patient_id                BIGINT NULL,
   created_at                TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   -- Assets
-  video_url                 TEXT NULL,                                    -- URL del video
+  render_3d                 TEXT NULL,                                    -- URL del render 3D
   technical_report_url      TEXT NULL,                                    -- URL del informe técnico
   -- Datos clínicos
   upper_aligners            INTEGER NOT NULL DEFAULT 0,                   -- Alineadores superior
@@ -59,7 +59,7 @@ COMMENT ON TABLE op3dcloud.treatment_planning IS 'Planes de tratamiento generado
 COMMENT ON COLUMN op3dcloud.treatment_planning.id IS 'Identificador único del plan de tratamiento';
 COMMENT ON COLUMN op3dcloud.treatment_planning.patient_id IS 'Referencia al paciente asociado a este plan de tratamiento';
 COMMENT ON COLUMN op3dcloud.treatment_planning.created_at IS 'Fecha y hora de creación del registro';
-COMMENT ON COLUMN op3dcloud.treatment_planning.video_url IS 'URL del video de simulación del tratamiento';
+COMMENT ON COLUMN op3dcloud.treatment_planning.render_3d IS 'URL del render 3D del tratamiento';
 COMMENT ON COLUMN op3dcloud.treatment_planning.technical_report_url IS 'URL del PDF con el informe técnico del plan 3D';
 COMMENT ON COLUMN op3dcloud.treatment_planning.upper_aligners IS 'Cantidad de alineadores para el maxilar superior';
 COMMENT ON COLUMN op3dcloud.treatment_planning.lower_aligners IS 'Cantidad de alineadores para el maxilar inferior';

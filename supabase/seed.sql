@@ -281,7 +281,7 @@ INSERT INTO op3dcloud.patients (
 -- Treatment planning (solo para pacientes con planning_enabled = true)
 INSERT INTO op3dcloud.treatment_planning (
   patient_id,
-  video_url,
+  render_3d,
   technical_report_url,
   upper_aligners,
   lower_aligners,
