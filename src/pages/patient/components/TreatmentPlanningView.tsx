@@ -235,16 +235,14 @@ export default function TreatmentPlanningView({
 
 			<div className="space-y-8 pb-8">
 				{/* Assets */}
-				{(tp.video_url || tp.technical_report_url) && (
+				{(tp.render_3d || tp.technical_report_url) && (
 					<Section>
-						{tp.video_url && (
+						{tp.render_3d && (
 							<DataField
-								label="Video"
+								label="Render 3D"
 								value={
 									<a
-										href={getTreatmentFilePublicUrl(
-											tp.video_url,
-										)}
+										href={tp.render_3d}
 										target="_blank"
 										rel="noopener noreferrer"
 										className="inline-flex items-center gap-1 text-primary hover:underline"

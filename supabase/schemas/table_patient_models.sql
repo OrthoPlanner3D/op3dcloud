@@ -2,8 +2,10 @@ CREATE TABLE op3dcloud.patient_models (
   id             BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
   patient_id     BIGINT NOT NULL,
   storage_prefix TEXT NOT NULL,                                -- Carpeta/prefijo en el bucket con los GLB de este caso
+  ipr            JSONB NOT NULL DEFAULT '{}'::jsonb,           -- IPR por caso (contrato stl-render)
   created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CONSTRAINT patient_models_pkey PRIMARY KEY (id),
+  CONSTRAINT patient_models_storage_prefix_key UNIQUE (storage_prefix),   -- 1 fila por caso; habilita el upsert idempotente de la Cloud Function
   CONSTRAINT patient_models_patient_id_fkey FOREIGN KEY (patient_id)
     REFERENCES op3dcloud.patients (id) ON DELETE CASCADE
 );
@@ -23,4 +25,5 @@ COMMENT ON TABLE op3dcloud.patient_models IS 'Sets de modelos 3D (GLB) de un pac
 COMMENT ON COLUMN op3dcloud.patient_models.id IS 'Identificador único del set de modelos 3D';
 COMMENT ON COLUMN op3dcloud.patient_models.patient_id IS 'Referencia al paciente asociado a este set de modelos 3D';
 COMMENT ON COLUMN op3dcloud.patient_models.storage_prefix IS 'Prefijo/carpeta en el bucket patient-models que contiene los GLB de este caso';
+COMMENT ON COLUMN op3dcloud.patient_models.ipr IS 'Datos de IPR (JSON) del set de modelos 3D; default {}';
 COMMENT ON COLUMN op3dcloud.patient_models.created_at IS 'Fecha y hora de creación del registro';

@@ -81,7 +81,7 @@ Los planes viven en la tabla `op3dcloud.treatment_planning`. La tabla permite **
 | `id` | bigint (identity) | Identificador único del plan. |
 | `patient_id` | bigint (FK → `patients.id`, ON DELETE CASCADE) | Paciente al que pertenece el plan. |
 | `created_at` | timestamptz | Fecha de creación del plan. |
-| `video_url` | text | URL del video de simulación. |
+| `render_3d` | text | URL del render 3D del tratamiento. |
 | `technical_report_url` | text | URL del PDF con el informe técnico. |
 | `upper_aligners` | integer | Cantidad de alineadores del maxilar superior. |
 | `lower_aligners` | integer | Cantidad de alineadores del maxilar inferior. |

@@ -200,10 +200,10 @@ const TreatmentPlanningDocument = ({
 				</View>
 
 				{/* Assets */}
-				{(tp.video_url || tp.technical_report_url) && (
+				{(tp.render_3d || tp.technical_report_url) && (
 					<View style={styles.sectionContainer}>
 						<View style={styles.card} wrap={false}>
-							{tp.video_url && (
+							{tp.render_3d && (
 								<View
 									style={
 										tp.technical_report_url
@@ -211,12 +211,12 @@ const TreatmentPlanningDocument = ({
 											: styles.rowLast
 									}
 								>
-									<Text style={styles.rowLabel}>Video</Text>
+									<Text style={styles.rowLabel}>
+										Render 3D
+									</Text>
 									<Link
 										style={styles.rowValueLink}
-										src={getTreatmentFilePublicUrl(
-											tp.video_url ?? "",
-										)}
+										src={tp.render_3d ?? ""}
 									>
 										Ver enlace
 									</Link>
@@ -578,7 +578,7 @@ const sampleTreatmentPlanning: TreatmentPlanningRow = {
 	lower_aligners: 12,
 	complexity: "Moderada",
 	prognosis: "Favorable",
-	video_url: "https://example.com/video",
+	render_3d: "https://example.com/render-3d",
 	technical_report_url: "https://example.com/report",
 	diagnosis: [
 		"CARIES: Pueden tratarse en paralelo, respetando la anatomía del diente.",

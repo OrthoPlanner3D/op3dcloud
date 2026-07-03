@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
 	op3dcloud: {
 		Tables: {
+			patient_models: {
+				Row: {
+					created_at: string;
+					id: number;
+					ipr: Json;
+					patient_id: number;
+					storage_prefix: string;
+				};
+				Insert: {
+					created_at?: string;
+					id?: never;
+					ipr?: Json;
+					patient_id: number;
+					storage_prefix: string;
+				};
+				Update: {
+					created_at?: string;
+					id?: never;
+					ipr?: Json;
+					patient_id?: number;
+					storage_prefix?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: "patient_models_patient_id_fkey";
+						columns: ["patient_id"];
+						isOneToOne: false;
+						referencedRelation: "patients";
+						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "patient_models_patient_id_fkey";
+						columns: ["patient_id"];
+						isOneToOne: false;
+						referencedRelation: "view_dashboard_admin";
+						referencedColumns: ["id"];
+					},
+				];
+			};
 			patients: {
 				Row: {
 					case_status: string[] | null;
@@ -203,6 +242,7 @@ export type Database = {
 					quality_intraoral: string[];
 					quality_scan: string[];
 					quality_xrays: string[];
+					render_3d: string | null;
 					restrictions: string[];
 					technical_report_url: string | null;
 					tracking_angulations: string | null;
@@ -214,7 +254,6 @@ export type Database = {
 					tracking_torque: string | null;
 					tracking_translations: string | null;
 					upper_aligners: number;
-					video_url: string | null;
 				};
 				Insert: {
 					additional_observations?: string | null;
@@ -233,6 +272,7 @@ export type Database = {
 					quality_intraoral?: string[];
 					quality_scan?: string[];
 					quality_xrays?: string[];
+					render_3d?: string | null;
 					restrictions?: string[];
 					technical_report_url?: string | null;
 					tracking_angulations?: string | null;
@@ -244,7 +284,6 @@ export type Database = {
 					tracking_torque?: string | null;
 					tracking_translations?: string | null;
 					upper_aligners?: number;
-					video_url?: string | null;
 				};
 				Update: {
 					additional_observations?: string | null;
@@ -263,6 +302,7 @@ export type Database = {
 					quality_intraoral?: string[];
 					quality_scan?: string[];
 					quality_xrays?: string[];
+					render_3d?: string | null;
 					restrictions?: string[];
 					technical_report_url?: string | null;
 					tracking_angulations?: string | null;
@@ -274,7 +314,6 @@ export type Database = {
 					tracking_torque?: string | null;
 					tracking_translations?: string | null;
 					upper_aligners?: number;
-					video_url?: string | null;
 				};
 				Relationships: [
 					{
