@@ -76,6 +76,7 @@ schema_paths = [
     "./schemas/storage_treatment_planning_files.sql",
     "./schemas/storage_client_files.sql",
     "./schemas/storage_patient_models.sql",
+    "./schemas/storage_payment_receipts.sql",
     # grants
     "./schemas/grants_op3dcloud.sql",
 ]
@@ -144,6 +145,13 @@ allowed_mime_types = ["image/png", "image/jpeg", "image/webp"]
 public = false
 file_size_limit = "50MiB"
 allowed_mime_types = ["model/gltf-binary", "application/octet-stream"]
+
+# Privado a propósito: un comprobante de transferencia tiene nombre, banco y
+# montos. Se lee con createSignedUrl(), que sí evalúa las policies
+[storage.buckets.payment-receipts]
+public = false
+file_size_limit = "10MiB"
+allowed_mime_types = ["image/png", "image/jpeg", "image/webp", "application/pdf"]
 
 [auth]
 enabled = true
