@@ -151,6 +151,16 @@ INSERT INTO op3dcloud.user_has_role (id_user, id_role) VALUES
     (SELECT id FROM op3dcloud.roles WHERE name = 'client')
   );
 
+-- Planes de créditos
+-- OJO: los precios son de relleno (créditos × $10.000). Reemplazar por la lista
+-- real antes de que esto llegue a producción
+INSERT INTO op3dcloud.plans (name, credits, price) VALUES
+  ('Individual',   1,   10000.00),
+  ('Plus',        50,  500000.00),
+  ('Business',   100, 1000000.00),
+  ('Corporate',  150,  NULL)
+ON CONFLICT (name) DO NOTHING;
+
 -- Patients (asignados al cliente)
 INSERT INTO op3dcloud.patients (
   id_client,
