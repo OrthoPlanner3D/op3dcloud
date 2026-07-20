@@ -12,7 +12,7 @@ This is OrthoPlannerCloud - a full-stack web application for orthodontic treatme
 
 ## Development Commands
 
-### Frontend (from `frontend/` directory)
+### Frontend (from the repo root — el frontend vive en `src/`, no hay carpeta `frontend/`)
 ```bash
 # Development server
 pnpm dev
@@ -41,7 +41,8 @@ supabase stop
 supabase db reset
 
 # Generate TypeScript types
-supabase gen types typescript --local --schema op3dcloud > frontend/src/types/db/database.types.ts
+supabase gen types typescript --local --schema op3dcloud > src/types/db/database.types.ts
+pnpm check  # biome reindenta el archivo generado a tabs
 
 # Create new migration
 supabase migration new <migration_name>
@@ -120,8 +121,9 @@ VITE_SUPABASE_SCHEMA=op3dcloud
 ## Important Notes
 
 - **Schema**: Always work with `op3dcloud` schema, not `public`
-- **Types**: Regenerate database types after schema changes using `supabase gen types typescript --local --schema op3dcloud > frontend/src/types/db/database.types.ts`
+- **Types**: Regenerate database types after schema changes using `supabase gen types typescript --local --schema op3dcloud > src/types/db/database.types.ts`
 - **Migrations**: NUNCA escribir ni editar migraciones manualmente. Siempre usar `supabase db diff -f nombre_migracion` para generarlas automáticamente desde los schemas declarativos. El archivo generado por `db diff` no se toca para nada. Si el diff genera cambios no deseados, el problema está en los schemas declarativos — corregir los schemas y regenerar el diff
+- **Aplicar / desplegar**: NUNCA aplicar migraciones ni hacer deploy de nada, ni siquiera en local. Está prohibido ejecutar `supabase db reset`, `supabase db push`, `supabase migration up`, `supabase start`/`supabase stop`, o cualquier comando que escriba en la base o en un entorno remoto. Escribir los schemas declarativos y generar la migración con `db diff` sí; aplicarla la decide y la ejecuta el usuario
 - **RLS**: All database access is controlled by Row Level Security policies
 - **Roles**: Users must have appropriate roles to access different parts of the application
   - Role-based routing implemented via route guards
