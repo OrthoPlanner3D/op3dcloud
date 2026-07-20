@@ -13,10 +13,13 @@ CREATE TABLE op3dcloud.plans (
 
 alter table op3dcloud.plans enable row level security;
 
-create policy "Todos ven los planes activos"
+-- Lectura abierta: ver un plan y poder comprarlo son cosas distintas. Comprar lo
+-- sigue controlando el EXISTS con is_active del WITH CHECK de credit_payments;
+-- filtrar por activos acá dejaba sin nombre a los planes viejos en el historial
+create policy "Todos leen el catálogo de planes"
 on op3dcloud.plans for select
 to authenticated
-using (is_active or op3dcloud.is_admin());
+using (true);
 
 create policy "Solo el admin edita el catálogo de planes"
 on op3dcloud.plans for all

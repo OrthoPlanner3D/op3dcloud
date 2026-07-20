@@ -69,6 +69,8 @@ schema_paths = [
     "./schemas/view_planners.sql",
     "./schemas/view_dashboard_admin.sql",
     "./schemas/view_users.sql",
+    "./schemas/view_credit_balances.sql",
+    "./schemas/view_credit_transactions.sql",
     # functions
     "./schemas/function_*.sql",
     # storage
