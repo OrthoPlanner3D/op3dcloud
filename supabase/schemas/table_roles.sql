@@ -8,8 +8,14 @@ create table op3dcloud.roles (
 
 alter table op3dcloud.roles enable row level security;
 
-create policy "CRUD"
+create policy "Todos leen el catálogo de roles"
+on op3dcloud.roles for select
+to authenticated
+using (true);
+
+-- name es texto libre, sin CHECK ni enum: poder editarlo era otro camino de escalada
+create policy "Solo el admin modifica el catálogo de roles"
 on op3dcloud.roles for all
 to authenticated
-using(true)
-with check (true);
+using (op3dcloud.is_admin())
+with check (op3dcloud.is_admin());

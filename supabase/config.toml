@@ -51,6 +51,8 @@ max_client_conn = 100
 schema_paths = [
     # schemas
     "./schemas/schema_op3dcloud.sql",
+    # helpers de autorización: van antes de las tablas porque las policies los usan
+    "./schemas/function_is_admin.sql",
     # enums
     "./schemas/enum_*.sql",
     # tables

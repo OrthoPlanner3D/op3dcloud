@@ -1,8 +1,16 @@
 CREATE OR REPLACE FUNCTION op3dcloud.assign_planner_role(p_id_planner UUID)
-RETURNS TEXT AS $$
+RETURNS TEXT
+SET search_path = ''
+AS $$
 DECLARE
     v_role_id BIGINT;
 BEGIN
+    -- Es SECURITY DEFINER, así que saltea la RLS de user_has_role: sin este
+    -- check cualquiera puede promoverse a planner con una llamada RPC
+    IF NOT op3dcloud.is_admin() THEN
+        RETURN 'Only an admin can assign the planner role';
+    END IF;
+
     -- Validar que el parámetro no sea NULL
     IF p_id_planner IS NULL THEN
         RETURN 'User ID cannot be null';
