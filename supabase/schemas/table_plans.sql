@@ -11,6 +11,19 @@ CREATE TABLE op3dcloud.plans (
   CONSTRAINT plans_price_check CHECK (price IS NULL OR price >= 0)
 );
 
+alter table op3dcloud.plans enable row level security;
+
+create policy "Todos ven los planes activos"
+on op3dcloud.plans for select
+to authenticated
+using (is_active or op3dcloud.is_admin());
+
+create policy "Solo el admin edita el catálogo de planes"
+on op3dcloud.plans for all
+to authenticated
+using (op3dcloud.is_admin())
+with check (op3dcloud.is_admin());
+
 COMMENT ON TABLE op3dcloud.plans IS 'Catálogo de packs de créditos. Compra única, no hay suscripción recurrente';
 
 COMMENT ON COLUMN op3dcloud.plans.id IS 'Identificador único del plan';

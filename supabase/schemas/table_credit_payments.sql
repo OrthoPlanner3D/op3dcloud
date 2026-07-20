@@ -26,6 +26,57 @@ CREATE UNIQUE INDEX credit_payments_one_pending_per_client_idx
 CREATE INDEX credit_payments_status_idx
   ON op3dcloud.credit_payments (status, created_at DESC);
 
+alter table op3dcloud.credit_payments enable row level security;
+
+create policy "El cliente ve sus compras"
+on op3dcloud.credit_payments for select
+to authenticated
+using (client_id = (select auth.uid()) or op3dcloud.is_admin());
+
+-- credits y amount son copias de plans: el WITH CHECK las obliga a coincidir
+-- con el plan real, así el cliente puede insertar directo sin poder mentir
+create policy "El cliente compra para sí mismo"
+on op3dcloud.credit_payments for insert
+to authenticated
+with check (
+  client_id = (select auth.uid())
+  and status = 'pending'
+  and exists (
+    select 1 from op3dcloud.plans p
+    where p.id = credit_payments.plan_id
+      and p.is_active
+      and p.credits = credit_payments.credits
+      and p.price is not distinct from credit_payments.amount
+  )
+);
+
+-- USING mira la fila vieja y WITH CHECK la nueva: solo se toca lo pending, y
+-- solo puede quedar pending (subió el comprobante) o cancelled. El EXISTS se
+-- repite acá porque una policy no puede comparar la fila vieja contra la nueva:
+-- sin él se compra barato y después se edita el pedido mientras sigue pending
+create policy "El cliente sube el comprobante o cancela"
+on op3dcloud.credit_payments for update
+to authenticated
+using (client_id = (select auth.uid()) and status = 'pending')
+with check (
+  client_id = (select auth.uid())
+  and status in ('pending', 'cancelled')
+  and exists (
+    select 1 from op3dcloud.plans p
+    where p.id = credit_payments.plan_id
+      and p.is_active
+      and p.credits = credit_payments.credits
+      and p.price is not distinct from credit_payments.amount
+  )
+);
+
+-- Sin policy de DELETE a propósito: arrepentirse es cancelled, y deja rastro
+create policy "El admin gestiona todas las compras"
+on op3dcloud.credit_payments for all
+to authenticated
+using (op3dcloud.is_admin())
+with check (op3dcloud.is_admin());
+
 COMMENT ON TABLE op3dcloud.credit_payments IS 'Compras de packs de crédito. Se crean al hacer click en Comprar y quedan pending hasta que el admin verifica la transferencia';
 
 COMMENT ON COLUMN op3dcloud.credit_payments.id IS 'Identificador único de la compra';

@@ -26,6 +26,21 @@ CREATE INDEX credit_transactions_client_id_idx
 CREATE UNIQUE INDEX credit_transactions_payment_id_key
   ON op3dcloud.credit_transactions (payment_id) WHERE payment_id IS NOT NULL;
 
+alter table op3dcloud.credit_transactions enable row level security;
+
+create policy "El cliente ve sus movimientos"
+on op3dcloud.credit_transactions for select
+to authenticated
+using (client_id = (select auth.uid()) or op3dcloud.is_admin());
+
+-- Sin policies de UPDATE ni DELETE a propósito: la tabla es append-only. Con RLS
+-- activa, lo que no tiene policy no se puede hacer, ni siquiera siendo admin. Un
+-- error se corrige con un movimiento compensatorio, no reescribiendo el pasado
+create policy "Solo el admin genera movimientos"
+on op3dcloud.credit_transactions for insert
+to authenticated
+with check (op3dcloud.is_admin());
+
 COMMENT ON TABLE op3dcloud.credit_transactions IS 'Movimientos de crédito. El saldo de un cliente es SUM(amount); no se guarda en ninguna columna. Tabla append-only: las correcciones se hacen con movimientos compensatorios, no editando ni borrando filas';
 
 COMMENT ON COLUMN op3dcloud.credit_transactions.id IS 'Identificador único del movimiento';
