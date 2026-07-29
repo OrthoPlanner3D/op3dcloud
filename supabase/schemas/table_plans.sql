@@ -21,6 +21,14 @@ on op3dcloud.plans for select
 to authenticated
 using (true);
 
+-- La página de suscripción es pública: un visitante sin login (rol anon) tiene
+-- que poder ver el catálogo para comprar. Espeja el "Public read" de
+-- treatment_planning. Los grants a anon ya están en grants_op3dcloud.sql
+create policy "Lectura pública del catálogo"
+on op3dcloud.plans for select
+to anon
+using (true);
+
 create policy "Solo el admin edita el catálogo de planes"
 on op3dcloud.plans for all
 to authenticated

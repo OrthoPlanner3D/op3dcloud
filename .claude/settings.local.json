@@ -20,7 +20,15 @@
       "Bash(sed -i '' 's/<Section title=\"\"Diagnóstico Presuntivo General\"\">/<Section title=\"\"EVALUACIÓN CLÍNICA\"\">/g' src/pages/treatment-planning/components/TreatmentPlanningForm.tsx)",
       "Bash(sed -i '' 's/<Section title=\"\"Laboratorio\"\">/<Section>/g' src/pages/treatment-planning/components/TreatmentPlanningForm.tsx)",
       "Bash(python3:*)",
-      "Bash(xargs basename *)"
+      "Bash(xargs basename *)",
+      "Bash(python3 -c \"import pypdf; print\\('pypdf ok'\\)\")",
+      "Bash(python3 -c \"import PyPDF2; print\\('PyPDF2 ok'\\)\")",
+      "Bash(python3 -c \"import fitz; print\\('fitz ok'\\)\")",
+      "Bash(awk '/^      plans: \\\\{/,/^      [a-z_]+: \\\\{/' src/types/db/database.types.ts)",
+      "Bash(python3 -m venv v)",
+      "Bash(./v/bin/pip install *)",
+      "Bash(./v/bin/python -c ' *)",
+      "Bash(python3 -m json.tool)"
     ],
     "deny": [
       "Bash(rm -rf *)",
