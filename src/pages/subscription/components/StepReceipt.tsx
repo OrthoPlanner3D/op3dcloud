@@ -13,13 +13,23 @@ interface StepReceiptProps {
 	onSubmit: () => void;
 }
 
-// Datos de transferencia de relleno. Se reemplazan por los reales al
-// conectar el backend.
-const TRANSFER_DATA = [
-	{ label: "Titular", value: "OrthoPlanner3D S.A." },
-	{ label: "CBU", value: "0000000000000000000000" },
-	{ label: "Alias", value: "op3d.pagos" },
-	{ label: "CUIT", value: "30-00000000-0" },
+const TRANSFER_DATA_ARS = [
+	{ label: "Tipo de cuenta", value: "Caja de ahorro en pesos argentinos" },
+	{ label: "Alias", value: "METALIGN.AR" },
+	{ label: "CBU", value: "0070130930004033895883" },
+	{ label: "Número de cuenta", value: "4033895-8 130-8" },
+	{ label: "CUIL", value: "23-32063769-4" },
+];
+
+const TRANSFER_DATA_USD = [
+	{
+		label: "Tipo de cuenta",
+		value: "Caja de ahorro en dólares estadounidenses",
+	},
+	{ label: "Alias", value: "MetaAlign.us" },
+	{ label: "CBU", value: "0070130931004032477904" },
+	{ label: "Número de cuenta", value: "4032477-9 130-0" },
+	{ label: "CUIL", value: "23-32063769-4" },
 ];
 
 export default function StepReceipt({
@@ -38,6 +48,39 @@ export default function StepReceipt({
 		}
 	}
 
+	function renderTransferRows(data: { label: string; value: string }[]) {
+		return (
+			<div className="divide-y">
+				{data.map((row) => (
+					<div
+						key={row.label}
+						className="flex items-center justify-between py-2"
+					>
+						<span className="text-muted-foreground text-sm">
+							{row.label}
+						</span>
+						<div className="flex items-center gap-2">
+							<span className="text-foreground text-sm font-medium">
+								{row.value}
+							</span>
+							<Button
+								type="button"
+								variant="ghost"
+								size="icon"
+								className="size-6"
+								onClick={() =>
+									copyToClipboard(row.value, row.label)
+								}
+							>
+								<CopyIcon className="size-3" />
+							</Button>
+						</div>
+					</div>
+				))}
+			</div>
+		);
+	}
+
 	return (
 		<div className="mx-auto max-w-lg space-y-6">
 			<div className="text-center">
@@ -53,41 +96,22 @@ export default function StepReceipt({
 			<Card>
 				<CardHeader>
 					<CardTitle className="text-base">
-						Datos para transferir
+						Cuenta en pesos argentinos (ARS)
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
-					<div className="divide-y">
-						{TRANSFER_DATA.map((row) => (
-							<div
-								key={row.label}
-								className="flex items-center justify-between py-2"
-							>
-								<span className="text-muted-foreground text-sm">
-									{row.label}
-								</span>
-								<div className="flex items-center gap-2">
-									<span className="text-foreground text-sm font-medium">
-										{row.value}
-									</span>
-									<Button
-										type="button"
-										variant="ghost"
-										size="icon"
-										className="size-6"
-										onClick={() =>
-											copyToClipboard(
-												row.value,
-												row.label,
-											)
-										}
-									>
-										<CopyIcon className="size-3" />
-									</Button>
-								</div>
-							</div>
-						))}
-					</div>
+					{renderTransferRows(TRANSFER_DATA_ARS)}
+				</CardContent>
+			</Card>
+
+			<Card>
+				<CardHeader>
+					<CardTitle className="text-base">
+						Cuenta en dólares estadounidenses (USD)
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					{renderTransferRows(TRANSFER_DATA_USD)}
 				</CardContent>
 			</Card>
 
