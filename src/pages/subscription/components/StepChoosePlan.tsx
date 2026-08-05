@@ -140,10 +140,8 @@ function PlanCard({
 				/>
 				<p
 					className={cn(
-						"mt-1 text-sm",
-						highlighted
-							? "text-background/70"
-							: "text-muted-foreground",
+						"mt-1 text-sm font-semibold",
+						highlighted ? "text-background" : "text-foreground",
 					)}
 				>
 					{plan.total != null && `Total: ${formatUsd(plan.total)}`}
