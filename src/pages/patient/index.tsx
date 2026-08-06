@@ -79,10 +79,10 @@ export default function Patients() {
 	}, [user]);
 
 	return (
-		<div className="patients-container gap-3">
-			<div className="flex shrink-0 flex-wrap gap-2">
+		<div className="flex flex-col gap-3">
+			<div className="flex flex-wrap gap-2">
 				<Link to="/pacientes/crear">
-					<Button size="sm" className="shadow-sm">
+					<Button variant="brand" size="sm" className="shadow-sm">
 						<PlusIcon className="h-4 w-4" /> Crear Paciente
 					</Button>
 				</Link>
@@ -100,15 +100,15 @@ export default function Patients() {
 				</Button>
 			</div>
 
-			<div className="grid min-h-0 flex-1 grid-cols-1 gap-3 md:grid-cols-12">
-				{/* Panel de lista */}
+			<div className="grid grid-cols-1 gap-3 md:grid-cols-12 md:items-start">
+				{/* Panel de lista: acompaña el scroll de la página */}
 				<aside
 					className={cn(
-						"min-h-0 md:col-span-5 lg:col-span-4 xl:col-span-3",
+						"md:sticky md:top-0 md:col-span-5 md:max-h-[calc(100vh-2rem)] lg:col-span-4 xl:col-span-3",
 						mobileView === "detail" ? "hidden md:block" : "block",
 					)}
 				>
-					<Card className="flex h-full flex-col gap-0 overflow-hidden border py-0 shadow-sm">
+					<Card className="flex max-h-full flex-col gap-0 overflow-hidden border py-0 shadow-sm">
 						<div className="shrink-0 space-y-3 border-b p-3">
 							<div className="flex items-center justify-between gap-2">
 								<h2 className="text-sm font-semibold">
@@ -173,27 +173,27 @@ export default function Patients() {
 				{/* Panel de detalle */}
 				<section
 					className={cn(
-						"flex min-h-0 flex-col md:col-span-7 lg:col-span-8 xl:col-span-9",
+						"flex-col md:col-span-7 lg:col-span-8 xl:col-span-9",
 						mobileView === "list" ? "hidden md:flex" : "flex",
 					)}
 				>
 					{selectedPatient ? (
-						<div className="flex min-h-0 flex-1 flex-col gap-3">
-							<Button
-								variant="ghost"
-								size="sm"
-								className="w-fit md:hidden"
-								onClick={() => setMobileView("list")}
-							>
-								<ArrowLeftIcon className="h-4 w-4" /> Volver
-							</Button>
+						<div className="flex flex-col gap-3">
+							<div className="sticky top-0 z-10 -mx-1 bg-background px-1 py-1 md:hidden">
+								<Button
+									variant="ghost"
+									size="sm"
+									className="w-fit"
+									onClick={() => setMobileView("list")}
+								>
+									<ArrowLeftIcon className="h-4 w-4" /> Volver
+								</Button>
+							</div>
 
 							<PatientHero patient={selectedPatient} />
 
-							<PatientKpis patient={selectedPatient} />
-
 							{/* Navegación de pestañas */}
-							<div className="inline-flex w-fit shrink-0 gap-1 rounded-lg bg-muted p-1">
+							<div className="inline-flex w-fit gap-1 rounded-lg bg-muted p-1">
 								<TabButton
 									isActive={activeTab === "details"}
 									onClick={() => setActiveTab("details")}
@@ -211,19 +211,17 @@ export default function Patients() {
 							</div>
 
 							{/* Contenido de las pestañas */}
-							<div className="min-h-0 flex-1 overflow-auto pb-2">
-								{activeTab === "details" ? (
-									<PatientDetail patient={selectedPatient} />
-								) : (
-									<TreatmentPlanningView
-										patientId={selectedPatient.id}
-										patient={selectedPatient}
-									/>
-								)}
-							</div>
+							{activeTab === "details" ? (
+								<PatientDetail patient={selectedPatient} />
+							) : (
+								<TreatmentPlanningView
+									patientId={selectedPatient.id}
+									patient={selectedPatient}
+								/>
+							)}
 						</div>
 					) : (
-						<div className="flex h-full items-center justify-center">
+						<div className="flex min-h-[60vh] items-center justify-center">
 							<EmptyPatient />
 						</div>
 					)}
@@ -311,11 +309,15 @@ function CaseStatusBadge({ status }: { status: string }) {
 	);
 }
 
+/**
+ * Header del paciente: identidad arriba y, en la misma card, una fila
+ * compacta con los datos del formulario que antes ocupaban 4 tiles.
+ */
 function PatientHero({ patient }: { patient: PatientsRow }) {
 	const statuses = patient.case_status ?? [];
 
 	return (
-		<Card className="shrink-0 gap-0 border py-4 shadow-sm">
+		<Card className="gap-3 border py-4 shadow-sm">
 			<div className="flex flex-wrap items-center gap-4 px-4">
 				<Avatar className="size-12 shrink-0">
 					<AvatarFallback className="bg-brand text-base font-semibold text-brand-foreground">
@@ -351,44 +353,36 @@ function PatientHero({ patient }: { patient: PatientsRow }) {
 					</div>
 				)}
 			</div>
+
+			<div className="grid gap-x-6 gap-y-3 border-t px-4 pt-3 sm:grid-cols-3">
+				<HeroStat
+					icon={TargetIcon}
+					label="Enfoque de Tratamiento"
+					value={patient.treatment_approach || "No especificado"}
+				/>
+				<HeroStat
+					icon={ShieldCheckIcon}
+					label="Declaración Jurada"
+					value={
+						patient.sworn_declaration ? "Completada" : "Pendiente"
+					}
+					valueClassName={
+						patient.sworn_declaration
+							? "text-emerald-600 dark:text-emerald-400"
+							: "text-amber-600 dark:text-amber-400"
+					}
+				/>
+				<HeroStat
+					icon={FolderIcon}
+					label="Archivos adjuntos"
+					value={String(countPatientFiles(patient))}
+				/>
+			</div>
 		</Card>
 	);
 }
 
-/** Los cuatro KPIs son campos del formulario de creación del paciente. */
-function PatientKpis({ patient }: { patient: PatientsRow }) {
-	return (
-		<div className="grid shrink-0 grid-cols-2 gap-3 lg:grid-cols-4">
-			<KpiTile
-				icon={LayersIcon}
-				label="Tipo de Plan"
-				value={patient.type_of_plan || "No especificado"}
-			/>
-			<KpiTile
-				icon={TargetIcon}
-				label="Enfoque de Tratamiento"
-				value={patient.treatment_approach || "No especificado"}
-			/>
-			<KpiTile
-				icon={ShieldCheckIcon}
-				label="Declaración Jurada"
-				value={patient.sworn_declaration ? "Completada" : "Pendiente"}
-				valueClassName={
-					patient.sworn_declaration
-						? "text-emerald-600 dark:text-emerald-400"
-						: "text-amber-600 dark:text-amber-400"
-				}
-			/>
-			<KpiTile
-				icon={FolderIcon}
-				label="Archivos adjuntos"
-				value={String(countPatientFiles(patient))}
-			/>
-		</div>
-	);
-}
-
-function KpiTile({
+function HeroStat({
 	icon: Icon,
 	label,
 	value,
@@ -400,25 +394,23 @@ function KpiTile({
 	valueClassName?: string;
 }) {
 	return (
-		<Card className="gap-0 border py-3 shadow-sm">
-			<div className="flex items-center gap-2.5 px-3">
-				<div className="rounded-md bg-brand-muted p-1.5">
-					<Icon className="h-4 w-4 text-brand" />
-				</div>
-				<div className="min-w-0">
-					<p className="text-[11px] text-muted-foreground">{label}</p>
-					<p
-						className={cn(
-							"truncate text-sm font-medium",
-							valueClassName,
-						)}
-						title={value}
-					>
-						{value}
-					</p>
-				</div>
+		<div className="flex items-center gap-2.5">
+			<div className="rounded-md bg-brand-muted p-1.5">
+				<Icon className="h-4 w-4 text-brand" />
 			</div>
-		</Card>
+			<div className="min-w-0">
+				<p className="text-[11px] text-muted-foreground">{label}</p>
+				<p
+					className={cn(
+						"truncate text-sm font-medium",
+						valueClassName,
+					)}
+					title={value}
+				>
+					{value}
+				</p>
+			</div>
+		</div>
 	);
 }
 

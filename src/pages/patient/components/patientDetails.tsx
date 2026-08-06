@@ -39,38 +39,42 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 
 	return (
 		<div className="space-y-3 pb-4">
-			{/* Paso 1 del formulario */}
-			<SectionCard
-				step={1}
-				title="Datos iniciales del caso"
-				icon={ClipboardList}
-			>
-				<FieldValue label="Tipo de Plan" value={patient.type_of_plan} />
-				<FieldValue
-					label="Enfoque de Tratamiento"
-					value={patient.treatment_approach}
-				/>
-			</SectionCard>
+			{/* Pasos 1 a 4: en pantallas anchas entran de a dos por fila */}
+			<div className="grid items-start gap-3 xl:grid-cols-2">
+				{/* Paso 1 del formulario */}
+				<SectionCard
+					step={1}
+					title="Datos iniciales del caso"
+					icon={ClipboardList}
+				>
+					<FieldValue
+						label="Tipo de Plan"
+						value={patient.type_of_plan}
+					/>
+					<FieldValue
+						label="Enfoque de Tratamiento"
+						value={patient.treatment_approach}
+					/>
+				</SectionCard>
 
-			{/* Paso 2 del formulario */}
-			<SectionCard
-				step={2}
-				title="Objetivos del tratamiento"
-				icon={Target}
-			>
-				<FieldChecklist
-					label="Objetivo del Tratamiento"
-					values={toArray(patient.treatment_objective)}
-				/>
-			</SectionCard>
+				{/* Paso 2 del formulario */}
+				<SectionCard
+					step={2}
+					title="Objetivos del tratamiento"
+					icon={Target}
+				>
+					<FieldChecklist
+						label="Objetivo del Tratamiento"
+						values={toArray(patient.treatment_objective)}
+					/>
+				</SectionCard>
 
-			{/* Paso 3 del formulario */}
-			<SectionCard
-				step={3}
-				title="Restricciones y limitaciones"
-				icon={ShieldAlert}
-			>
-				<div className="grid gap-6 lg:grid-cols-2">
+				{/* Paso 3 del formulario */}
+				<SectionCard
+					step={3}
+					title="Restricciones y limitaciones"
+					icon={ShieldAlert}
+				>
 					<FieldChecklist
 						label="Restricciones Dentales"
 						values={toArray(patient.dental_restrictions)}
@@ -79,27 +83,29 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 						label="Limitaciones Declaradas"
 						values={toArray(patient.declared_limitations)}
 					/>
-				</div>
-			</SectionCard>
+				</SectionCard>
 
-			{/* Paso 4 del formulario */}
-			<SectionCard
-				step={4}
-				title="Aditamentos e instrucciones adicionales"
-				icon={Stethoscope}
-			>
-				<FieldChecklist
-					label="Recomendaciones y Acciones Sugeridas"
-					values={toArray(patient.suggested_adminations_and_actions)}
-				/>
-				<FieldText
-					label="Observaciones o Instrucciones"
-					text={patient.observations_or_instructions}
-					icon={MessageSquareText}
-				/>
-			</SectionCard>
+				{/* Paso 4 del formulario */}
+				<SectionCard
+					step={4}
+					title="Aditamentos e instrucciones adicionales"
+					icon={Stethoscope}
+				>
+					<FieldChecklist
+						label="Recomendaciones y Acciones Sugeridas"
+						values={toArray(
+							patient.suggested_adminations_and_actions,
+						)}
+					/>
+					<FieldText
+						label="Observaciones o Instrucciones"
+						text={patient.observations_or_instructions}
+						icon={MessageSquareText}
+					/>
+				</SectionCard>
+			</div>
 
-			{/* Paso 5 del formulario */}
+			{/* Paso 5 del formulario: a lo ancho, lleva las galerías */}
 			<SectionCard
 				step={5}
 				title="Documentación y declaración jurada"

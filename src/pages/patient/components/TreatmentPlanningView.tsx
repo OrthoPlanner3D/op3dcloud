@@ -206,7 +206,7 @@ export default function TreatmentPlanningView({
 							/>
 						)}
 						<Button
-							variant="default"
+							variant="brand"
 							size="sm"
 							onClick={handleApprove}
 						>
