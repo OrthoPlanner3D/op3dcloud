@@ -12,6 +12,7 @@ import Profile from "@/pages/profile";
 import Register from "@/pages/register";
 import ResetPassword from "@/pages/reset-password";
 import SignIn from "@/pages/sign-in";
+import SubscriptionPage from "@/pages/subscription";
 import TermsAndConditions from "@/pages/terms";
 import TreatmentPlanning from "@/pages/treatment-planning";
 import PublicTreatmentPlanningPage from "@/pages/treatment-planning-public";
@@ -185,6 +186,10 @@ const router = createBrowserRouter([
 	{
 		path: "/politica-de-privacidad",
 		element: <PrivacyPolicy />,
+	},
+	{
+		path: "/suscripcion",
+		element: <SubscriptionPage />,
 	},
 	{
 		path: "*",

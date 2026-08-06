@@ -9,10 +9,14 @@ SELECT
     u.raw_user_meta_data ->> 'name'::text,
     u.raw_user_meta_data ->> 'last_name'::text
   ) AS username,
-  NULLIF(
-    u.raw_user_meta_data ->> 'credits'::text,
-    ''::text
-  )::integer AS credits,
+  -- Sale del ledger, no de raw_user_meta_data: ese campo lo escribía el propio
+  -- cliente desde el formulario de perfil. El ::integer conserva el tipo de la
+  -- columna, porque SUM sobre integer devuelve bigint
+  COALESCE((
+    SELECT SUM(t.amount)
+    FROM op3dcloud.credit_transactions t
+    WHERE t.client_id = u.id
+  ), 0)::integer AS credits,
   (u.raw_user_meta_data ->> 'status'::text)::op3dcloud.status AS status,
 
   -- Campos adicionales de raw_user_meta_data

@@ -11,8 +11,14 @@ create table op3dcloud.user_has_role (
 
 alter table op3dcloud.user_has_role enable row level security;
 
-create policy "CRUD"
+create policy "Cada usuario ve sus propios roles"
+on op3dcloud.user_has_role for select
+to authenticated
+using (id_user = (select auth.uid()) or op3dcloud.is_admin());
+
+-- Sin esto cualquier usuario logueado puede insertarse la fila del rol admin
+create policy "Solo el admin asigna roles"
 on op3dcloud.user_has_role for all
 to authenticated
-using(true)
-with check (true);
+using (op3dcloud.is_admin())
+with check (op3dcloud.is_admin());
