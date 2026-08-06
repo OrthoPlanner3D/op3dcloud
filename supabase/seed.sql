@@ -151,6 +151,18 @@ INSERT INTO op3dcloud.user_has_role (id_user, id_role) VALUES
     (SELECT id FROM op3dcloud.roles WHERE name = 'client')
   );
 
+-- Planes de créditos (catálogo comercial real, precios en USD del PDF).
+-- price = total del plan; Partner se cotiza a medida (price NULL) y usa 200
+-- créditos como mínimo de referencia. El resto del contenido de las tarjetas
+-- (concepto, beneficios, etc.) vive en el front, no en esta tabla
+INSERT INTO op3dcloud.plans (name, credits, price) VALUES
+  ('Case',     1,   64.20),
+  ('Flow',    50, 2889.00),
+  ('Scale',  100, 5136.00),
+  ('Corp',   200, 8988.00),
+  ('Partner', 200,   NULL)
+ON CONFLICT (name) DO NOTHING;
+
 -- Patients (asignados al cliente)
 INSERT INTO op3dcloud.patients (
   id_client,

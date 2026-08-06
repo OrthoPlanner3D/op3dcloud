@@ -9,6 +9,193 @@ export type Json =
 export type Database = {
 	op3dcloud: {
 		Tables: {
+			credit_payments: {
+				Row: {
+					amount: number | null;
+					client_id: string;
+					created_at: string;
+					credits: number;
+					id: number;
+					plan_id: number;
+					receipt_path: string | null;
+					status: string;
+				};
+				Insert: {
+					amount?: number | null;
+					client_id: string;
+					created_at?: string;
+					credits: number;
+					id?: never;
+					plan_id: number;
+					receipt_path?: string | null;
+					status?: string;
+				};
+				Update: {
+					amount?: number | null;
+					client_id?: string;
+					created_at?: string;
+					credits?: number;
+					id?: never;
+					plan_id?: number;
+					receipt_path?: string | null;
+					status?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: "credit_payments_client_id_fkey";
+						columns: ["client_id"];
+						isOneToOne: false;
+						referencedRelation: "view_clients";
+						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "credit_payments_client_id_fkey";
+						columns: ["client_id"];
+						isOneToOne: false;
+						referencedRelation: "view_dashboard_admin";
+						referencedColumns: ["client_id"];
+					},
+					{
+						foreignKeyName: "credit_payments_client_id_fkey";
+						columns: ["client_id"];
+						isOneToOne: false;
+						referencedRelation: "view_dashboard_admin";
+						referencedColumns: ["planner_id"];
+					},
+					{
+						foreignKeyName: "credit_payments_client_id_fkey";
+						columns: ["client_id"];
+						isOneToOne: false;
+						referencedRelation: "view_planners";
+						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "credit_payments_client_id_fkey";
+						columns: ["client_id"];
+						isOneToOne: false;
+						referencedRelation: "view_users";
+						referencedColumns: ["id_user"];
+					},
+					{
+						foreignKeyName: "credit_payments_plan_id_fkey";
+						columns: ["plan_id"];
+						isOneToOne: false;
+						referencedRelation: "plans";
+						referencedColumns: ["id"];
+					},
+				];
+			};
+			credit_transactions: {
+				Row: {
+					amount: number;
+					client_id: string;
+					created_at: string;
+					created_by: string | null;
+					id: number;
+					note: string | null;
+					payment_id: number | null;
+					type: string;
+				};
+				Insert: {
+					amount: number;
+					client_id: string;
+					created_at?: string;
+					created_by?: string | null;
+					id?: never;
+					note?: string | null;
+					payment_id?: number | null;
+					type: string;
+				};
+				Update: {
+					amount?: number;
+					client_id?: string;
+					created_at?: string;
+					created_by?: string | null;
+					id?: never;
+					note?: string | null;
+					payment_id?: number | null;
+					type?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: "credit_transactions_client_id_fkey";
+						columns: ["client_id"];
+						isOneToOne: false;
+						referencedRelation: "view_clients";
+						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "credit_transactions_client_id_fkey";
+						columns: ["client_id"];
+						isOneToOne: false;
+						referencedRelation: "view_dashboard_admin";
+						referencedColumns: ["client_id"];
+					},
+					{
+						foreignKeyName: "credit_transactions_client_id_fkey";
+						columns: ["client_id"];
+						isOneToOne: false;
+						referencedRelation: "view_dashboard_admin";
+						referencedColumns: ["planner_id"];
+					},
+					{
+						foreignKeyName: "credit_transactions_client_id_fkey";
+						columns: ["client_id"];
+						isOneToOne: false;
+						referencedRelation: "view_planners";
+						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "credit_transactions_client_id_fkey";
+						columns: ["client_id"];
+						isOneToOne: false;
+						referencedRelation: "view_users";
+						referencedColumns: ["id_user"];
+					},
+					{
+						foreignKeyName: "credit_transactions_created_by_fkey";
+						columns: ["created_by"];
+						isOneToOne: false;
+						referencedRelation: "view_clients";
+						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "credit_transactions_created_by_fkey";
+						columns: ["created_by"];
+						isOneToOne: false;
+						referencedRelation: "view_dashboard_admin";
+						referencedColumns: ["client_id"];
+					},
+					{
+						foreignKeyName: "credit_transactions_created_by_fkey";
+						columns: ["created_by"];
+						isOneToOne: false;
+						referencedRelation: "view_dashboard_admin";
+						referencedColumns: ["planner_id"];
+					},
+					{
+						foreignKeyName: "credit_transactions_created_by_fkey";
+						columns: ["created_by"];
+						isOneToOne: false;
+						referencedRelation: "view_planners";
+						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "credit_transactions_created_by_fkey";
+						columns: ["created_by"];
+						isOneToOne: false;
+						referencedRelation: "view_users";
+						referencedColumns: ["id_user"];
+					},
+					{
+						foreignKeyName: "credit_transactions_payment_id_fkey";
+						columns: ["payment_id"];
+						isOneToOne: false;
+						referencedRelation: "credit_payments";
+						referencedColumns: ["id"];
+					},
+				];
+			};
 			patient_models: {
 				Row: {
 					created_at: string;
@@ -202,6 +389,33 @@ export type Database = {
 						referencedColumns: ["id_user"];
 					},
 				];
+			};
+			plans: {
+				Row: {
+					created_at: string;
+					credits: number;
+					id: number;
+					is_active: boolean;
+					name: string;
+					price: number | null;
+				};
+				Insert: {
+					created_at?: string;
+					credits: number;
+					id?: never;
+					is_active?: boolean;
+					name: string;
+					price?: number | null;
+				};
+				Update: {
+					created_at?: string;
+					credits?: number;
+					id?: never;
+					is_active?: boolean;
+					name?: string;
+					price?: number | null;
+				};
+				Relationships: [];
 			};
 			roles: {
 				Row: {
@@ -451,6 +665,144 @@ export type Database = {
 				};
 				Relationships: [];
 			};
+			view_credit_balances: {
+				Row: {
+					balance: number | null;
+					client_id: string | null;
+					last_movement_at: string | null;
+				};
+				Relationships: [
+					{
+						foreignKeyName: "credit_transactions_client_id_fkey";
+						columns: ["client_id"];
+						isOneToOne: false;
+						referencedRelation: "view_clients";
+						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "credit_transactions_client_id_fkey";
+						columns: ["client_id"];
+						isOneToOne: false;
+						referencedRelation: "view_dashboard_admin";
+						referencedColumns: ["client_id"];
+					},
+					{
+						foreignKeyName: "credit_transactions_client_id_fkey";
+						columns: ["client_id"];
+						isOneToOne: false;
+						referencedRelation: "view_dashboard_admin";
+						referencedColumns: ["planner_id"];
+					},
+					{
+						foreignKeyName: "credit_transactions_client_id_fkey";
+						columns: ["client_id"];
+						isOneToOne: false;
+						referencedRelation: "view_planners";
+						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "credit_transactions_client_id_fkey";
+						columns: ["client_id"];
+						isOneToOne: false;
+						referencedRelation: "view_users";
+						referencedColumns: ["id_user"];
+					},
+				];
+			};
+			view_credit_transactions: {
+				Row: {
+					amount: number | null;
+					client_id: string | null;
+					created_at: string | null;
+					created_by: string | null;
+					id: number | null;
+					note: string | null;
+					payment_amount: number | null;
+					payment_id: number | null;
+					payment_status: string | null;
+					plan_name: string | null;
+					type: string | null;
+				};
+				Relationships: [
+					{
+						foreignKeyName: "credit_transactions_client_id_fkey";
+						columns: ["client_id"];
+						isOneToOne: false;
+						referencedRelation: "view_clients";
+						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "credit_transactions_client_id_fkey";
+						columns: ["client_id"];
+						isOneToOne: false;
+						referencedRelation: "view_dashboard_admin";
+						referencedColumns: ["client_id"];
+					},
+					{
+						foreignKeyName: "credit_transactions_client_id_fkey";
+						columns: ["client_id"];
+						isOneToOne: false;
+						referencedRelation: "view_dashboard_admin";
+						referencedColumns: ["planner_id"];
+					},
+					{
+						foreignKeyName: "credit_transactions_client_id_fkey";
+						columns: ["client_id"];
+						isOneToOne: false;
+						referencedRelation: "view_planners";
+						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "credit_transactions_client_id_fkey";
+						columns: ["client_id"];
+						isOneToOne: false;
+						referencedRelation: "view_users";
+						referencedColumns: ["id_user"];
+					},
+					{
+						foreignKeyName: "credit_transactions_created_by_fkey";
+						columns: ["created_by"];
+						isOneToOne: false;
+						referencedRelation: "view_clients";
+						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "credit_transactions_created_by_fkey";
+						columns: ["created_by"];
+						isOneToOne: false;
+						referencedRelation: "view_dashboard_admin";
+						referencedColumns: ["client_id"];
+					},
+					{
+						foreignKeyName: "credit_transactions_created_by_fkey";
+						columns: ["created_by"];
+						isOneToOne: false;
+						referencedRelation: "view_dashboard_admin";
+						referencedColumns: ["planner_id"];
+					},
+					{
+						foreignKeyName: "credit_transactions_created_by_fkey";
+						columns: ["created_by"];
+						isOneToOne: false;
+						referencedRelation: "view_planners";
+						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "credit_transactions_created_by_fkey";
+						columns: ["created_by"];
+						isOneToOne: false;
+						referencedRelation: "view_users";
+						referencedColumns: ["id_user"];
+					},
+					{
+						foreignKeyName: "credit_transactions_payment_id_fkey";
+						columns: ["payment_id"];
+						isOneToOne: false;
+						referencedRelation: "credit_payments";
+						referencedColumns: ["id"];
+					},
+				];
+			};
 			view_dashboard_admin: {
 				Row: {
 					case_status: string[] | null;
@@ -510,6 +862,14 @@ export type Database = {
 			};
 		};
 		Functions: {
+			adjust_client_credits: {
+				Args: { p_amount: number; p_client_id: string; p_note: string };
+				Returns: number;
+			};
+			approve_credit_payment: {
+				Args: { p_payment_id: number };
+				Returns: number;
+			};
 			assign_client_role: {
 				Args: { p_id_client: string };
 				Returns: string;
@@ -517,6 +877,11 @@ export type Database = {
 			assign_planner_role: {
 				Args: { p_id_planner: string };
 				Returns: string;
+			};
+			is_admin: { Args: never; Returns: boolean };
+			reject_credit_payment: {
+				Args: { p_payment_id: number };
+				Returns: undefined;
 			};
 		};
 		Enums: {

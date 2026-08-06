@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"name": "Frontend",
+			"path": "."
+		},
+		{
+			"name": "Backend",
+			"path": "supabase"
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"**/node_modules": true,
+			"**/dist": true,
+			"supabase": true,
+			".agents": true,
+			".vscode": true,
+			".branches": true,
+			".temp": true,
+		}
+	}
+}
