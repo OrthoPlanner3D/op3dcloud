@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { PatientsRow } from "@/types/db/patients/patients";
 import { FileGallery } from "./FileGallery";
+import { ModelGallery } from "./ModelGallery";
 
 interface PatientDetailProps {
 	patient: PatientsRow;
@@ -128,6 +129,8 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 						label="Documentación Complementaria"
 						paths={toArray(patient.supplementary_docs)}
 					/>
+					{/* Vienen de stl-render, no del formulario de creación */}
+					<ModelGallery patientId={patient.id} />
 				</div>
 
 				<div className="flex items-center justify-between gap-3 rounded-md border p-4">
