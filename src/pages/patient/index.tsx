@@ -69,14 +69,6 @@ export default function Patients() {
 		toast.success("Link de planificación copiado");
 	};
 
-	const handleApprove = () => {
-		toast.info("La aprobación del caso todavía no está implementada");
-	};
-
-	const handleRequestModification = () => {
-		toast.info("La solicitud de modificación todavía no está implementada");
-	};
-
 	const filteredPatients = searchQuery.trim()
 		? patients.filter((patient) => {
 				const query = searchQuery.toLowerCase();
@@ -252,10 +244,6 @@ export default function Patients() {
 								}
 								onViewPlanning={() => setActiveTab("planning")}
 								onCopyLink={handleCopyLink}
-								onRequestModification={
-									handleRequestModification
-								}
-								onApprove={handleApprove}
 							/>
 
 							<TabNav
@@ -283,17 +271,14 @@ export default function Patients() {
 								)}
 								{activeTab === "planning" && (
 									<TreatmentPlanningView
-										patientId={selectedPatient.id}
 										treatmentPlanning={planning}
-										isLoadingPlanning={isLoadingPlanning}
+										isLoading={isLoadingPlanning}
 									/>
 								)}
 							</div>
 						</div>
 					) : (
-						<div className="flex min-h-[60vh] items-center justify-center">
-							<EmptyPatient />
-						</div>
+						<EmptyPatient />
 					)}
 				</section>
 			</div>
@@ -398,7 +383,6 @@ function CaseStatusBadge({ status }: { status: string }) {
 function PatientHero({ patient }: { patient: PatientsRow }) {
 	const statuses = patient.case_status ?? [];
 
-	// Superficie mayor que las cards de sección → sombra un punto más profunda
 	return (
 		<Card className="gap-4 border py-4 shadow-md">
 			<div className="flex flex-wrap items-center gap-4 px-4">
@@ -409,8 +393,6 @@ function PatientHero({ patient }: { patient: PatientsRow }) {
 				</Avatar>
 
 				<div className="min-w-0 flex-1">
-					{/* Tracking negativo: a mayor tamaño, las letras se leen
-					    demasiado separadas */}
 					<h1 className="truncate text-2xl leading-tight font-semibold tracking-tight">
 						{patient.name} {patient.last_name}
 					</h1>
@@ -479,7 +461,6 @@ function HeroStat({
 				<Icon className="h-4 w-4 text-brand" />
 			</div>
 			<div className="min-w-0">
-				{/* Texto chico: tracking levemente positivo para legibilidad */}
 				<p className="text-[11px] tracking-wide text-muted-foreground">
 					{label}
 				</p>
@@ -573,14 +554,12 @@ function TabNav({
 
 function EmptyPatient() {
 	return (
-		<div className="flex items-center justify-center p-6">
+		<div className="flex min-h-[60vh] items-center justify-center p-6">
 			<div className="flex flex-col items-center space-y-6 text-center">
-				{/* Icono con halo */}
 				<div className="rounded-full bg-brand-muted p-6 ring-8 ring-brand-muted/40">
 					<UsersIcon className="h-10 w-10 text-brand" />
 				</div>
 
-				{/* Contenido principal */}
 				<div className="space-y-3">
 					<h3 className="text-xl font-semibold text-foreground">
 						Ningún paciente seleccionado
@@ -591,7 +570,6 @@ function EmptyPatient() {
 					</p>
 				</div>
 
-				{/* Indicador visual sutil */}
 				<div className="flex items-center space-x-2 text-muted-foreground/50">
 					<ArrowLeftIcon className="h-4 w-4" />
 					<span className="text-xs">Selecciona desde la lista</span>

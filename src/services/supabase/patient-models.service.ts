@@ -1,7 +1,7 @@
 import { supabase } from "@/config/supabase.config";
 import type { Tables } from "@/types/db/database.types";
 
-export type PatientModelRow = Tables<{ schema: "op3dcloud" }, "patient_models">;
+type PatientModelRow = Tables<{ schema: "op3dcloud" }, "patient_models">;
 
 /**
  * Casos 3D de un paciente. Cada fila es un caso/escaneo cargado desde

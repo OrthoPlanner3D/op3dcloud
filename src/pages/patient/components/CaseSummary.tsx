@@ -4,7 +4,6 @@ import {
 	Box,
 	Calendar,
 	Check,
-	CheckCircle,
 	Download,
 	ExternalLink,
 	FileText,
@@ -12,12 +11,9 @@ import {
 	Gauge,
 	Layers,
 	Link2,
-	Lock,
-	PenLine,
 	Route,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn, formatDate } from "@/lib/utils";
 import { TreatmentPlanningDocument } from "@/pages/formPlanificadorPdf";
@@ -25,6 +21,7 @@ import { getTreatmentFilePublicUrl } from "@/services/supabase/storage.service";
 import type { PatientsRow } from "@/types/db/patients/patients";
 import { getCaseWorkflow, type WorkflowStepState } from "../lib/case-workflow";
 import type { TreatmentPlanningRow } from "../lib/useTreatmentPlanning";
+import { KpiTile, SectionCard } from "./case-ui";
 
 interface CaseProps {
 	patient: PatientsRow;
@@ -60,7 +57,7 @@ export default function CaseSummary({
 				</div>
 				<div className="space-y-3">
 					<PlanningCard planning={planning} />
-					<DeliverablesCard patient={patient} planning={planning} />
+					<DeliverablesCard planning={planning} />
 				</div>
 			</div>
 		</div>
@@ -102,7 +99,7 @@ function CaseKpis({
 			<KpiTile
 				icon={FolderOpen}
 				label="Tipo de caso"
-				value={patient.type_of_plan || "No especificado"}
+				value={patient.type_of_plan}
 				muted={!patient.type_of_plan}
 			/>
 			<KpiTile
@@ -111,49 +108,6 @@ function CaseKpis({
 				value={formatDate(planning?.created_at ?? patient.created_at)}
 			/>
 		</div>
-	);
-}
-
-function KpiTile({
-	icon: Icon,
-	label,
-	value,
-	hint,
-	muted,
-}: {
-	icon: React.ElementType;
-	label: string;
-	value: string;
-	hint?: string;
-	muted?: boolean;
-}) {
-	return (
-		<Card className="gap-0 border py-3 shadow-sm">
-			<div className="flex items-center gap-3 px-3">
-				<div className="shrink-0 rounded-lg bg-brand-muted p-2">
-					<Icon className="h-4 w-4 text-brand" />
-				</div>
-				<div className="min-w-0">
-					<p className="text-[11px] tracking-wide text-muted-foreground">
-						{label}
-					</p>
-					<p
-						className={cn(
-							"truncate text-sm font-semibold",
-							muted && "font-normal text-muted-foreground",
-						)}
-						title={value}
-					>
-						{value}
-					</p>
-					{hint && (
-						<p className="truncate text-[11px] text-muted-foreground">
-							{hint}
-						</p>
-					)}
-				</div>
-			</div>
-		</Card>
 	);
 }
 
@@ -216,8 +170,7 @@ function CaseWorkflow({
 							<p
 								className={cn(
 									"text-xs font-medium",
-									step.state === "pending" ||
-										step.state === "locked"
+									step.state === "pending"
 										? "text-muted-foreground"
 										: "text-foreground",
 								)}
@@ -234,21 +187,12 @@ function CaseWorkflow({
 				))}
 			</ol>
 
-			<div className="space-y-1.5 rounded-md border border-dashed p-3 text-xs text-muted-foreground">
-				<p>
-					<span className="font-medium">Documentación</span> se
-					completa con fotos, radiografías y escaneos cargados más la
-					declaración jurada.{" "}
-					<span className="font-medium">En planificación</span>,
-					cuando el planificador guarda el formulario del caso.
-				</p>
-				<p>
-					La aprobación del caso todavía no se registra en el sistema:
-					el workflow no avanza más allá de{" "}
-					<span className="font-medium">Pendiente de aprobación</span>{" "}
-					y los entregables quedan bloqueados.
-				</p>
-			</div>
+			<p className="rounded-md border border-dashed p-3 text-xs text-muted-foreground">
+				<span className="font-medium">Documentación</span> se completa
+				con fotos, radiografías y escaneos cargados más la declaración
+				jurada. <span className="font-medium">En planificación</span>,
+				cuando el planificador guarda el formulario del caso.
+			</p>
 		</SectionCard>
 	);
 }
@@ -263,14 +207,10 @@ function StepCircle({ state }: { state: WorkflowStepState }) {
 				state === "current" && "border-brand bg-brand-muted text-brand",
 				state === "pending" &&
 					"border-border bg-background text-muted-foreground",
-				state === "locked" &&
-					"border-border bg-muted text-muted-foreground",
 			)}
 		>
 			{state === "done" ? (
 				<Check className="size-4" />
-			) : state === "locked" ? (
-				<Lock className="size-3.5" />
 			) : (
 				<span className="size-2 rounded-full bg-current" />
 			)}
@@ -305,10 +245,8 @@ function PlanningCard({ planning }: { planning: TreatmentPlanningRow | null }) {
 /* ── Entregables ───────────────────────────────────────────────────────── */
 
 function DeliverablesCard({
-	patient,
 	planning,
 }: {
-	patient: PatientsRow;
 	planning: TreatmentPlanningRow | null;
 }) {
 	const reportUrl = planning?.technical_report_url;
@@ -316,43 +254,19 @@ function DeliverablesCard({
 	return (
 		<SectionCard title="Entregables" icon={FolderOpen}>
 			{reportUrl ? (
-				<div className="space-y-3">
-					<a
-						href={getTreatmentFilePublicUrl(reportUrl)}
-						target="_blank"
-						rel="noopener noreferrer"
-						className="inline-flex items-center gap-1.5 text-sm font-medium text-brand hover:underline"
-					>
-						<ExternalLink className="h-3.5 w-3.5" />
-						Informe técnico
-					</a>
-					{planning && (
-						<PDFDownloadButton
-							doc={
-								<TreatmentPlanningDocument
-									treatmentPlanning={planning}
-									patient={patient}
-								/>
-							}
-							fileName={`planificacion-${patient.name}-${patient.last_name}.pdf`}
-						/>
-					)}
-				</div>
+				<a
+					href={getTreatmentFilePublicUrl(reportUrl)}
+					target="_blank"
+					rel="noopener noreferrer"
+					className="inline-flex items-center gap-1.5 text-sm font-medium text-brand hover:underline"
+				>
+					<ExternalLink className="h-3.5 w-3.5" />
+					Informe técnico
+				</a>
 			) : (
-				<div className="flex flex-col items-center gap-3 py-2 text-center">
-					<div className="rounded-full bg-muted p-4">
-						<Lock className="h-6 w-6 text-muted-foreground" />
-					</div>
-					<div className="space-y-1">
-						<p className="text-sm font-medium">
-							Entregables bloqueados
-						</p>
-						<p className="text-xs text-muted-foreground">
-							Se habilitan tras la aprobación de la planificación
-							del caso.
-						</p>
-					</div>
-				</div>
+				<p className="text-sm text-muted-foreground">
+					Todavía no hay un informe técnico para este caso.
+				</p>
 			)}
 		</SectionCard>
 	);
@@ -366,16 +280,12 @@ export function CaseToolbar({
 	showViewPlanning,
 	onViewPlanning,
 	onCopyLink,
-	onRequestModification,
-	onApprove,
 }: {
 	patient: PatientsRow;
 	planning: TreatmentPlanningRow | null;
 	showViewPlanning: boolean;
 	onViewPlanning: () => void;
 	onCopyLink: () => void;
-	onRequestModification: () => void;
-	onApprove: () => void;
 }) {
 	return (
 		<div className="flex flex-wrap gap-2">
@@ -389,15 +299,6 @@ export function CaseToolbar({
 				<Link2 className="h-4 w-4" />
 				Copiar link
 			</Button>
-			<Button
-				variant="outline"
-				size="sm"
-				onClick={onRequestModification}
-				disabled={!planning}
-			>
-				<PenLine className="h-4 w-4" />
-				Solicitar modificación
-			</Button>
 			{planning && (
 				<PDFDownloadButton
 					doc={
@@ -409,20 +310,11 @@ export function CaseToolbar({
 					fileName={`planificacion-${patient.name}-${patient.last_name}.pdf`}
 				/>
 			)}
-			<Button
-				variant="brand"
-				size="sm"
-				onClick={onApprove}
-				disabled={!planning}
-			>
-				<CheckCircle className="h-4 w-4" />
-				Aprobar planificación
-			</Button>
 		</div>
 	);
 }
 
-export function PDFDownloadButton({
+function PDFDownloadButton({
 	doc,
 	fileName,
 }: {
@@ -449,31 +341,5 @@ export function PDFDownloadButton({
 			<Download className="h-4 w-4" />
 			{instance.loading ? "Generando..." : "Descargar PDF"}
 		</Button>
-	);
-}
-
-/* ── Shell de sección, mismo lenguaje que el resto del detalle ─────────── */
-
-function SectionCard({
-	title,
-	icon: Icon,
-	children,
-}: {
-	title: string;
-	icon: React.ElementType;
-	children: React.ReactNode;
-}) {
-	return (
-		<Card className="gap-4 border py-4 shadow-sm">
-			<CardHeader className="px-4">
-				<CardTitle className="flex items-center gap-2.5 text-sm font-semibold">
-					<span className="rounded-md bg-brand-muted p-1.5">
-						<Icon className="h-4 w-4 text-brand" />
-					</span>
-					{title}
-				</CardTitle>
-			</CardHeader>
-			<CardContent className="space-y-4 px-4">{children}</CardContent>
-		</Card>
 	);
 }

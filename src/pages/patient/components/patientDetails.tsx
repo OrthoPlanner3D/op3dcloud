@@ -1,5 +1,4 @@
 import {
-	Check,
 	CheckCircle,
 	ClipboardList,
 	FolderOpen,
@@ -10,14 +9,27 @@ import {
 	XCircle,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { PatientsRow } from "@/types/db/patients/patients";
+import { FieldChecklist, SectionCard } from "./case-ui";
 import { FileGallery } from "./FileGallery";
 import { ModelGallery } from "./ModelGallery";
 
 interface PatientDetailProps {
 	patient: PatientsRow;
+}
+
+/** Los arrays de Postgres pueden llegar como `{a,b}` en vez de array real. */
+function toArray(v: unknown): string[] {
+	if (Array.isArray(v)) return v;
+	if (typeof v === "string" && v.startsWith("{")) {
+		return v
+			.slice(1, -1)
+			.split(",")
+			.map((s) => s.trim())
+			.filter(Boolean);
+	}
+	return [];
 }
 
 /**
@@ -26,18 +38,6 @@ interface PatientDetailProps {
  * los 5 pasos de ese formulario para que sea reconocible.
  */
 export default function PatientDetail({ patient }: PatientDetailProps) {
-	const toArray = (v: unknown): string[] => {
-		if (Array.isArray(v)) return v;
-		if (typeof v === "string" && v.startsWith("{")) {
-			return v
-				.slice(1, -1)
-				.split(",")
-				.map((s) => s.trim())
-				.filter(Boolean);
-		}
-		return [];
-	};
-
 	return (
 		<div className="space-y-3 pb-4">
 			{/* Pasos 1 a 4: en pantallas anchas entran de a dos por fila */}
@@ -166,35 +166,6 @@ export default function PatientDetail({ patient }: PatientDetailProps) {
 	);
 }
 
-function SectionCard({
-	step,
-	title,
-	icon: Icon,
-	children,
-}: {
-	step: number;
-	title: string;
-	icon: React.ElementType;
-	children: React.ReactNode;
-}) {
-	return (
-		<Card className="gap-4 border py-4 shadow-sm">
-			<CardHeader className="px-4">
-				<CardTitle className="flex items-center gap-2.5 text-sm font-semibold">
-					<span className="rounded-md bg-brand-muted p-1.5">
-						<Icon className="h-4 w-4 text-brand" />
-					</span>
-					<span className="text-muted-foreground tabular-nums">
-						{step} ·
-					</span>
-					{title}
-				</CardTitle>
-			</CardHeader>
-			<CardContent className="space-y-6 px-4">{children}</CardContent>
-		</Card>
-	);
-}
-
 /** Campo que en el formulario es un `Select` de valor único. */
 function FieldValue({
 	label,
@@ -214,46 +185,6 @@ function FieldValue({
 			>
 				{value || "No especificado"}
 			</span>
-		</div>
-	);
-}
-
-/**
- * Campo que en el formulario es un `SearchableMultiSelect`. Se listan los
- * valores con el mismo ícono `Check` que el dropdown usa al marcarlos: las
- * opciones son largas y como chips quedan ilegibles.
- */
-function FieldChecklist({
-	label,
-	values,
-}: {
-	label: string;
-	values: string[];
-}) {
-	return (
-		<div className="space-y-2">
-			<div className="flex items-baseline gap-2">
-				<h4 className="text-sm font-medium">{label}</h4>
-				{values.length > 0 && (
-					<span className="text-xs text-muted-foreground">
-						{values.length}
-					</span>
-				)}
-			</div>
-			{values.length > 0 ? (
-				<ul className="space-y-1.5">
-					{values.map((value) => (
-						<li key={value} className="flex items-start gap-2">
-							<Check className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
-							<span className="text-sm leading-relaxed">
-								{value}
-							</span>
-						</li>
-					))}
-				</ul>
-			) : (
-				<p className="text-sm text-muted-foreground">No especificado</p>
-			)}
 		</div>
 	);
 }

@@ -3,7 +3,6 @@ import {
 	ArrowDownToLine,
 	ArrowUpToLine,
 	Boxes,
-	Check,
 	Factory,
 	Gauge,
 	LinkIcon,
@@ -14,76 +13,22 @@ import {
 	Target,
 	TrendingUp,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { getTreatmentFilePublicUrl } from "@/services/supabase/storage.service";
-import { getTreatmentPlanningByPatientId } from "@/services/supabase/treatment-planning.service";
-import type { Tables } from "@/types/db/database.types";
+import type { TreatmentPlanningRow } from "../lib/useTreatmentPlanning";
+import { FieldChecklist, KpiTile, SectionCard } from "./case-ui";
 
-type TreatmentPlanningRow = Tables<
-	{ schema: "op3dcloud" },
-	"treatment_planning"
->;
 interface TreatmentPlanningViewProps {
-	patientId: number;
+	treatmentPlanning: TreatmentPlanningRow | null;
+	isLoading: boolean;
 	isPublic?: boolean;
-	/**
-	 * Planificación ya cargada por el contenedor. Si no llega, el componente
-	 * fetchea solo — que es lo que hace la ruta pública `/planificacion/:id`.
-	 */
-	treatmentPlanning?: TreatmentPlanningRow | null;
-	isLoadingPlanning?: boolean;
 }
 
 export default function TreatmentPlanningView({
-	patientId,
+	treatmentPlanning,
+	isLoading,
 	isPublic = false,
-	treatmentPlanning: providedPlanning,
-	isLoadingPlanning,
 }: TreatmentPlanningViewProps) {
-	// Si el contenedor no provee los datos, el componente se los busca.
-	const isSelfFetching = providedPlanning === undefined;
-
-	const [fetchedPlanning, setFetchedPlanning] =
-		useState<TreatmentPlanningRow | null>(null);
-	const [isSelfLoading, setIsSelfLoading] = useState(isSelfFetching);
-
-	useEffect(() => {
-		if (!isSelfFetching) return;
-
-		let cancelled = false;
-		const fetch = async () => {
-			try {
-				setIsSelfLoading(true);
-				const data = await getTreatmentPlanningByPatientId(patientId);
-				if (!cancelled) setFetchedPlanning(data);
-			} catch (error) {
-				console.error("Error fetching treatment planning:", error);
-				if (!cancelled) {
-					toast.error(
-						"Error al cargar la planificación de tratamiento",
-					);
-				}
-			} finally {
-				if (!cancelled) setIsSelfLoading(false);
-			}
-		};
-		fetch();
-
-		return () => {
-			cancelled = true;
-		};
-	}, [patientId, isSelfFetching]);
-
-	const treatmentPlanning = isSelfFetching
-		? fetchedPlanning
-		: providedPlanning;
-	const isLoading = isSelfFetching
-		? isSelfLoading
-		: Boolean(isLoadingPlanning);
-
 	if (isLoading) {
 		return (
 			<div className="flex items-center justify-center p-8">
@@ -196,18 +141,21 @@ export default function TreatmentPlanningView({
 			)}
 
 			<SectionCard title="EVALUACIÓN CLÍNICA" icon={Stethoscope}>
-				<Checklist
+				<FieldChecklist
 					label="Diagnóstico Presuntivo General"
 					values={tp.diagnosis || []}
 				/>
 			</SectionCard>
 
 			<SectionCard title="MANUFACTURA" icon={Factory}>
-				<Checklist label="Laboratorio" values={tp.laboratory || []} />
+				<FieldChecklist
+					label="Laboratorio"
+					values={tp.laboratory || []}
+				/>
 			</SectionCard>
 
 			<SectionCard title="PLAN DE ACCIÓN" icon={Target}>
-				<Checklist
+				<FieldChecklist
 					label="Criterio de Planificación y Accionar Clínico"
 					values={tp.planning || []}
 				/>
@@ -215,7 +163,7 @@ export default function TreatmentPlanningView({
 
 			{tp.restrictions && tp.restrictions.length > 0 && (
 				<SectionCard title="RESTRICCIONES" icon={ShieldAlert}>
-					<Checklist
+					<FieldChecklist
 						label="Restricciones Biomecánicas"
 						values={tp.restrictions}
 					/>
@@ -295,7 +243,7 @@ export default function TreatmentPlanningView({
 
 			{tp.commercial_potential && tp.commercial_potential.length > 0 && (
 				<SectionCard title="ANÁLISIS COMERCIAL" icon={TrendingUp}>
-					<Checklist
+					<FieldChecklist
 						label="Potencial Clínico-Comercial"
 						values={tp.commercial_potential}
 					/>
@@ -307,33 +255,33 @@ export default function TreatmentPlanningView({
 					<div className="grid gap-6 md:grid-cols-2">
 						{tp.quality_information &&
 							tp.quality_information.length > 0 && (
-								<Checklist
+								<FieldChecklist
 									label="Calidad de la Información"
 									values={tp.quality_information}
 								/>
 							)}
 						{tp.quality_scan && tp.quality_scan.length > 0 && (
-							<Checklist
+							<FieldChecklist
 								label="Calidad de Escaneo"
 								values={tp.quality_scan}
 							/>
 						)}
 						{tp.quality_xrays && tp.quality_xrays.length > 0 && (
-							<Checklist
+							<FieldChecklist
 								label="Calidad de Radiografías"
 								values={tp.quality_xrays}
 							/>
 						)}
 						{tp.quality_intraoral &&
 							tp.quality_intraoral.length > 0 && (
-								<Checklist
+								<FieldChecklist
 									label="Calidad de Fotos Intraorales"
 									values={tp.quality_intraoral}
 								/>
 							)}
 						{tp.quality_extraoral &&
 							tp.quality_extraoral.length > 0 && (
-								<Checklist
+								<FieldChecklist
 									label="Calidad de Fotos Extraorales"
 									values={tp.quality_extraoral}
 								/>
@@ -342,60 +290,6 @@ export default function TreatmentPlanningView({
 				</SectionCard>
 			)}
 		</div>
-	);
-}
-
-function SectionCard({
-	title,
-	icon: Icon,
-	children,
-}: {
-	title: string;
-	icon: React.ElementType;
-	children: React.ReactNode;
-}) {
-	return (
-		<Card className="gap-4 border py-4 shadow-sm">
-			<CardHeader className="px-4">
-				<CardTitle className="flex items-center gap-2.5 text-sm font-semibold">
-					<span className="rounded-md bg-brand-muted p-1.5">
-						<Icon className="h-4 w-4 text-brand" />
-					</span>
-					{/* Varios títulos van en mayúsculas: necesitan tracking
-					    positivo para no leerse apretados */}
-					<span className="tracking-wide">{title}</span>
-				</CardTitle>
-			</CardHeader>
-			<CardContent className="space-y-6 px-4">{children}</CardContent>
-		</Card>
-	);
-}
-
-function KpiTile({
-	icon: Icon,
-	label,
-	value,
-}: {
-	icon: React.ElementType;
-	label: string;
-	value: React.ReactNode;
-}) {
-	return (
-		<Card className="gap-0 border py-3 shadow-sm">
-			<div className="flex items-center gap-2.5 px-3">
-				<div className="rounded-md bg-brand-muted p-1.5">
-					<Icon className="h-4 w-4 text-brand" />
-				</div>
-				<div className="min-w-0">
-					<p className="text-[11px] tracking-wide text-muted-foreground">
-						{label}
-					</p>
-					<p className="truncate text-sm font-medium">
-						{value || "No especificado"}
-					</p>
-				</div>
-			</div>
-		</Card>
 	);
 }
 
@@ -412,36 +306,6 @@ function DataField({
 			<div className="text-sm font-medium">
 				{value || "No especificado"}
 			</div>
-		</div>
-	);
-}
-
-/** Valores de un multi-select, listados con el mismo `Check` del formulario. */
-function Checklist({ label, values }: { label: string; values: string[] }) {
-	return (
-		<div className="space-y-2">
-			<div className="flex items-baseline gap-2">
-				<h4 className="text-sm font-medium">{label}</h4>
-				{values.length > 0 && (
-					<span className="text-xs text-muted-foreground">
-						{values.length}
-					</span>
-				)}
-			</div>
-			{values.length > 0 ? (
-				<ul className="space-y-1.5">
-					{values.map((value) => (
-						<li key={value} className="flex items-start gap-2">
-							<Check className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
-							<span className="text-sm leading-relaxed">
-								{value}
-							</span>
-						</li>
-					))}
-				</ul>
-			) : (
-				<p className="text-sm text-muted-foreground">No especificado</p>
-			)}
 		</div>
 	);
 }

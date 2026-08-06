@@ -1,9 +1,9 @@
 import type { PatientsRow } from "@/types/db/patients/patients";
 import type { TreatmentPlanningRow } from "./useTreatmentPlanning";
 
-export type WorkflowStepState = "done" | "current" | "pending" | "locked";
+export type WorkflowStepState = "done" | "current" | "pending";
 
-export interface WorkflowStep {
+interface WorkflowStep {
 	id: string;
 	label: string;
 	state: WorkflowStepState;
@@ -29,20 +29,13 @@ function hasRequiredDocumentation(patient: PatientsRow): boolean {
  * Estado del caso derivado de los datos que ya existen. No hay tabla de
  * workflow: cada paso se infiere de un campo real.
  *
- * Dos límites del modelo que el stepper no puede tapar:
- * - No hay ninguna columna donde se guarde la aprobación del cliente, así que
- *   el caso nunca avanza más allá de "Pendiente de aprobación".
- * - Como consecuencia, "Entregables" queda siempre bloqueado: el informe
- *   técnico lo sube el planificador junto con la planificación, y darlo por
- *   entregado antes de una aprobación que no existe sería mentir.
+ * No hay ninguna columna donde se guarde la aprobación del cliente, así que el
+ * caso nunca avanza más allá de "Pendiente de aprobación".
  */
 export function getCaseWorkflow(
 	patient: PatientsRow,
 	planning: TreatmentPlanningRow | null,
 ): WorkflowStep[] {
-	const hasDocs = hasRequiredDocumentation(patient);
-	const hasPlanning = planning !== null;
-
 	const steps: WorkflowStep[] = [
 		{
 			id: "loaded",
@@ -53,25 +46,18 @@ export function getCaseWorkflow(
 		{
 			id: "documentation",
 			label: "Documentación",
-			state: hasDocs ? "done" : "pending",
+			state: hasRequiredDocumentation(patient) ? "done" : "pending",
 		},
 		{
 			id: "planning",
 			label: "En planificación",
-			state: hasPlanning ? "done" : "pending",
+			state: planning !== null ? "done" : "pending",
 			date: planning?.created_at,
 		},
 		{
 			id: "approval",
 			label: "Pendiente de aprobación",
-			// No existe dónde registrar la aprobación: nunca es "done".
 			state: "pending",
-		},
-		{
-			id: "deliverables",
-			label: "Entregables",
-			// Depende de una aprobación que hoy no puede ocurrir.
-			state: "locked",
 		},
 	];
 
@@ -89,8 +75,6 @@ function markCurrentStep(steps: WorkflowStep[]): WorkflowStep[] {
 	if (firstOpen === -1) return steps;
 
 	return steps.map((step, index) =>
-		index === firstOpen && step.state !== "locked"
-			? { ...step, state: "current" }
-			: step,
+		index === firstOpen ? { ...step, state: "current" } : step,
 	);
 }
