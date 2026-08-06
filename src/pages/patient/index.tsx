@@ -1,24 +1,38 @@
 import {
 	ArrowLeftIcon,
+	CalendarIcon,
 	ClipboardListIcon,
 	FileTextIcon,
+	FolderIcon,
+	HashIcon,
+	LayersIcon,
 	PlusIcon,
+	SearchXIcon,
 	Share2Icon,
+	ShieldCheckIcon,
 	UsersIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
 import SearchInput from "@/components/search-input";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatDate } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { getPatientsByeCLient } from "@/services/supabase/patients.service";
 import { useUserStore } from "@/state/stores/useUserStore";
 import type { PatientsRow } from "@/types/db/patients/patients";
 import PatientDetail from "./components/patientDetails";
 import TreatmentPlanningView from "./components/TreatmentPlanningView";
+import {
+	countPatientFiles,
+	getCaseStatusClass,
+	getCaseStatusDotClass,
+	getInitials,
+} from "./lib/patient-ui";
 
 export default function Patients() {
 	const user = useUserStore((state) => state.user);
@@ -28,6 +42,8 @@ export default function Patients() {
 		null,
 	);
 	const [activeTab, setActiveTab] = useState<"details" | "form">("details");
+	// En < md solo se ve un panel por vez: la lista o el detalle.
+	const [mobileView, setMobileView] = useState<"list" | "detail">("list");
 
 	const filteredPatients = searchQuery.trim()
 		? patients.filter((patient) => {
@@ -40,9 +56,9 @@ export default function Patients() {
 		: patients;
 
 	const handleOnClick = (patient: PatientsRow) => {
-		console.log(patient);
 		setSelectedPatient(patient);
 		setActiveTab("details");
+		setMobileView("detail");
 	};
 
 	const handleSearch = (query: string) => {
@@ -61,11 +77,9 @@ export default function Patients() {
 		}
 	}, [user]);
 
-	// Removed global overflow side effect. Use container-scoped overflow control instead.
-
 	return (
-		<div className="patients-container">
-			<div className="py-1 flex gap-2">
+		<div className="patients-container gap-3">
+			<div className="flex shrink-0 flex-wrap gap-2">
 				<Link to="/pacientes/crear">
 					<Button size="sm" className="shadow-sm">
 						<PlusIcon className="h-4 w-4" /> Crear Paciente
@@ -85,125 +99,364 @@ export default function Patients() {
 				</Button>
 			</div>
 
-			<div className="grid grid-cols-1 md:grid-cols-12 lg:gap-2">
-				<div className="col-span-3 h-[calc(100vh-4.5rem)] space-y-3">
-					<div>
-						<SearchInput
-							onSearch={handleSearch}
-							placeholder="Buscar paciente..."
-							value={searchQuery}
-						/>
-					</div>
-					<ScrollArea>
-						{filteredPatients.length > 0 ? (
-							filteredPatients.map((patient) => (
-								<button
-									key={patient.id}
-									type="button"
-									className="w-full hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex flex-col items-start gap-2 border-b p-4 text-sm leading-tight whitespace-nowrap last:border-b-0"
-									onClick={() => handleOnClick(patient)}
+			<div className="grid min-h-0 flex-1 grid-cols-1 gap-3 md:grid-cols-12">
+				{/* Panel de lista */}
+				<aside
+					className={cn(
+						"min-h-0 md:col-span-5 lg:col-span-4 xl:col-span-3",
+						mobileView === "detail" ? "hidden md:block" : "block",
+					)}
+				>
+					<Card className="flex h-full flex-col gap-0 overflow-hidden border py-0 shadow-sm">
+						<div className="shrink-0 space-y-3 border-b p-3">
+							<div className="flex items-center justify-between gap-2">
+								<h2 className="text-sm font-semibold">
+									Pacientes
+								</h2>
+								<Badge
+									variant="outline"
+									className="text-muted-foreground"
 								>
-									<div className="flex w-full items-center gap-2">
-										<span>
-											{patient.name} {patient.last_name}
-										</span>{" "}
-										<span className="ml-auto text-xs">
-											{formatDate(patient.created_at)}
-										</span>
-									</div>
-									<span className="font-medium">
-										{patient.type_of_plan}
-									</span>
-									<Badge variant="outline">
-										{patient.case_status?.join(", ") ||
-											"No hay status"}
-									</Badge>
-								</button>
-							))
-						) : searchQuery.trim() ? (
-							<div className="flex items-center justify-center p-8 text-center">
-								<div className="space-y-2">
-									<UsersIcon className="h-8 w-8 text-muted-foreground/60 mx-auto" />
-									<p className="text-sm text-muted-foreground">
-										No se encontraron pacientes que
-										coincidan con "{searchQuery}"
-									</p>
-									<p className="text-xs text-muted-foreground/70">
-										Intenta con otro nombre
-									</p>
-								</div>
+									{filteredPatients.length}
+								</Badge>
 							</div>
-						) : null}
-					</ScrollArea>
-				</div>
+							<SearchInput
+								onSearch={handleSearch}
+								placeholder="Buscar paciente..."
+								value={searchQuery}
+							/>
+						</div>
 
-				<div className="col-span-9">
-					{selectedPatient ? (
-						<div>
-							{/* Navegación de pestañas */}
-							<div className="border-b mb-4">
-								<div className="flex space-x-1">
-									<button
-										type="button"
-										onClick={() => setActiveTab("details")}
-										className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
-											activeTab === "details"
-												? "bg-background border-b-2 border-primary text-primary"
-												: "text-muted-foreground hover:text-foreground"
-										}`}
-									>
-										<FileTextIcon className="inline-block w-4 h-4 mr-2" />
-										Detalles del Paciente
-									</button>
-									{selectedPatient.planning_enabled && (
-										<button
-											type="button"
-											onClick={() => setActiveTab("form")}
-											className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
-												activeTab === "form"
-													? "bg-background border-b-2 border-primary text-primary"
-													: "text-muted-foreground hover:text-foreground"
-											}`}
-										>
-											<ClipboardListIcon className="inline-block w-4 h-4 mr-2" />
-											Planificación de Tratamiento
-										</button>
-									)}
+						<ScrollArea className="min-h-0 flex-1">
+							{filteredPatients.length > 0 ? (
+								<div className="space-y-1.5 p-2">
+									{filteredPatients.map((patient) => (
+										<PatientListItem
+											key={patient.id}
+											patient={patient}
+											isSelected={
+												selectedPatient?.id ===
+												patient.id
+											}
+											onSelect={handleOnClick}
+										/>
+									))}
 								</div>
+							) : searchQuery.trim() ? (
+								<div className="flex items-center justify-center p-8 text-center">
+									<div className="space-y-2">
+										<SearchXIcon className="mx-auto h-8 w-8 text-muted-foreground/60" />
+										<p className="text-sm text-muted-foreground">
+											No se encontraron pacientes que
+											coincidan con "{searchQuery}"
+										</p>
+										<p className="text-xs text-muted-foreground/70">
+											Intenta con otro nombre
+										</p>
+									</div>
+								</div>
+							) : (
+								<div className="flex items-center justify-center p-8 text-center">
+									<div className="space-y-2">
+										<UsersIcon className="mx-auto h-8 w-8 text-muted-foreground/60" />
+										<p className="text-sm text-muted-foreground">
+											Todavía no hay pacientes cargados
+										</p>
+									</div>
+								</div>
+							)}
+						</ScrollArea>
+					</Card>
+				</aside>
+
+				{/* Panel de detalle */}
+				<section
+					className={cn(
+						"flex min-h-0 flex-col md:col-span-7 lg:col-span-8 xl:col-span-9",
+						mobileView === "list" ? "hidden md:flex" : "flex",
+					)}
+				>
+					{selectedPatient ? (
+						<div className="flex min-h-0 flex-1 flex-col gap-3">
+							<Button
+								variant="ghost"
+								size="sm"
+								className="w-fit md:hidden"
+								onClick={() => setMobileView("list")}
+							>
+								<ArrowLeftIcon className="h-4 w-4" /> Volver
+							</Button>
+
+							<PatientHero patient={selectedPatient} />
+
+							<PatientKpis patient={selectedPatient} />
+
+							{/* Navegación de pestañas */}
+							<div className="inline-flex w-fit shrink-0 gap-1 rounded-lg bg-muted p-1">
+								<TabButton
+									isActive={activeTab === "details"}
+									onClick={() => setActiveTab("details")}
+									icon={FileTextIcon}
+									label="Detalles del Paciente"
+								/>
+								{selectedPatient.planning_enabled && (
+									<TabButton
+										isActive={activeTab === "form"}
+										onClick={() => setActiveTab("form")}
+										icon={ClipboardListIcon}
+										label="Planificación de Tratamiento"
+									/>
+								)}
 							</div>
 
 							{/* Contenido de las pestañas */}
-							{activeTab === "details" ? (
-								<div className="h-[calc(100vh-6.875rem)] overflow-auto">
+							<div className="min-h-0 flex-1 overflow-auto pb-2">
+								{activeTab === "details" ? (
 									<PatientDetail patient={selectedPatient} />
-								</div>
-							) : (
-								<div className="h-[calc(100vh-4.5rem)] overflow-auto">
+								) : (
 									<TreatmentPlanningView
 										patientId={selectedPatient.id}
 										patient={selectedPatient}
 									/>
-								</div>
-							)}
+								)}
+							</div>
 						</div>
 					) : (
-						<div className="h-full flex items-center justify-center">
+						<div className="flex h-full items-center justify-center">
 							<EmptyPatient />
 						</div>
 					)}
-				</div>
+				</section>
 			</div>
 		</div>
 	);
 }
 
+function PatientListItem({
+	patient,
+	isSelected,
+	onSelect,
+}: {
+	patient: PatientsRow;
+	isSelected: boolean;
+	onSelect: (patient: PatientsRow) => void;
+}) {
+	const statuses = patient.case_status ?? [];
+
+	return (
+		<button
+			type="button"
+			onClick={() => onSelect(patient)}
+			className={cn(
+				"w-full rounded-lg border p-3 text-left transition-colors",
+				"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring",
+				isSelected
+					? "border-brand/60 bg-brand-muted"
+					: "border-transparent hover:border-border hover:bg-accent",
+			)}
+		>
+			<div className="flex items-start gap-3">
+				<Avatar className="size-9 shrink-0">
+					<AvatarFallback
+						className={cn(
+							"text-xs font-semibold",
+							isSelected
+								? "bg-brand text-brand-foreground"
+								: "bg-muted text-muted-foreground",
+						)}
+					>
+						{getInitials(patient.name, patient.last_name)}
+					</AvatarFallback>
+				</Avatar>
+
+				<div className="min-w-0 flex-1 space-y-1.5">
+					<div className="flex items-baseline justify-between gap-2">
+						<span className="truncate text-sm font-medium">
+							{patient.name} {patient.last_name}
+						</span>
+						<span className="shrink-0 text-[11px] text-muted-foreground">
+							{formatDate(patient.created_at)}
+						</span>
+					</div>
+
+					<p className="truncate text-xs text-muted-foreground">
+						{patient.type_of_plan || "Sin plan asignado"}
+					</p>
+
+					{statuses.length > 0 && (
+						<div className="flex flex-wrap gap-1">
+							{statuses.map((status) => (
+								<CaseStatusBadge key={status} status={status} />
+							))}
+						</div>
+					)}
+				</div>
+			</div>
+		</button>
+	);
+}
+
+function CaseStatusBadge({ status }: { status: string }) {
+	return (
+		<Badge variant="outline" className={getCaseStatusClass(status)}>
+			<span
+				className={cn(
+					"size-1.5 rounded-full",
+					getCaseStatusDotClass(status),
+				)}
+			/>
+			{status}
+		</Badge>
+	);
+}
+
+function PatientHero({ patient }: { patient: PatientsRow }) {
+	const statuses = patient.case_status ?? [];
+
+	return (
+		<Card className="shrink-0 gap-0 border py-4 shadow-sm">
+			<div className="flex flex-wrap items-center gap-4 px-4">
+				<Avatar className="size-12 shrink-0">
+					<AvatarFallback className="bg-brand text-base font-semibold text-brand-foreground">
+						{getInitials(patient.name, patient.last_name)}
+					</AvatarFallback>
+				</Avatar>
+
+				<div className="min-w-0 flex-1 space-y-1.5">
+					<h1 className="truncate text-xl font-semibold">
+						{patient.name} {patient.last_name}
+					</h1>
+					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+						<span className="inline-flex items-center gap-1">
+							<HashIcon className="h-3.5 w-3.5" />
+							{patient.id}
+						</span>
+						<span className="inline-flex items-center gap-1">
+							<CalendarIcon className="h-3.5 w-3.5" />
+							{formatDate(patient.created_at)}
+						</span>
+						<span className="inline-flex items-center gap-1">
+							<LayersIcon className="h-3.5 w-3.5" />
+							{patient.type_of_plan || "Sin plan"}
+						</span>
+					</div>
+				</div>
+
+				{statuses.length > 0 && (
+					<div className="flex flex-wrap gap-1">
+						{statuses.map((status) => (
+							<CaseStatusBadge key={status} status={status} />
+						))}
+					</div>
+				)}
+			</div>
+		</Card>
+	);
+}
+
+function PatientKpis({ patient }: { patient: PatientsRow }) {
+	const statuses = patient.case_status ?? [];
+
+	return (
+		<div className="grid shrink-0 grid-cols-2 gap-3 lg:grid-cols-4">
+			<KpiTile
+				icon={LayersIcon}
+				label="Tipo de plan"
+				value={patient.type_of_plan || "No especificado"}
+			/>
+			<KpiTile
+				icon={ClipboardListIcon}
+				label="Estado del caso"
+				value={statuses.length > 0 ? statuses.join(", ") : "Sin estado"}
+			/>
+			<KpiTile
+				icon={ShieldCheckIcon}
+				label="Declaración jurada"
+				value={patient.sworn_declaration ? "Completada" : "Pendiente"}
+				valueClassName={
+					patient.sworn_declaration
+						? "text-emerald-600 dark:text-emerald-400"
+						: "text-amber-600 dark:text-amber-400"
+				}
+			/>
+			<KpiTile
+				icon={FolderIcon}
+				label="Archivos adjuntos"
+				value={String(countPatientFiles(patient))}
+			/>
+		</div>
+	);
+}
+
+function KpiTile({
+	icon: Icon,
+	label,
+	value,
+	valueClassName,
+}: {
+	icon: React.ElementType;
+	label: string;
+	value: string;
+	valueClassName?: string;
+}) {
+	return (
+		<Card className="gap-0 border py-3 shadow-sm">
+			<div className="flex items-center gap-2.5 px-3">
+				<div className="rounded-md bg-brand-muted p-1.5">
+					<Icon className="h-4 w-4 text-brand" />
+				</div>
+				<div className="min-w-0">
+					<p className="text-[11px] text-muted-foreground">{label}</p>
+					<p
+						className={cn(
+							"truncate text-sm font-medium",
+							valueClassName,
+						)}
+						title={value}
+					>
+						{value}
+					</p>
+				</div>
+			</div>
+		</Card>
+	);
+}
+
+function TabButton({
+	isActive,
+	onClick,
+	icon: Icon,
+	label,
+}: {
+	isActive: boolean;
+	onClick: () => void;
+	icon: React.ElementType;
+	label: string;
+}) {
+	return (
+		<button
+			type="button"
+			onClick={onClick}
+			className={cn(
+				"inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+				isActive
+					? "bg-background text-brand shadow-sm"
+					: "text-muted-foreground hover:text-foreground",
+			)}
+		>
+			<Icon className="h-4 w-4" />
+			{label}
+		</button>
+	);
+}
+
 function EmptyPatient() {
 	return (
-		<div className="flex items-center justify-center min-h-[600px] p-6">
-			<div className="flex flex-col items-center text-center space-y-6">
-				{/* Icono principal */}
-				<div className="p-6 bg-muted/30 rounded-2xl">
-					<UsersIcon className="h-12 w-12 text-muted-foreground/60" />
+		<div className="flex items-center justify-center p-6">
+			<div className="flex flex-col items-center space-y-6 text-center">
+				{/* Icono con halo */}
+				<div className="rounded-full bg-brand-muted p-6 ring-8 ring-brand-muted/40">
+					<UsersIcon className="h-10 w-10 text-brand" />
 				</div>
 
 				{/* Contenido principal */}
@@ -211,7 +464,7 @@ function EmptyPatient() {
 					<h3 className="text-xl font-semibold text-foreground">
 						Ningún paciente seleccionado
 					</h3>
-					<p className="text-muted-foreground text-sm leading-relaxed max-w-sm">
+					<p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
 						Selecciona un paciente de la lista para ver sus detalles
 						médicos, plan de tratamiento y archivos adjuntos.
 					</p>
