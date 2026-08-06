@@ -514,7 +514,7 @@ export default function CreatePatient() {
 						)}
 						{currentStep === 5 && (
 							<Button
-								variant="default"
+								variant="brand"
 								className="w-32"
 								onClick={validateStep5}
 								disabled={isSubmitting}

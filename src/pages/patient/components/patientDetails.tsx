@@ -1,303 +1,218 @@
 import {
 	CheckCircle,
 	ClipboardList,
-	FileText,
 	FolderOpen,
+	MessageSquareText,
+	ShieldAlert,
 	Stethoscope,
 	Target,
-	User,
 	XCircle,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+import type { PatientsRow } from "@/types/db/patients/patients";
+import { FieldChecklist, SectionCard } from "./case-ui";
 import { FileGallery } from "./FileGallery";
-
-interface Patient {
-	declared_limitations: string[];
-	dental_restrictions: string[];
-	photos: string[];
-	xrays: string[];
-	scans: string[];
-	supplementary_docs: string[] | null;
-	id: number;
-	id_client: string;
-	last_name: string;
-	name: string;
-	observations_or_instructions: string;
-	suggested_adminations_and_actions: string[];
-	sworn_declaration: boolean;
-	treatment_approach: string;
-	treatment_objective: string[];
-	type_of_plan: string;
-}
+import { ModelGallery } from "./ModelGallery";
 
 interface PatientDetailProps {
-	patient: Patient;
+	patient: PatientsRow;
 }
 
+/** Los arrays de Postgres pueden llegar como `{a,b}` en vez de array real. */
+function toArray(v: unknown): string[] {
+	if (Array.isArray(v)) return v;
+	if (typeof v === "string" && v.startsWith("{")) {
+		return v
+			.slice(1, -1)
+			.split(",")
+			.map((s) => s.trim())
+			.filter(Boolean);
+	}
+	return [];
+}
+
+/**
+ * Lectura de los datos que el cliente cargó en el formulario de creación
+ * (`pages/patient/create.tsx`). Las secciones, su orden y los labels espejan
+ * los 5 pasos de ese formulario para que sea reconocible.
+ */
 export default function PatientDetail({ patient }: PatientDetailProps) {
-	// Datos de ejemplo para la demostración
-	const samplePatient: Patient = {
-		id: 1,
-		id_client: "PAT-2024-001",
-		name: "María",
-		last_name: "González",
-		declared_limitations: [
-			"Limitaciones de movilidad en brazo derecho",
-			"Dificultad para abrir completamente la boca",
-		],
-		dental_restrictions: [
-			"Alergia a anestesia local con lidocaína",
-			"Sensibilidad extrema en molares superiores",
-		],
-		photos: [],
-		xrays: [],
-		scans: [],
-		supplementary_docs: null,
-		observations_or_instructions:
-			"Paciente requiere sedación consciente para procedimientos largos. Evitar citas muy tempranas por medicación matutina.",
-		suggested_adminations_and_actions: [
-			"Realizar profilaxis cada 3 meses",
-			"Aplicar flúor tópico",
-			"Evaluar necesidad de férula nocturna",
-		],
-		sworn_declaration: true,
-		treatment_approach:
-			"Enfoque conservador con énfasis en prevención y mantenimiento de piezas naturales",
-		treatment_objective: [
-			"Eliminar caries activas",
-			"Restaurar función masticatoria",
-			"Mantener salud periodontal óptima",
-		],
-		type_of_plan: "Plan Integral Premium",
-	};
-
-	const toArray = (v: unknown): string[] => {
-		if (Array.isArray(v)) return v;
-		if (typeof v === "string" && v.startsWith("{")) {
-			return v
-				.slice(1, -1)
-				.split(",")
-				.map((s) => s.trim())
-				.filter(Boolean);
-		}
-		return [];
-	};
-
-	const base = patient || samplePatient;
-	const displayPatient = {
-		...base,
-		declared_limitations: toArray(base.declared_limitations),
-		dental_restrictions: toArray(base.dental_restrictions),
-		treatment_objective: toArray(base.treatment_objective),
-		suggested_adminations_and_actions: toArray(
-			base.suggested_adminations_and_actions,
-		),
-		photos: toArray(base.photos),
-		xrays: toArray(base.xrays),
-		scans: toArray(base.scans),
-	};
-
 	return (
-		<div className="space-y-6 max-w-4xl mx-auto">
-			{/* Header con información básica */}
-			<Card>
-				<CardHeader className="pb-4">
-					<div className="flex items-center justify-between">
-						<div className="flex items-center space-x-3">
-							<div className="p-2 bg-primary/10 rounded-full">
-								<User className="h-6 w-6 text-primary" />
-							</div>
-							<div>
-								<CardTitle className="text-2xl font-semibold">
-									{displayPatient.name}{" "}
-									{displayPatient.last_name}
-								</CardTitle>
-								<p className="text-muted-foreground">
-									ID: {displayPatient.id}
-								</p>
-							</div>
-						</div>
-					</div>
-				</CardHeader>
-			</Card>
+		<div className="space-y-3 pb-4">
+			{/* Pasos 1 a 4: en pantallas anchas entran de a dos por fila */}
+			<div className="grid items-start gap-3 xl:grid-cols-2">
+				{/* Paso 1 del formulario */}
+				<SectionCard
+					step={1}
+					title="Datos iniciales del caso"
+					icon={ClipboardList}
+				>
+					<FieldValue
+						label="Tipo de Plan"
+						value={patient.type_of_plan}
+					/>
+					<FieldValue
+						label="Enfoque de Tratamiento"
+						value={patient.treatment_approach}
+					/>
+				</SectionCard>
 
-			<div className="grid gap-6 md:grid-cols-2">
-				{/* Información Médica */}
-				<Card>
-					<CardHeader>
-						<CardTitle className="flex items-center space-x-2">
-							<Stethoscope className="h-5 w-5 text-primary" />
-							<span>Información Médica</span>
-						</CardTitle>
-					</CardHeader>
-					<CardContent className="space-y-4">
-						<div>
-							<h4 className="font-medium text-sm text-muted-foreground mb-2">
-								Limitaciones Declaradas
-							</h4>
-							<div className="flex flex-wrap gap-1">
-								{(
-									displayPatient.declared_limitations ?? []
-								).map((v) => (
-									<Badge key={v} variant="outline">
-										{v}
-									</Badge>
-								))}
-							</div>
-						</div>
+				{/* Paso 2 del formulario */}
+				<SectionCard
+					step={2}
+					title="Objetivos del tratamiento"
+					icon={Target}
+				>
+					<FieldChecklist
+						label="Objetivo del Tratamiento"
+						values={toArray(patient.treatment_objective)}
+					/>
+				</SectionCard>
 
-						<Separator />
+				{/* Paso 3 del formulario */}
+				<SectionCard
+					step={3}
+					title="Restricciones y limitaciones"
+					icon={ShieldAlert}
+				>
+					<FieldChecklist
+						label="Restricciones Dentales"
+						values={toArray(patient.dental_restrictions)}
+					/>
+					<FieldChecklist
+						label="Limitaciones Declaradas"
+						values={toArray(patient.declared_limitations)}
+					/>
+				</SectionCard>
 
-						<div>
-							<h4 className="font-medium text-sm text-muted-foreground mb-2">
-								Restricciones Dentales
-							</h4>
-							<div className="flex flex-wrap gap-1">
-								{(displayPatient.dental_restrictions ?? []).map(
-									(v) => (
-										<Badge key={v} variant="outline">
-											{v}
-										</Badge>
-									),
-								)}
-							</div>
-						</div>
-
-						<Separator />
-
-						<div className="flex items-center justify-between">
-							<span className="font-medium text-sm">
-								Declaración Jurada
-							</span>
-							<div className="flex items-center space-x-2">
-								{displayPatient.sworn_declaration ? (
-									<>
-										<CheckCircle className="h-4 w-4 text-green-600" />
-										<Badge
-											variant="secondary"
-											className="bg-green-50 text-green-700 border-green-200"
-										>
-											Completada
-										</Badge>
-									</>
-								) : (
-									<>
-										<XCircle className="h-4 w-4 text-red-600" />
-										<Badge
-											variant="secondary"
-											className="bg-red-50 text-red-700 border-red-200"
-										>
-											Pendiente
-										</Badge>
-									</>
-								)}
-							</div>
-						</div>
-					</CardContent>
-				</Card>
-
-				{/* Plan de Tratamiento */}
-				<Card>
-					<CardHeader>
-						<CardTitle className="flex items-center space-x-2">
-							<Target className="h-5 w-5 text-primary" />
-							<span>Plan de Tratamiento</span>
-						</CardTitle>
-					</CardHeader>
-					<CardContent className="space-y-4">
-						<div>
-							<h4 className="font-medium text-sm text-muted-foreground mb-2">
-								Objetivo del Tratamiento
-							</h4>
-							<div className="flex flex-wrap gap-1">
-								{(displayPatient.treatment_objective ?? []).map(
-									(v) => (
-										<Badge key={v} variant="outline">
-											{v}
-										</Badge>
-									),
-								)}
-							</div>
-						</div>
-
-						<Separator />
-
-						<div>
-							<h4 className="font-medium text-sm text-muted-foreground mb-2">
-								Enfoque de Tratamiento
-							</h4>
-							<p className="text-sm leading-relaxed">
-								{displayPatient.treatment_approach}
-							</p>
-						</div>
-					</CardContent>
-				</Card>
+				{/* Paso 4 del formulario */}
+				<SectionCard
+					step={4}
+					title="Aditamentos e instrucciones adicionales"
+					icon={Stethoscope}
+				>
+					<FieldChecklist
+						label="Recomendaciones y Acciones Sugeridas"
+						values={toArray(
+							patient.suggested_adminations_and_actions,
+						)}
+					/>
+					<FieldText
+						label="Observaciones o Instrucciones"
+						text={patient.observations_or_instructions}
+						icon={MessageSquareText}
+					/>
+				</SectionCard>
 			</div>
 
-			{/* Observaciones y Acciones */}
-			<div className="grid gap-6 md:grid-cols-2">
-				<Card>
-					<CardHeader>
-						<CardTitle className="flex items-center space-x-2">
-							<ClipboardList className="h-5 w-5 text-primary" />
-							<span>Observaciones e Instrucciones</span>
-						</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<p className="text-sm leading-relaxed">
-							{displayPatient.observations_or_instructions}
-						</p>
-					</CardContent>
-				</Card>
-
-				<Card>
-					<CardHeader>
-						<CardTitle className="flex items-center space-x-2">
-							<FileText className="h-5 w-5 text-primary" />
-							<span>Acciones Sugeridas</span>
-						</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div className="flex flex-wrap gap-1">
-							{(
-								displayPatient.suggested_adminations_and_actions ??
-								[]
-							).map((v) => (
-								<Badge key={v} variant="outline">
-									{v}
-								</Badge>
-							))}
-						</div>
-					</CardContent>
-				</Card>
-			</div>
-
-			{/* Archivos */}
-			<Card>
-				<CardHeader>
-					<CardTitle className="flex items-center space-x-2">
-						<FolderOpen className="h-5 w-5 text-primary" />
-						<span>Archivos Adjuntos</span>
-					</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-4">
-					<FileGallery label="Fotos" paths={displayPatient.photos} />
+			{/* Paso 5 del formulario: a lo ancho, lleva las galerías */}
+			<SectionCard
+				step={5}
+				title="Documentación y declaración jurada"
+				icon={FolderOpen}
+			>
+				<div className="space-y-6">
+					<FileGallery
+						label="Fotos"
+						paths={toArray(patient.photos)}
+					/>
 					<FileGallery
 						label="Radiografías"
-						paths={displayPatient.xrays}
+						paths={toArray(patient.xrays)}
 					/>
 					<FileGallery
 						label="Escaneos"
-						paths={displayPatient.scans}
+						paths={toArray(patient.scans)}
 					/>
 					<FileGallery
 						label="Documentación Complementaria"
-						paths={displayPatient.supplementary_docs ?? []}
+						paths={toArray(patient.supplementary_docs)}
 					/>
-				</CardContent>
-			</Card>
+					{/* Vienen de stl-render, no del formulario de creación */}
+					<ModelGallery patientId={patient.id} />
+				</div>
+
+				<div className="flex items-center justify-between gap-3 rounded-md border p-4">
+					<div className="space-y-0.5">
+						<p className="text-sm font-medium">
+							Declaración Jurada
+						</p>
+						<p className="text-xs text-muted-foreground">
+							El paciente declaró que la información consignada
+							reviste carácter de declaración jurada.
+						</p>
+					</div>
+					{patient.sworn_declaration ? (
+						<Badge
+							variant="outline"
+							className="shrink-0 border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-200"
+						>
+							<CheckCircle className="size-3" />
+							Completada
+						</Badge>
+					) : (
+						<Badge
+							variant="outline"
+							className="shrink-0 border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200"
+						>
+							<XCircle className="size-3" />
+							Pendiente
+						</Badge>
+					)}
+				</div>
+			</SectionCard>
+		</div>
+	);
+}
+
+/** Campo que en el formulario es un `Select` de valor único. */
+function FieldValue({
+	label,
+	value,
+}: {
+	label: string;
+	value: string | null | undefined;
+}) {
+	return (
+		<div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b pb-2 last:border-b-0 last:pb-0">
+			<span className="text-sm text-muted-foreground">{label}</span>
+			<span
+				className={cn(
+					"text-sm font-medium",
+					!value && "font-normal text-muted-foreground",
+				)}
+			>
+				{value || "No especificado"}
+			</span>
+		</div>
+	);
+}
+
+/** Campo que en el formulario es un `Textarea`. */
+function FieldText({
+	label,
+	text,
+	icon: Icon,
+}: {
+	label: string;
+	text: string | null | undefined;
+	icon: React.ElementType;
+}) {
+	return (
+		<div className="space-y-2">
+			<h4 className="flex items-center gap-2 text-sm font-medium">
+				<Icon className="h-4 w-4 text-muted-foreground" />
+				{label}
+			</h4>
+			<p
+				className={cn(
+					"text-sm leading-relaxed whitespace-pre-line",
+					!text && "text-muted-foreground",
+				)}
+			>
+				{text || "No especificado"}
+			</p>
 		</div>
 	);
 }
