@@ -46,202 +46,89 @@ export function FileGallery({ label, paths }: FileGalleryProps) {
 			.finally(() => setLoading(false));
 	}, [paths]);
 
-	if (paths.length === 0) return null;
-
 	const selectedUrl = selected ? urls[selected] : null;
 	const selectedType = selected ? getFileType(selected) : null;
 	const selectedName = selected ? getFileName(selected) : null;
 
 	return (
-		<div>
-			<h4 className="font-medium text-sm text-muted-foreground mb-3">
-				{label}
-			</h4>
-
-			<div
-				style={{
-					display: "grid",
-					gridTemplateColumns:
-						"repeat(auto-fill, minmax(160px, 1fr))",
-					gap: "12px",
-				}}
-			>
-				{loading
-					? paths.map((path) => (
-							<Skeleton
-								key={path}
-								style={{ height: 200, borderRadius: 12 }}
-							/>
-						))
-					: paths.map((path) => {
-							const url = urls[path];
-							const type = getFileType(path);
-							const name = getFileName(path);
-
-							return (
-								<div
-									key={path}
-									role="button"
-									tabIndex={0}
-									onClick={() => setSelected(path)}
-									onKeyDown={(e) =>
-										e.key === "Enter" && setSelected(path)
-									}
-									style={{
-										display: "flex",
-										flexDirection: "column",
-										height: 200,
-										borderRadius: 12,
-										border: "1px solid hsl(var(--border))",
-										background: "hsl(var(--card))",
-										overflow: "hidden",
-										cursor: "pointer",
-										boxShadow:
-											"0 1px 3px 0 rgb(0 0 0 / 0.1)",
-										transition:
-											"box-shadow 0.15s, transform 0.15s",
-									}}
-									onMouseEnter={(e) => {
-										e.currentTarget.style.boxShadow =
-											"0 4px 12px 0 rgb(0 0 0 / 0.15)";
-										e.currentTarget.style.transform =
-											"translateY(-2px)";
-									}}
-									onMouseLeave={(e) => {
-										e.currentTarget.style.boxShadow =
-											"0 1px 3px 0 rgb(0 0 0 / 0.1)";
-										e.currentTarget.style.transform =
-											"translateY(0)";
-									}}
-								>
-									{/* Header */}
-									<div
-										style={{
-											display: "flex",
-											alignItems: "center",
-											gap: 6,
-											padding: "8px 10px",
-											borderBottom:
-												"1px solid hsl(var(--border))",
-											flexShrink: 0,
-										}}
-									>
-										{type === "pdf" ? (
-											<span
-												style={{
-													background: "#e53935",
-													color: "#fff",
-													fontSize: 9,
-													fontWeight: 700,
-													padding: "1px 4px",
-													borderRadius: 3,
-													letterSpacing: 0.5,
-													flexShrink: 0,
-												}}
-											>
-												PDF
-											</span>
-										) : type === "image" ? (
-											<ImageIcon
-												style={{
-													width: 14,
-													height: 14,
-													color: "hsl(var(--primary))",
-													flexShrink: 0,
-												}}
-											/>
-										) : (
-											<File
-												style={{
-													width: 14,
-													height: 14,
-													color: "hsl(var(--muted-foreground))",
-													flexShrink: 0,
-												}}
-											/>
-										)}
-										<span
-											style={{
-												fontSize: 11,
-												fontWeight: 500,
-												overflow: "hidden",
-												textOverflow: "ellipsis",
-												whiteSpace: "nowrap",
-												color: "hsl(var(--foreground))",
-												flex: 1,
-											}}
-										>
-											{name}
-										</span>
-									</div>
-
-									{/* Preview */}
-									<div
-										style={{
-											flex: 1,
-											overflow: "hidden",
-											position: "relative",
-											background:
-												"hsl(var(--muted) / 0.3)",
-										}}
-									>
-										{type === "image" && url ? (
-											<img
-												src={url}
-												alt={name}
-												style={{
-													width: "100%",
-													height: "100%",
-													objectFit: "cover",
-													display: "block",
-												}}
-											/>
-										) : type === "pdf" && url ? (
-											<iframe
-												src={`${url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
-												title={name}
-												style={{
-													width: "250%",
-													height: "250%",
-													transform: "scale(0.4)",
-													transformOrigin: "top left",
-													border: "none",
-													pointerEvents: "none",
-													display: "block",
-												}}
-											/>
-										) : (
-											<div
-												style={{
-													width: "100%",
-													height: "100%",
-													display: "flex",
-													flexDirection: "column",
-													alignItems: "center",
-													justifyContent: "center",
-													gap: 8,
-												}}
-											>
-												<FileText
-													style={{
-														width: 32,
-														height: 32,
-														color: "hsl(var(--muted-foreground))",
-													}}
-												/>
-											</div>
-										)}
-									</div>
-								</div>
-							);
-						})}
+		<div className="space-y-3">
+			<div className="flex items-baseline gap-2">
+				<h4 className="text-sm font-medium">{label}</h4>
+				<span className="text-xs text-muted-foreground">
+					{paths.length}
+				</span>
 			</div>
+
+			{paths.length === 0 ? (
+				<p className="text-sm text-muted-foreground">Sin archivos</p>
+			) : (
+				<div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3">
+					{loading
+						? paths.map((path) => (
+								<Skeleton
+									key={path}
+									className="h-50 rounded-xl"
+								/>
+							))
+						: paths.map((path) => {
+								const url = urls[path];
+								const type = getFileType(path);
+								const name = getFileName(path);
+
+								return (
+									<button
+										key={path}
+										type="button"
+										onClick={() => setSelected(path)}
+										className="flex h-50 flex-col overflow-hidden rounded-xl border bg-card text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+									>
+										{/* Header */}
+										<div className="flex shrink-0 items-center gap-1.5 border-b px-2.5 py-2">
+											{type === "pdf" ? (
+												<span className="shrink-0 rounded-sm bg-red-600 px-1 py-px text-[9px] font-bold tracking-wide text-white">
+													PDF
+												</span>
+											) : type === "image" ? (
+												<ImageIcon className="size-3.5 shrink-0 text-brand" />
+											) : (
+												<File className="size-3.5 shrink-0 text-muted-foreground" />
+											)}
+											<span className="flex-1 truncate text-[11px] font-medium">
+												{name}
+											</span>
+										</div>
+
+										{/* Preview */}
+										<div className="relative flex-1 overflow-hidden bg-muted/30">
+											{type === "image" && url ? (
+												<img
+													src={url}
+													alt={name}
+													className="block size-full object-cover"
+												/>
+											) : type === "pdf" && url ? (
+												<iframe
+													src={`${url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+													title={name}
+													className="pointer-events-none block h-[250%] w-[250%] origin-top-left scale-40 border-none"
+												/>
+											) : (
+												<div className="flex size-full items-center justify-center">
+													<FileText className="size-8 text-muted-foreground" />
+												</div>
+											)}
+										</div>
+									</button>
+								);
+							})}
+				</div>
+			)}
 
 			<Dialog
 				open={selected !== null}
 				onOpenChange={(open) => !open && setSelected(null)}
 			>
-				<DialogContent className="max-w-4xl w-full p-4">
+				<DialogContent className="w-full max-w-4xl p-4">
 					<DialogHeader>
 						<DialogTitle className="flex items-center justify-between pr-8">
 							<span className="truncate text-sm font-medium">
@@ -252,7 +139,7 @@ export function FileGallery({ label, paths }: FileGalleryProps) {
 									href={selectedUrl}
 									target="_blank"
 									rel="noopener noreferrer"
-									className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground shrink-0 ml-2"
+									className="ml-2 inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
 								>
 									<ExternalLink className="h-3.5 w-3.5" />
 									Abrir
@@ -266,17 +153,16 @@ export function FileGallery({ label, paths }: FileGalleryProps) {
 							<img
 								src={selectedUrl}
 								alt={selectedName ?? ""}
-								className="w-full max-h-[75vh] object-contain rounded-md"
+								className="max-h-[75vh] w-full rounded-md object-contain"
 							/>
 						)}
 						{selectedType === "pdf" && selectedUrl && (
 							<object
 								data={selectedUrl}
 								type="application/pdf"
-								className="w-full rounded-md"
-								style={{ height: "75vh" }}
+								className="h-[75vh] w-full rounded-md"
 							>
-								<div className="flex flex-col items-center justify-center h-48 gap-3 text-muted-foreground">
+								<div className="flex h-48 flex-col items-center justify-center gap-3 text-muted-foreground">
 									<FileText className="h-10 w-10" />
 									<p className="text-sm">
 										No se puede previsualizar el PDF.{" "}
@@ -293,7 +179,7 @@ export function FileGallery({ label, paths }: FileGalleryProps) {
 							</object>
 						)}
 						{selectedType === "other" && selectedUrl && (
-							<div className="flex flex-col items-center justify-center h-48 gap-3 text-muted-foreground">
+							<div className="flex h-48 flex-col items-center justify-center gap-3 text-muted-foreground">
 								<File className="h-10 w-10" />
 								<a
 									href={selectedUrl}

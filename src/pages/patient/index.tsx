@@ -10,6 +10,7 @@ import {
 	SearchXIcon,
 	Share2Icon,
 	ShieldCheckIcon,
+	TargetIcon,
 	UsersIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -354,24 +355,23 @@ function PatientHero({ patient }: { patient: PatientsRow }) {
 	);
 }
 
+/** Los cuatro KPIs son campos del formulario de creación del paciente. */
 function PatientKpis({ patient }: { patient: PatientsRow }) {
-	const statuses = patient.case_status ?? [];
-
 	return (
 		<div className="grid shrink-0 grid-cols-2 gap-3 lg:grid-cols-4">
 			<KpiTile
 				icon={LayersIcon}
-				label="Tipo de plan"
+				label="Tipo de Plan"
 				value={patient.type_of_plan || "No especificado"}
 			/>
 			<KpiTile
-				icon={ClipboardListIcon}
-				label="Estado del caso"
-				value={statuses.length > 0 ? statuses.join(", ") : "Sin estado"}
+				icon={TargetIcon}
+				label="Enfoque de Tratamiento"
+				value={patient.treatment_approach || "No especificado"}
 			/>
 			<KpiTile
 				icon={ShieldCheckIcon}
-				label="Declaración jurada"
+				label="Declaración Jurada"
 				value={patient.sworn_declaration ? "Completada" : "Pendiente"}
 				valueClassName={
 					patient.sworn_declaration
