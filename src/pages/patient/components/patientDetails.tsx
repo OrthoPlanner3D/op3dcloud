@@ -181,7 +181,9 @@ function SectionCard({
 					<span className="rounded-md bg-brand-muted p-1.5">
 						<Icon className="h-4 w-4 text-brand" />
 					</span>
-					<span className="text-muted-foreground">{step} ·</span>
+					<span className="text-muted-foreground tabular-nums">
+						{step} ·
+					</span>
 					{title}
 				</CardTitle>
 			</CardHeader>

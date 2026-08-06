@@ -80,7 +80,7 @@ export function FileGallery({ label, paths }: FileGalleryProps) {
 										key={path}
 										type="button"
 										onClick={() => setSelected(path)}
-										className="flex h-50 flex-col overflow-hidden rounded-xl border bg-card text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+										className="flex h-50 flex-col overflow-hidden rounded-xl border bg-card text-left shadow-sm transition duration-150 ease-out hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:scale-[0.98]"
 									>
 										{/* Header */}
 										<div className="flex shrink-0 items-center gap-1.5 border-b px-2.5 py-2">

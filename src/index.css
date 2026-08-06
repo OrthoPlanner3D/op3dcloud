@@ -131,3 +131,26 @@
 		@apply bg-background text-foreground;
 	}
 }
+
+/* Reduced motion: se conserva el feedback (color, opacidad, estado final),
+   se elimina el desplazamiento en el tiempo, que es lo vestibular.
+   No se tocan los `transform`: hay layout que depende de ellos (Dialog). */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+/* Reduced transparency: las superficies translúcidas pasan a sólidas. */
+/* biome-ignore lint/correctness/noUnknownMediaFeatureName: prefers-reduced-transparency es Media Queries Level 5; la lista de Biome está desactualizada */
+@media (prefers-reduced-transparency: reduce) {
+	.translucent-bar {
+		background-color: var(--background);
+		backdrop-filter: none;
+	}
+}

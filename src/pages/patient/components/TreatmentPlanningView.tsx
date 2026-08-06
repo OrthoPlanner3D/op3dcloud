@@ -168,7 +168,7 @@ export default function TreatmentPlanningView({
 			{/* Header */}
 			<div className="flex flex-wrap items-start justify-between gap-3">
 				<div>
-					<h1 className="text-xl font-semibold">
+					<h1 className="text-xl leading-tight font-semibold tracking-tight">
 						Planificación de Tratamiento
 					</h1>
 					<p className="text-sm text-muted-foreground">
@@ -426,7 +426,9 @@ function SectionCard({
 					<span className="rounded-md bg-brand-muted p-1.5">
 						<Icon className="h-4 w-4 text-brand" />
 					</span>
-					{title}
+					{/* Varios títulos van en mayúsculas: necesitan tracking
+					    positivo para no leerse apretados */}
+					<span className="tracking-wide">{title}</span>
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="space-y-6 px-4">{children}</CardContent>
@@ -450,7 +452,9 @@ function KpiTile({
 					<Icon className="h-4 w-4 text-brand" />
 				</div>
 				<div className="min-w-0">
-					<p className="text-[11px] text-muted-foreground">{label}</p>
+					<p className="text-[11px] tracking-wide text-muted-foreground">
+						{label}
+					</p>
 					<p className="truncate text-sm font-medium">
 						{value || "No especificado"}
 					</p>

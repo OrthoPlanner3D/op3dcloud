@@ -179,7 +179,8 @@ export default function Patients() {
 				>
 					{selectedPatient ? (
 						<div className="flex flex-col gap-3">
-							<div className="sticky top-0 z-10 -mx-1 bg-background px-1 py-1 md:hidden">
+							{/* Barra flotante: el contenido scrollea por debajo */}
+							<div className="translucent-bar sticky top-0 z-10 -mx-1 bg-background/75 px-1 py-1 backdrop-blur-md md:hidden">
 								<Button
 									variant="ghost"
 									size="sm"
@@ -192,33 +193,28 @@ export default function Patients() {
 
 							<PatientHero patient={selectedPatient} />
 
-							{/* Navegación de pestañas */}
-							<div className="inline-flex w-fit gap-1 rounded-lg bg-muted p-1">
-								<TabButton
-									isActive={activeTab === "details"}
-									onClick={() => setActiveTab("details")}
-									icon={FileTextIcon}
-									label="Detalles del Paciente"
-								/>
-								{selectedPatient.planning_enabled && (
-									<TabButton
-										isActive={activeTab === "form"}
-										onClick={() => setActiveTab("form")}
-										icon={ClipboardListIcon}
-										label="Planificación de Tratamiento"
+							<TabNav
+								activeTab={activeTab}
+								onChange={setActiveTab}
+								showPlanning={selectedPatient.planning_enabled}
+							/>
+
+							{/* Contenido de las pestañas. El `key` remonta al
+							    cambiar de paciente o pestaña, así el contenido
+							    entra en vez de aparecer de golpe. */}
+							<div
+								key={`${selectedPatient.id}-${activeTab}`}
+								className="animate-in fade-in slide-in-from-bottom-1 duration-200 ease-out"
+							>
+								{activeTab === "details" ? (
+									<PatientDetail patient={selectedPatient} />
+								) : (
+									<TreatmentPlanningView
+										patientId={selectedPatient.id}
+										patient={selectedPatient}
 									/>
 								)}
 							</div>
-
-							{/* Contenido de las pestañas */}
-							{activeTab === "details" ? (
-								<PatientDetail patient={selectedPatient} />
-							) : (
-								<TreatmentPlanningView
-									patientId={selectedPatient.id}
-									patient={selectedPatient}
-								/>
-							)}
 						</div>
 					) : (
 						<div className="flex min-h-[60vh] items-center justify-center">
@@ -247,7 +243,9 @@ function PatientListItem({
 			type="button"
 			onClick={() => onSelect(patient)}
 			className={cn(
-				"w-full rounded-lg border p-3 text-left transition-colors",
+				"w-full rounded-lg border p-3 text-left",
+				// El feedback ocurre en el pointer-down, no al soltar.
+				"transition-[background-color,border-color,transform] duration-150 ease-out active:scale-[0.99]",
 				"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring",
 				isSelected
 					? "border-brand/60 bg-brand-muted"
@@ -316,8 +314,9 @@ function CaseStatusBadge({ status }: { status: string }) {
 function PatientHero({ patient }: { patient: PatientsRow }) {
 	const statuses = patient.case_status ?? [];
 
+	// Superficie mayor que las cards de sección → sombra un punto más profunda
 	return (
-		<Card className="gap-3 border py-4 shadow-sm">
+		<Card className="gap-3 border py-4 shadow-md">
 			<div className="flex flex-wrap items-center gap-4 px-4">
 				<Avatar className="size-12 shrink-0">
 					<AvatarFallback className="bg-brand text-base font-semibold text-brand-foreground">
@@ -326,7 +325,9 @@ function PatientHero({ patient }: { patient: PatientsRow }) {
 				</Avatar>
 
 				<div className="min-w-0 flex-1 space-y-1.5">
-					<h1 className="truncate text-xl font-semibold">
+					{/* Tracking negativo: a mayor tamaño, las letras se leen
+					    demasiado separadas */}
+					<h1 className="truncate text-xl leading-tight font-semibold tracking-tight">
 						{patient.name} {patient.last_name}
 					</h1>
 					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
@@ -399,7 +400,10 @@ function HeroStat({
 				<Icon className="h-4 w-4 text-brand" />
 			</div>
 			<div className="min-w-0">
-				<p className="text-[11px] text-muted-foreground">{label}</p>
+				{/* Texto chico: tracking levemente positivo para legibilidad */}
+				<p className="text-[11px] tracking-wide text-muted-foreground">
+					{label}
+				</p>
 				<p
 					className={cn(
 						"truncate text-sm font-medium",
@@ -414,31 +418,74 @@ function HeroStat({
 	);
 }
 
-function TabButton({
-	isActive,
-	onClick,
-	icon: Icon,
-	label,
+/**
+ * Segmented control. El indicador se desplaza entre pestañas en vez de
+ * saltar: el movimiento intermedio le dice al ojo hacia dónde va el foco.
+ */
+function TabNav({
+	activeTab,
+	onChange,
+	showPlanning,
 }: {
-	isActive: boolean;
-	onClick: () => void;
-	icon: React.ElementType;
-	label: string;
+	activeTab: "details" | "form";
+	onChange: (tab: "details" | "form") => void;
+	showPlanning: boolean;
 }) {
+	const tabs = [
+		{
+			id: "details" as const,
+			icon: FileTextIcon,
+			label: "Detalles del Paciente",
+		},
+		...(showPlanning
+			? [
+					{
+						id: "form" as const,
+						icon: ClipboardListIcon,
+						label: "Planificación de Tratamiento",
+					},
+				]
+			: []),
+	];
+
 	return (
-		<button
-			type="button"
-			onClick={onClick}
+		<div
 			className={cn(
-				"inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
-				isActive
-					? "bg-background text-brand shadow-sm"
-					: "text-muted-foreground hover:text-foreground",
+				"relative grid w-fit gap-1 rounded-lg bg-muted p-1",
+				tabs.length > 1 ? "grid-cols-2" : "grid-cols-1",
 			)}
 		>
-			<Icon className="h-4 w-4" />
-			{label}
-		</button>
+			{/* Píldora deslizante */}
+			<span
+				aria-hidden="true"
+				className={cn(
+					"pointer-events-none absolute inset-y-1 left-1 rounded-md bg-background shadow-sm",
+					"transition-transform duration-200 ease-out",
+					tabs.length > 1
+						? "w-[calc(50%-0.375rem)]"
+						: "w-[calc(100%-0.5rem)]",
+					activeTab === "form" && "translate-x-[calc(100%+0.25rem)]",
+				)}
+			/>
+
+			{tabs.map((tab) => (
+				<button
+					key={tab.id}
+					type="button"
+					onClick={() => onChange(tab.id)}
+					className={cn(
+						"relative z-10 inline-flex items-center justify-center gap-2 rounded-md px-3 py-1.5",
+						"text-sm font-medium transition-colors duration-150 ease-out active:scale-[0.98]",
+						activeTab === tab.id
+							? "text-brand"
+							: "text-muted-foreground hover:text-foreground",
+					)}
+				>
+					<tab.icon className="h-4 w-4" />
+					{tab.label}
+				</button>
+			))}
+		</div>
 	);
 }
 
