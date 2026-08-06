@@ -234,13 +234,21 @@ function CaseWorkflow({
 				))}
 			</ol>
 
-			<p className="rounded-md border border-dashed p-3 text-xs text-muted-foreground">
-				El estado se deriva de la documentación cargada y de la
-				planificación disponible. La aprobación del caso todavía no se
-				registra en el sistema, así que el workflow no avanza más allá
-				de
-				<span className="font-medium"> Pendiente de aprobación</span>.
-			</p>
+			<div className="space-y-1.5 rounded-md border border-dashed p-3 text-xs text-muted-foreground">
+				<p>
+					<span className="font-medium">Documentación</span> se
+					completa con fotos, radiografías y escaneos cargados más la
+					declaración jurada.{" "}
+					<span className="font-medium">En planificación</span>,
+					cuando el planificador guarda el formulario del caso.
+				</p>
+				<p>
+					La aprobación del caso todavía no se registra en el sistema:
+					el workflow no avanza más allá de{" "}
+					<span className="font-medium">Pendiente de aprobación</span>{" "}
+					y los entregables quedan bloqueados.
+				</p>
+			</div>
 		</SectionCard>
 	);
 }

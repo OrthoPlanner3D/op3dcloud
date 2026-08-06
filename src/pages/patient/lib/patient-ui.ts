@@ -45,18 +45,3 @@ const CASE_STATUS_DOT_CLASSES: Record<string, string> = {
 export function getCaseStatusDotClass(status: string): string {
 	return CASE_STATUS_DOT_CLASSES[status] ?? "bg-muted-foreground";
 }
-
-/** Cantidad total de archivos adjuntos del paciente. */
-export function countPatientFiles(patient: {
-	photos?: string[] | null;
-	xrays?: string[] | null;
-	scans?: string[] | null;
-	supplementary_docs?: string[] | null;
-}): number {
-	return (
-		(patient.photos?.length ?? 0) +
-		(patient.xrays?.length ?? 0) +
-		(patient.scans?.length ?? 0) +
-		(patient.supplementary_docs?.length ?? 0)
-	);
-}
