@@ -1,19 +1,13 @@
-import type { DocumentProps } from "@react-pdf/renderer";
-import { usePDF } from "@react-pdf/renderer";
 import {
 	Activity,
 	ArrowDownToLine,
 	ArrowUpToLine,
 	Boxes,
 	Check,
-	CheckCircle,
-	Download,
 	Factory,
 	Gauge,
-	Link2,
 	LinkIcon,
 	MessageSquareText,
-	PenLine,
 	ShieldAlert,
 	Sparkles,
 	Stethoscope,
@@ -22,10 +16,8 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { TreatmentPlanningDocument } from "@/pages/formPlanificadorPdf";
 import { getTreatmentFilePublicUrl } from "@/services/supabase/storage.service";
 import { getTreatmentPlanningByPatientId } from "@/services/supabase/treatment-planning.service";
 import type { Tables } from "@/types/db/database.types";
@@ -34,82 +26,63 @@ type TreatmentPlanningRow = Tables<
 	{ schema: "op3dcloud" },
 	"treatment_planning"
 >;
-type PatientRow = Tables<{ schema: "op3dcloud" }, "patients">;
-
 interface TreatmentPlanningViewProps {
 	patientId: number;
-	patient?: PatientRow;
 	isPublic?: boolean;
-}
-
-function PDFDownloadButton({
-	doc,
-	fileName,
-}: {
-	doc: React.ReactElement<DocumentProps>;
-	fileName: string;
-}) {
-	const [instance] = usePDF({ document: doc });
-
-	const handleDownload = () => {
-		if (!instance.url) return;
-		const a = window.document.createElement("a");
-		a.href = instance.url;
-		a.download = fileName;
-		a.click();
-	};
-
-	return (
-		<Button
-			variant="outline"
-			size="sm"
-			disabled={instance.loading || !!instance.error}
-			onClick={handleDownload}
-		>
-			<Download className="h-4 w-4" />
-			{instance.loading ? "Generando..." : "Descargar PDF"}
-		</Button>
-	);
+	/**
+	 * Planificación ya cargada por el contenedor. Si no llega, el componente
+	 * fetchea solo — que es lo que hace la ruta pública `/planificacion/:id`.
+	 */
+	treatmentPlanning?: TreatmentPlanningRow | null;
+	isLoadingPlanning?: boolean;
 }
 
 export default function TreatmentPlanningView({
 	patientId,
-	patient,
 	isPublic = false,
+	treatmentPlanning: providedPlanning,
+	isLoadingPlanning,
 }: TreatmentPlanningViewProps) {
-	const [treatmentPlanning, setTreatmentPlanning] =
+	// Si el contenedor no provee los datos, el componente se los busca.
+	const isSelfFetching = providedPlanning === undefined;
+
+	const [fetchedPlanning, setFetchedPlanning] =
 		useState<TreatmentPlanningRow | null>(null);
-	const [isLoading, setIsLoading] = useState(true);
-
-	const handleCopyLink = () => {
-		const url = `${window.location.origin}/planificacion/${patientId}`;
-		navigator.clipboard.writeText(url);
-		toast.success("Link copiado al portapapeles");
-	};
-
-	const handleApprove = () => {
-		console.log("Aprobar planificación", { patientId, patient });
-	};
-
-	const handleRequestModification = () => {
-		console.log("Solicitar modificación", { patientId, patient });
-	};
+	const [isSelfLoading, setIsSelfLoading] = useState(isSelfFetching);
 
 	useEffect(() => {
+		if (!isSelfFetching) return;
+
+		let cancelled = false;
 		const fetch = async () => {
 			try {
-				setIsLoading(true);
+				setIsSelfLoading(true);
 				const data = await getTreatmentPlanningByPatientId(patientId);
-				setTreatmentPlanning(data);
+				if (!cancelled) setFetchedPlanning(data);
 			} catch (error) {
 				console.error("Error fetching treatment planning:", error);
-				toast.error("Error al cargar la planificación de tratamiento");
+				if (!cancelled) {
+					toast.error(
+						"Error al cargar la planificación de tratamiento",
+					);
+				}
 			} finally {
-				setIsLoading(false);
+				if (!cancelled) setIsSelfLoading(false);
 			}
 		};
 		fetch();
-	}, [patientId]);
+
+		return () => {
+			cancelled = true;
+		};
+	}, [patientId, isSelfFetching]);
+
+	const treatmentPlanning = isSelfFetching
+		? fetchedPlanning
+		: providedPlanning;
+	const isLoading = isSelfFetching
+		? isSelfLoading
+		: Boolean(isLoadingPlanning);
 
 	if (isLoading) {
 		return (
@@ -165,8 +138,9 @@ export default function TreatmentPlanningView({
 				isPublic && "mx-auto max-w-5xl p-6",
 			)}
 		>
-			{/* Header */}
-			<div className="flex flex-wrap items-start justify-between gap-3">
+			{/* Header. Las acciones del caso viven en la toolbar de la página;
+			    acá solo quedan en la vista pública, que no tiene esa toolbar. */}
+			{isPublic && (
 				<div>
 					<h1 className="text-xl leading-tight font-semibold tracking-tight">
 						Planificación de Tratamiento
@@ -176,46 +150,7 @@ export default function TreatmentPlanningView({
 						ortodóntico
 					</p>
 				</div>
-				{!isPublic && (
-					<div className="flex flex-wrap gap-2">
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={handleCopyLink}
-						>
-							<Link2 className="h-4 w-4" />
-							Copiar link
-						</Button>
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={handleRequestModification}
-						>
-							<PenLine className="h-4 w-4" />
-							Solicitar modificación
-						</Button>
-						{patient && (
-							<PDFDownloadButton
-								doc={
-									<TreatmentPlanningDocument
-										treatmentPlanning={treatmentPlanning}
-										patient={patient}
-									/>
-								}
-								fileName={`planificacion-${patient.name}-${patient.last_name}.pdf`}
-							/>
-						)}
-						<Button
-							variant="brand"
-							size="sm"
-							onClick={handleApprove}
-						>
-							<CheckCircle className="h-4 w-4" />
-							Aprobar planificación
-						</Button>
-					</div>
-				)}
-			</div>
+			)}
 
 			{/* KPIs clínicos */}
 			<div className="grid grid-cols-2 gap-3 lg:grid-cols-4">

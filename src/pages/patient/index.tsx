@@ -1,16 +1,16 @@
 import {
 	ArrowLeftIcon,
 	CalendarIcon,
+	ChevronRightIcon,
 	ClipboardListIcon,
 	FileTextIcon,
-	FolderIcon,
 	HashIcon,
 	LayersIcon,
+	LayoutGridIcon,
 	PlusIcon,
 	SearchXIcon,
 	Share2Icon,
 	ShieldCheckIcon,
-	TargetIcon,
 	UsersIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -19,6 +19,14 @@ import { toast } from "sonner";
 import SearchInput from "@/components/search-input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import {
+	Breadcrumb,
+	BreadcrumbItem,
+	BreadcrumbLink,
+	BreadcrumbList,
+	BreadcrumbPage,
+	BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -26,14 +34,17 @@ import { cn, formatDate } from "@/lib/utils";
 import { getPatientsByeCLient } from "@/services/supabase/patients.service";
 import { useUserStore } from "@/state/stores/useUserStore";
 import type { PatientsRow } from "@/types/db/patients/patients";
+import CaseSummary, { CaseToolbar } from "./components/CaseSummary";
 import PatientDetail from "./components/patientDetails";
 import TreatmentPlanningView from "./components/TreatmentPlanningView";
 import {
-	countPatientFiles,
 	getCaseStatusClass,
 	getCaseStatusDotClass,
 	getInitials,
 } from "./lib/patient-ui";
+import { useTreatmentPlanning } from "./lib/useTreatmentPlanning";
+
+type CaseTab = "summary" | "details" | "planning";
 
 export default function Patients() {
 	const user = useUserStore((state) => state.user);
@@ -42,9 +53,29 @@ export default function Patients() {
 	const [selectedPatient, setSelectedPatient] = useState<PatientsRow | null>(
 		null,
 	);
-	const [activeTab, setActiveTab] = useState<"details" | "form">("details");
+	const [activeTab, setActiveTab] = useState<CaseTab>("summary");
 	// En < md solo se ve un panel por vez: la lista o el detalle.
 	const [mobileView, setMobileView] = useState<"list" | "detail">("list");
+
+	// La planificación se carga acá porque la necesitan el resumen del caso,
+	// la toolbar (PDF) y la pestaña de planificación.
+	const { data: planning, isLoading: isLoadingPlanning } =
+		useTreatmentPlanning(selectedPatient?.id ?? null);
+
+	const handleCopyLink = () => {
+		if (!selectedPatient) return;
+		const url = `${window.location.origin}/planificacion/${selectedPatient.id}`;
+		navigator.clipboard.writeText(url);
+		toast.success("Link de planificación copiado");
+	};
+
+	const handleApprove = () => {
+		toast.info("La aprobación del caso todavía no está implementada");
+	};
+
+	const handleRequestModification = () => {
+		toast.info("La solicitud de modificación todavía no está implementada");
+	};
 
 	const filteredPatients = searchQuery.trim()
 		? patients.filter((patient) => {
@@ -58,7 +89,7 @@ export default function Patients() {
 
 	const handleOnClick = (patient: PatientsRow) => {
 		setSelectedPatient(patient);
-		setActiveTab("details");
+		setActiveTab("summary");
 		setMobileView("detail");
 	};
 
@@ -191,7 +222,41 @@ export default function Patients() {
 								</Button>
 							</div>
 
+							<Breadcrumb>
+								<BreadcrumbList>
+									<BreadcrumbItem>
+										<BreadcrumbLink asChild>
+											<Link to="/pacientes">
+												Pacientes
+											</Link>
+										</BreadcrumbLink>
+									</BreadcrumbItem>
+									<BreadcrumbSeparator />
+									<BreadcrumbItem>
+										<BreadcrumbPage>
+											{selectedPatient.name}{" "}
+											{selectedPatient.last_name}
+										</BreadcrumbPage>
+									</BreadcrumbItem>
+								</BreadcrumbList>
+							</Breadcrumb>
+
 							<PatientHero patient={selectedPatient} />
+
+							<CaseToolbar
+								patient={selectedPatient}
+								planning={planning}
+								showViewPlanning={
+									selectedPatient.planning_enabled &&
+									activeTab !== "planning"
+								}
+								onViewPlanning={() => setActiveTab("planning")}
+								onCopyLink={handleCopyLink}
+								onRequestModification={
+									handleRequestModification
+								}
+								onApprove={handleApprove}
+							/>
 
 							<TabNav
 								activeTab={activeTab}
@@ -206,12 +271,21 @@ export default function Patients() {
 								key={`${selectedPatient.id}-${activeTab}`}
 								className="animate-in fade-in slide-in-from-bottom-1 duration-200 ease-out"
 							>
-								{activeTab === "details" ? (
+								{activeTab === "summary" && (
+									<CaseSummary
+										patient={selectedPatient}
+										planning={planning}
+										isLoading={isLoadingPlanning}
+									/>
+								)}
+								{activeTab === "details" && (
 									<PatientDetail patient={selectedPatient} />
-								) : (
+								)}
+								{activeTab === "planning" && (
 									<TreatmentPlanningView
 										patientId={selectedPatient.id}
-										patient={selectedPatient}
+										treatmentPlanning={planning}
+										isLoadingPlanning={isLoadingPlanning}
 									/>
 								)}
 							</div>
@@ -288,6 +362,13 @@ function PatientListItem({
 						</div>
 					)}
 				</div>
+
+				<ChevronRightIcon
+					className={cn(
+						"mt-1 size-4 shrink-0",
+						isSelected ? "text-brand" : "text-muted-foreground/50",
+					)}
+				/>
 			</div>
 		</button>
 	);
@@ -295,7 +376,10 @@ function PatientListItem({
 
 function CaseStatusBadge({ status }: { status: string }) {
 	return (
-		<Badge variant="outline" className={getCaseStatusClass(status)}>
+		<Badge
+			variant="outline"
+			className={cn("rounded-full", getCaseStatusClass(status))}
+		>
 			<span
 				className={cn(
 					"size-1.5 rounded-full",
@@ -316,7 +400,7 @@ function PatientHero({ patient }: { patient: PatientsRow }) {
 
 	// Superficie mayor que las cards de sección → sombra un punto más profunda
 	return (
-		<Card className="gap-3 border py-4 shadow-md">
+		<Card className="gap-4 border py-4 shadow-md">
 			<div className="flex flex-wrap items-center gap-4 px-4">
 				<Avatar className="size-12 shrink-0">
 					<AvatarFallback className="bg-brand text-base font-semibold text-brand-foreground">
@@ -324,26 +408,15 @@ function PatientHero({ patient }: { patient: PatientsRow }) {
 					</AvatarFallback>
 				</Avatar>
 
-				<div className="min-w-0 flex-1 space-y-1.5">
+				<div className="min-w-0 flex-1">
 					{/* Tracking negativo: a mayor tamaño, las letras se leen
 					    demasiado separadas */}
-					<h1 className="truncate text-xl leading-tight font-semibold tracking-tight">
+					<h1 className="truncate text-2xl leading-tight font-semibold tracking-tight">
 						{patient.name} {patient.last_name}
 					</h1>
-					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-						<span className="inline-flex items-center gap-1">
-							<HashIcon className="h-3.5 w-3.5" />
-							{patient.id}
-						</span>
-						<span className="inline-flex items-center gap-1">
-							<CalendarIcon className="h-3.5 w-3.5" />
-							{formatDate(patient.created_at)}
-						</span>
-						<span className="inline-flex items-center gap-1">
-							<LayersIcon className="h-3.5 w-3.5" />
-							{patient.type_of_plan || "Sin plan"}
-						</span>
-					</div>
+					<p className="text-sm text-muted-foreground">
+						Gestión del caso
+					</p>
 				</div>
 
 				{statuses.length > 0 && (
@@ -355,11 +428,22 @@ function PatientHero({ patient }: { patient: PatientsRow }) {
 				)}
 			</div>
 
-			<div className="grid gap-x-6 gap-y-3 border-t px-4 pt-3 sm:grid-cols-3">
+			{/* Metadatos: ícono tintado, label chico arriba, valor abajo */}
+			<div className="grid gap-x-6 gap-y-4 border-t px-4 pt-4 sm:grid-cols-2 lg:grid-cols-4">
 				<HeroStat
-					icon={TargetIcon}
-					label="Enfoque de Tratamiento"
-					value={patient.treatment_approach || "No especificado"}
+					icon={HashIcon}
+					label="ID Paciente"
+					value={`#${patient.id}`}
+				/>
+				<HeroStat
+					icon={CalendarIcon}
+					label="Fecha de alta"
+					value={formatDate(patient.created_at)}
+				/>
+				<HeroStat
+					icon={LayersIcon}
+					label="Tipo de Plan"
+					value={patient.type_of_plan || "No especificado"}
 				/>
 				<HeroStat
 					icon={ShieldCheckIcon}
@@ -372,11 +456,6 @@ function PatientHero({ patient }: { patient: PatientsRow }) {
 							? "text-emerald-600 dark:text-emerald-400"
 							: "text-amber-600 dark:text-amber-400"
 					}
-				/>
-				<HeroStat
-					icon={FolderIcon}
-					label="Archivos adjuntos"
-					value={String(countPatientFiles(patient))}
 				/>
 			</div>
 		</Card>
@@ -419,7 +498,7 @@ function HeroStat({
 }
 
 /**
- * Segmented control. El indicador se desplaza entre pestañas en vez de
+ * Pestañas con subrayado. El indicador se desplaza entre pestañas en vez de
  * saltar: el movimiento intermedio le dice al ojo hacia dónde va el foco.
  */
 function TabNav({
@@ -427,55 +506,48 @@ function TabNav({
 	onChange,
 	showPlanning,
 }: {
-	activeTab: "details" | "form";
-	onChange: (tab: "details" | "form") => void;
+	activeTab: CaseTab;
+	onChange: (tab: CaseTab) => void;
 	showPlanning: boolean;
 }) {
 	const tabs = [
+		{ id: "summary" as const, icon: LayoutGridIcon, label: "Resumen" },
 		{
 			id: "details" as const,
 			icon: FileTextIcon,
-			label: "Detalles del Paciente",
+			label: "Datos del paciente",
 		},
 		...(showPlanning
 			? [
 					{
-						id: "form" as const,
+						id: "planning" as const,
 						icon: ClipboardListIcon,
-						label: "Planificación de Tratamiento",
+						label: "Planificación",
 					},
 				]
 			: []),
 	];
 
+	const activeIndex = Math.max(
+		tabs.findIndex((tab) => tab.id === activeTab),
+		0,
+	);
+
 	return (
 		<div
-			className={cn(
-				"relative grid w-fit gap-1 rounded-lg bg-muted p-1",
-				tabs.length > 1 ? "grid-cols-2" : "grid-cols-1",
-			)}
+			className="relative grid w-fit border-b"
+			style={{
+				gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))`,
+			}}
 		>
-			{/* Píldora deslizante */}
-			<span
-				aria-hidden="true"
-				className={cn(
-					"pointer-events-none absolute inset-y-1 left-1 rounded-md bg-background shadow-sm",
-					"transition-transform duration-200 ease-out",
-					tabs.length > 1
-						? "w-[calc(50%-0.375rem)]"
-						: "w-[calc(100%-0.5rem)]",
-					activeTab === "form" && "translate-x-[calc(100%+0.25rem)]",
-				)}
-			/>
-
 			{tabs.map((tab) => (
 				<button
 					key={tab.id}
 					type="button"
 					onClick={() => onChange(tab.id)}
 					className={cn(
-						"relative z-10 inline-flex items-center justify-center gap-2 rounded-md px-3 py-1.5",
-						"text-sm font-medium transition-colors duration-150 ease-out active:scale-[0.98]",
+						"inline-flex items-center justify-center gap-2 px-4 pb-2.5",
+						"text-sm font-medium transition-colors duration-150 ease-out",
 						activeTab === tab.id
 							? "text-brand"
 							: "text-muted-foreground hover:text-foreground",
@@ -485,6 +557,16 @@ function TabNav({
 					{tab.label}
 				</button>
 			))}
+
+			{/* Subrayado deslizante */}
+			<span
+				aria-hidden="true"
+				className="pointer-events-none absolute bottom-0 left-0 h-0.5 rounded-full bg-brand transition-transform duration-200 ease-out"
+				style={{
+					width: `${100 / tabs.length}%`,
+					transform: `translateX(${activeIndex * 100}%)`,
+				}}
+			/>
 		</div>
 	);
 }
